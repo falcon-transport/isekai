@@ -1,0 +1,62 @@
+--- src/nedxml/yyutil.cc
++++ src/nedxml/yyutil.cc
+@@ -74,8 +74,8 @@ std::string removeSpaces(ParseContext *np, YYLoc pos)
+ 
+ const char *currentLocation(ParseContext *np)
+ {
+-    static char buf[200];
+-    sprintf(buf, "%s:%d", np->getFileName(), pos.li);
++    static char buf[1024];
++    snprintf(buf, sizeof(buf), "%s:%d", np->getFileName(), pos.li);
+     return buf;
+ }
+ 
+
+--- src/common/bigdecimal.cc
++++ src/common/bigdecimal.cc
+@@ -50,7 +50,7 @@ PowersOfTenInitializer initializer;
+ 
+ PowersOfTenInitializer::PowersOfTenInitializer()
+ {
+-    int64_t power = 1;
++    uint64_t power = 1;
+     for (unsigned int i = 0; i < sizeof(powersOfTen) / sizeof(*powersOfTen); i++) {
+         powersOfTen[i] = power;
+         power *= 10;
+
+--- src/nedxml/nedresourcecache.cc
++++ src/nedxml/nedresourcecache.cc
+@@ -16,6 +16,7 @@
+ 
+ #include <cstdio>
+ #include <cstring>
++#include <filesystem>
+ #include "common/fileutil.h"
+ #include "common/stringutil.h"
+ #include "common/fileglobber.h"
+@@ -72,7 +73,8 @@ int NedResourceCache::loadNedSourceFolder(const char *foldername)
+     try {
+         std::string canonicalFolderName = tidyFilename(toAbsolutePath(foldername).c_str(), true);
+         std::string rootPackageName = determineRootPackageName(foldername);
+-        folderPackages[canonicalFolderName] = rootPackageName;
++        // Get the real path of the canonical folder name since it may be a symlink.
++        folderPackages[std::filesystem::canonical(std::filesystem::path(canonicalFolderName))] = rootPackageName;
+         return doLoadNedSourceFolder(foldername, rootPackageName.c_str());
+     }
+     catch (std::exception& e) {
+
+--- src/sim/simtime.cc
++++ src/sim/simtime.cc
+@@ -43,9 +43,10 @@ static const char *unitNames[] = { "s", "ms", "us", "ns", "ps", "fs", "as" };
+ static void fillPowersOfTen()
+ {
+     int64_t power = 1;
+-    for (int i = 0; i <= MAX_POWER_OF_TEN; i++) {
+-        powersOfTen[i] = power;
++    powersOfTen[0] = power;
++    for (int i = 1; i <= MAX_POWER_OF_TEN; i++) {
+         power *= 10;
++        powersOfTen[i] = power;
+     }
+ }
+ 

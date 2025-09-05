@@ -1,0 +1,43 @@
+network {
+  hosts {
+    id: "host1"
+  }
+  hosts {
+    id: "host2"
+  }
+}
+
+# 50% READ and 50% WRITE. The size for READ op is 2KB, while that for WRITE op
+# is 128KB.
+traffic_pattern {
+  explicit_pattern {
+    flows {
+      initiator_host_id: "host1_0"
+      target_host_id: "host2_0"
+    }
+    traffic_characteristics {
+      conn_type: ORDERED_RC
+      conn_config {
+        op_code: READ
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 2000
+        }
+        arrival_time_distribution: UNIFORM_TIME_DIST
+        offered_load_ratio: 0.5
+      }
+      conn_config {
+        op_code: WRITE
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 128000
+        }
+        arrival_time_distribution: UNIFORM_TIME_DIST
+        offered_load_ratio: 0.5
+      }
+      offered_load: 10
+      sharing_cid: false
+      inline_message: false
+    }
+  }
+}

@@ -1,0 +1,43 @@
+network {
+  hosts {
+    id: "host1"
+  }
+  hosts {
+    id: "host2"
+  }
+  hosts {
+    id: "host3"
+  }
+  hosts {
+    id: "host4"
+  }
+}
+
+traffic_pattern {
+  incast {
+    sender_host_ids: "host1_0"
+    sender_host_ids: "host2_0"
+    sender_host_ids: "host3_0"
+    sender_host_ids: "host4_0"
+    victim_host_ids: "host1_0"
+    victim_host_ids: "host2_0"
+    victim_host_ids: "host3_0"
+    victim_host_ids: "host4_0"
+    incast_degree: 3
+    traffic_characteristics {
+      conn_type: ORDERED_RC
+      conn_config {
+        op_code: WRITE
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 1000
+        }
+        arrival_time_distribution: UNIFORM_TIME_DIST
+        offered_load_ratio: 1
+      }
+      offered_load: 1
+      sharing_cid: false
+      inline_message: false
+    }
+  }
+}

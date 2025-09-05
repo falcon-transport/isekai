@@ -1,0 +1,60 @@
+network {
+  hosts {
+    id: "host1"
+  }
+  hosts {
+    id: "host2"
+  }
+}
+
+traffic_pattern {
+  explicit_pattern {
+    flows {
+      initiator_host_id: "host1_0"
+      target_host_id: "host2_0"
+    }
+    traffic_characteristics {
+      conn_type: ORDERED_RC
+      conn_config {
+        op_code: READ
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 10
+        }
+        arrival_time_distribution: POISSON_PROCESS
+        offered_load_ratio: 0.1
+      }
+      conn_config {
+        op_code: READ
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 100
+        }
+        arrival_time_distribution: POISSON_PROCESS
+        offered_load_ratio: 0.2
+      }
+      conn_config {
+        op_code: READ
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 1000
+        }
+        arrival_time_distribution: POISSON_PROCESS
+        offered_load_ratio: 0.3
+      }
+      conn_config {
+        op_code: READ
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params {
+          mean: 10000
+        }
+        arrival_time_distribution: POISSON_PROCESS
+        offered_load_ratio: 0.4
+      }
+      offered_load: 10
+      sharing_cid: false
+      inline_message: false
+    }
+  }
+}
+

@@ -1,0 +1,104 @@
+// Copyright 2024 Google LLC
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package isekai;
+
+option java_multiple_files = true;
+
+message MemoryManagementUnitConfig {
+  // Configuration of WRED used for ECN marking:
+  // weight - the queue weight;
+  // min_avg_queue_size - minimal average queue size in bytes;
+  // max_avg_queue_size - maximal average queue size in bytes;
+  // max_mark_prob - maximal packet-marking probability;
+  // rate - the slope of the linear time function;
+  // Details about WRED can be found in paper: Floyd, S. and Jacobson, V., 1993.
+  // Random early detection gateways for congestion avoidance. IEEE/ACM
+  // Transactions on networking, 1(4), pp.397-413.
+  message Wred {
+    optional double weight = 1;
+    optional int32 min_avg_queue_size = 2;
+    optional int32 max_avg_queue_size = 3;
+    optional double max_mark_prob = 4;
+    optional double rate = 5;
+  }
+
+  message Pfc {
+    // Explicitly sending X-on frame.
+    optional bool pfc_xon = 1;
+    // The delay (in nanoseconds) that the receiver takes to actually stop
+    // sending packets after receiving the PFC pause frame.
+    optional int32 rx_pfc_delay = 2;
+    // The PFC pause duration (from starting pause packet transmission to the
+    // end of transmission pause) in nanoseconds.
+    optional int32 pause_duration = 3;
+  }
+
+  message CosProfile {
+    optional string profile_name = 1;
+    optional double ingress_alpha = 2;
+    optional double egress_alpha = 3;
+    // ecn_marking_stage = 0 means we perform ECN marking at tx enqueue time;
+    // while ecn_marking_stage = 1 means we perform ECN marking at tx dequeue
+    // time. By default, we mark packets at dequeue time.
+    optional int32 ecn_marking_stage = 4;
+    optional Wred wred_config = 5;
+    // pfc_headroom is used to store the packets arriving after the flow-control
+    // message is sent, in order to prevent packet loss.
+    optional int32 pfc_headroom = 6;
+    optional int32 ingress_minimal_guarantee = 7;
+  }
+
+  message PacketQueue {
+    optional int32 queue_id = 1;
+    // We can either assign queue to a CoS profile, or configure the queue
+    // manually.
+    oneof queue_config {
+      string cos_profile_name = 2;
+      CosProfile cos_config = 3;
+    }
+  }
+
+  message QosProfile {
+    optional string profile_name = 1;
+    optional double egress_alpha = 2;
+    repeated PacketQueue queue_configs = 3;
+  }
+
+  message Port {
+    optional int32 port_id = 1;
+    // We can either assign port to a QoS profile, or configure the port
+    // manually.
+    oneof port_config {
+      string qos_profile_name = 3;
+      QosProfile qos_config = 4;
+    }
+  }
+
+  message BufferCarving {
+    // Predefined CoS profiles and QoS profiles, which can be used by different
+    // ports and queues directly.
+    repeated CosProfile cos_configs = 1;
+    repeated QosProfile qos_configs = 2;
+    optional uint64 ingress_service_pool_size = 3;
+    optional uint64 egress_service_pool_size = 4;
+    repeated Port port_configs = 5;
+  }
+
+  optional Pfc pfc_config = 1;
+  reserved 2;
+  optional BufferCarving buffer_carving_config = 3;
+}

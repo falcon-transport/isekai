@@ -1,0 +1,4 @@
+message OutputScheduleMessage
+{
+    int portId;
+}

@@ -1,0 +1,1585 @@
+network {
+  hosts {
+    id: "host_116_16"
+    ip_address: "fc00:0100:500:311::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_66_38"
+    ip_address: "fc00:0100:500:67::1"
+    host_config_profile_name: "host_config"
+  }
+  routers {
+    router_name: "router_0"
+    routing_table: "isekai/test_data/nib_snapshot/routing_0.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_1"
+    routing_table: "isekai/test_data/nib_snapshot/routing_1.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_2"
+    routing_table: "isekai/test_data/nib_snapshot/routing_2.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_3"
+    routing_table: "isekai/test_data/nib_snapshot/routing_3.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_4"
+    routing_table: "isekai/test_data/nib_snapshot/routing_4.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_5"
+    routing_table: "isekai/test_data/nib_snapshot/routing_5.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_6"
+    routing_table: "isekai/test_data/nib_snapshot/routing_6.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_7"
+    routing_table: "isekai/test_data/nib_snapshot/routing_7.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_8"
+    routing_table: "isekai/test_data/nib_snapshot/routing_8.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_9"
+    routing_table: "isekai/test_data/nib_snapshot/routing_9.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_10"
+    routing_table: "isekai/test_data/nib_snapshot/routing_10.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_11"
+    routing_table: "isekai/test_data/nib_snapshot/routing_11.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_12"
+    routing_table: "isekai/test_data/nib_snapshot/routing_12.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_13"
+    routing_table: "isekai/test_data/nib_snapshot/routing_13.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_14"
+    routing_table: "isekai/test_data/nib_snapshot/routing_14.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_15"
+    routing_table: "isekai/test_data/nib_snapshot/routing_15.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_16"
+    routing_table: "isekai/test_data/nib_snapshot/routing_16.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_17"
+    routing_table: "isekai/test_data/nib_snapshot/routing_17.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_18"
+    routing_table: "isekai/test_data/nib_snapshot/routing_18.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_19"
+    routing_table: "isekai/test_data/nib_snapshot/routing_19.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_20"
+    routing_table: "isekai/test_data/nib_snapshot/routing_20.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_21"
+    routing_table: "isekai/test_data/nib_snapshot/routing_21.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_22"
+    routing_table: "isekai/test_data/nib_snapshot/routing_22.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_23"
+    routing_table: "isekai/test_data/nib_snapshot/routing_23.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_24"
+    routing_table: "isekai/test_data/nib_snapshot/routing_24.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_25"
+    routing_table: "isekai/test_data/nib_snapshot/routing_25.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_26"
+    routing_table: "isekai/test_data/nib_snapshot/routing_26.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_27"
+    routing_table: "isekai/test_data/nib_snapshot/routing_27.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_28"
+    routing_table: "isekai/test_data/nib_snapshot/routing_28.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_29"
+    routing_table: "isekai/test_data/nib_snapshot/routing_29.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_30"
+    routing_table: "isekai/test_data/nib_snapshot/routing_30.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_31"
+    routing_table: "isekai/test_data/nib_snapshot/routing_31.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_32"
+    routing_table: "isekai/test_data/nib_snapshot/routing_32.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_33"
+    routing_table: "isekai/test_data/nib_snapshot/routing_33.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_34"
+    routing_table: "isekai/test_data/nib_snapshot/routing_34.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_35"
+    routing_table: "isekai/test_data/nib_snapshot/routing_35.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_36"
+    routing_table: "isekai/test_data/nib_snapshot/routing_36.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_37"
+    routing_table: "isekai/test_data/nib_snapshot/routing_37.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_38"
+    routing_table: "isekai/test_data/nib_snapshot/routing_38.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_39"
+    routing_table: "isekai/test_data/nib_snapshot/routing_39.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_40"
+    routing_table: "isekai/test_data/nib_snapshot/routing_40.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_41"
+    routing_table: "isekai/test_data/nib_snapshot/routing_41.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_42"
+    routing_table: "isekai/test_data/nib_snapshot/routing_42.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_43"
+    routing_table: "isekai/test_data/nib_snapshot/routing_43.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_44"
+    routing_table: "isekai/test_data/nib_snapshot/routing_44.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_45"
+    routing_table: "isekai/test_data/nib_snapshot/routing_45.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_46"
+    routing_table: "isekai/test_data/nib_snapshot/routing_46.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_47"
+    routing_table: "isekai/test_data/nib_snapshot/routing_47.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_48"
+    routing_table: "isekai/test_data/nib_snapshot/routing_48.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_49"
+    routing_table: "isekai/test_data/nib_snapshot/routing_49.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_50"
+    routing_table: "isekai/test_data/nib_snapshot/routing_50.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_51"
+    routing_table: "isekai/test_data/nib_snapshot/routing_51.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_52"
+    routing_table: "isekai/test_data/nib_snapshot/routing_52.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_53"
+    routing_table: "isekai/test_data/nib_snapshot/routing_53.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_54"
+    routing_table: "isekai/test_data/nib_snapshot/routing_54.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_55"
+    routing_table: "isekai/test_data/nib_snapshot/routing_55.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_56"
+    routing_table: "isekai/test_data/nib_snapshot/routing_56.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_57"
+    routing_table: "isekai/test_data/nib_snapshot/routing_57.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_58"
+    routing_table: "isekai/test_data/nib_snapshot/routing_58.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_59"
+    routing_table: "isekai/test_data/nib_snapshot/routing_59.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_60"
+    routing_table: "isekai/test_data/nib_snapshot/routing_60.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_61"
+    routing_table: "isekai/test_data/nib_snapshot/routing_61.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_62"
+    routing_table: "isekai/test_data/nib_snapshot/routing_62.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_63"
+    routing_table: "isekai/test_data/nib_snapshot/routing_63.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_64"
+    routing_table: "isekai/test_data/nib_snapshot/routing_64.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_65"
+    routing_table: "isekai/test_data/nib_snapshot/routing_65.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_66"
+    routing_table: "isekai/test_data/nib_snapshot/routing_66.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_67"
+    routing_table: "isekai/test_data/nib_snapshot/routing_67.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_68"
+    routing_table: "isekai/test_data/nib_snapshot/routing_68.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_69"
+    routing_table: "isekai/test_data/nib_snapshot/routing_69.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_70"
+    routing_table: "isekai/test_data/nib_snapshot/routing_70.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_71"
+    routing_table: "isekai/test_data/nib_snapshot/routing_71.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_72"
+    routing_table: "isekai/test_data/nib_snapshot/routing_72.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_73"
+    routing_table: "isekai/test_data/nib_snapshot/routing_73.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_74"
+    routing_table: "isekai/test_data/nib_snapshot/routing_74.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_75"
+    routing_table: "isekai/test_data/nib_snapshot/routing_75.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_76"
+    routing_table: "isekai/test_data/nib_snapshot/routing_76.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_77"
+    routing_table: "isekai/test_data/nib_snapshot/routing_77.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_78"
+    routing_table: "isekai/test_data/nib_snapshot/routing_78.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_79"
+    routing_table: "isekai/test_data/nib_snapshot/routing_79.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_80"
+    routing_table: "isekai/test_data/nib_snapshot/routing_80.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_81"
+    routing_table: "isekai/test_data/nib_snapshot/routing_81.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_82"
+    routing_table: "isekai/test_data/nib_snapshot/routing_82.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_83"
+    routing_table: "isekai/test_data/nib_snapshot/routing_83.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_84"
+    routing_table: "isekai/test_data/nib_snapshot/routing_84.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_85"
+    routing_table: "isekai/test_data/nib_snapshot/routing_85.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_86"
+    routing_table: "isekai/test_data/nib_snapshot/routing_86.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_87"
+    routing_table: "isekai/test_data/nib_snapshot/routing_87.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_88"
+    routing_table: "isekai/test_data/nib_snapshot/routing_88.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_89"
+    routing_table: "isekai/test_data/nib_snapshot/routing_89.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_90"
+    routing_table: "isekai/test_data/nib_snapshot/routing_90.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_91"
+    routing_table: "isekai/test_data/nib_snapshot/routing_91.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_92"
+    routing_table: "isekai/test_data/nib_snapshot/routing_92.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_93"
+    routing_table: "isekai/test_data/nib_snapshot/routing_93.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_94"
+    routing_table: "isekai/test_data/nib_snapshot/routing_94.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_95"
+    routing_table: "isekai/test_data/nib_snapshot/routing_95.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_96"
+    routing_table: "isekai/test_data/nib_snapshot/routing_96.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_97"
+    routing_table: "isekai/test_data/nib_snapshot/routing_97.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_98"
+    routing_table: "isekai/test_data/nib_snapshot/routing_98.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_99"
+    routing_table: "isekai/test_data/nib_snapshot/routing_99.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_100"
+    routing_table: "isekai/test_data/nib_snapshot/routing_100.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_101"
+    routing_table: "isekai/test_data/nib_snapshot/routing_101.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_102"
+    routing_table: "isekai/test_data/nib_snapshot/routing_102.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_103"
+    routing_table: "isekai/test_data/nib_snapshot/routing_103.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_104"
+    routing_table: "isekai/test_data/nib_snapshot/routing_104.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_105"
+    routing_table: "isekai/test_data/nib_snapshot/routing_105.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_106"
+    routing_table: "isekai/test_data/nib_snapshot/routing_106.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_107"
+    routing_table: "isekai/test_data/nib_snapshot/routing_107.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_108"
+    routing_table: "isekai/test_data/nib_snapshot/routing_108.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_109"
+    routing_table: "isekai/test_data/nib_snapshot/routing_109.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_110"
+    routing_table: "isekai/test_data/nib_snapshot/routing_110.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_111"
+    routing_table: "isekai/test_data/nib_snapshot/routing_111.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_112"
+    routing_table: "isekai/test_data/nib_snapshot/routing_112.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_113"
+    routing_table: "isekai/test_data/nib_snapshot/routing_113.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_114"
+    routing_table: "isekai/test_data/nib_snapshot/routing_114.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_115"
+    routing_table: "isekai/test_data/nib_snapshot/routing_115.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_116"
+    routing_table: "isekai/test_data/nib_snapshot/routing_116.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_117"
+    routing_table: "isekai/test_data/nib_snapshot/routing_117.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_118"
+    routing_table: "isekai/test_data/nib_snapshot/routing_118.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_119"
+    routing_table: "isekai/test_data/nib_snapshot/routing_119.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_120"
+    routing_table: "isekai/test_data/nib_snapshot/routing_120.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_121"
+    routing_table: "isekai/test_data/nib_snapshot/routing_121.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_122"
+    routing_table: "isekai/test_data/nib_snapshot/routing_122.recordio"
+    router_config_profile_name: "default"
+  }
+  routers {
+    router_name: "router_123"
+    routing_table: "isekai/test_data/nib_snapshot/routing_123.recordio"
+    router_config_profile_name: "default"
+  }
+  router_configs {
+    profile_name: "default"
+    tx_queue_num: 1
+    routing_pipeline_delay_ns: 600
+    port_selection_policy: WCMP
+    arbitration_scheme: FIXED_PRIORITY
+    mmu_config {
+      buffer_carving_config {
+        cos_configs {
+          profile_name: "default_cos"
+          ingress_alpha: 8
+          egress_alpha: 8
+          ecn_marking_stage: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 20
+            max_avg_queue_size: 800
+            max_mark_prob: 0.01
+            rate: 150
+          }
+        }
+        qos_configs {
+          profile_name: "default_port"
+          egress_alpha: 8
+          queue_configs {
+            queue_id: 0
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 1
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 2
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 3
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 4
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 5
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 6
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 7
+            cos_profile_name: "default_cos"
+          }
+        }
+        ingress_service_pool_size: 40960
+        egress_service_pool_size: 50960
+        port_configs {
+          port_id: 0
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 1
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 2
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 3
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 4
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 5
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 6
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 7
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 8
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 9
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 10
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 11
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 12
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 13
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 14
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 15
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 16
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 17
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 18
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 19
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 20
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 21
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 22
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 23
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 24
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 25
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 26
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 27
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 28
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 29
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 30
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 31
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 32
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 33
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 34
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 35
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 36
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 37
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 38
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 39
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 40
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 41
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 42
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 43
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 44
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 45
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 46
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 47
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 48
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 49
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 50
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 51
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 52
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 53
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 54
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 55
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 56
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 57
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 58
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 59
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 60
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 61
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 62
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 63
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 64
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 65
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 66
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 67
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 68
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 69
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 70
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 71
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 72
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 73
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 74
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 75
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 76
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 77
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 78
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 79
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 80
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 81
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 82
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 83
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 84
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 85
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 86
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 87
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 88
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 89
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 90
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 91
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 92
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 93
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 94
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 95
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 96
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 97
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 98
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 99
+          qos_profile_name: "default_port"
+        }
+      }
+    }
+  }
+  host_configs {
+    profile_name: "host_config"
+    falcon_configuration {
+      connection_context_cache_size: 10000
+      threshold_solicit: 8192
+      simulation_mode: PROTOCOL
+      lookup_delay_ns: 0
+      tx_buffer_minimum_allocation_unit: 128
+      rx_buffer_minimum_allocation_unit: 128
+      resource_reservation_mode: BYPASS_RESERVATION
+      resource_credits {
+        tx_packet_credits {
+          ulp_requests: 2147483647
+          ulp_data: 2147483647
+          network_requests: 2147483647
+        }
+        tx_buffer_credits {
+          ulp_requests: 2147483647
+          ulp_data: 2147483647
+          network_requests: 2147483647
+        }
+        rx_packet_credits {
+          ulp_requests: 2147483647
+          network_requests: 2147483647
+        }
+        rx_buffer_credits {
+          ulp_requests: 2147483647
+          network_requests: 2147483647
+        }
+      }
+      falcon_tick_time_ns: 3
+      connection_scheduler_policies {
+        inter_packet_type_scheduling_policy: ROUND_ROBIN
+        intra_packet_type_scheduling_policy: ROUND_ROBIN
+      }
+      inter_connection_retransmission_scheduling_policy: ROUND_ROBIN
+      intra_connection_retransmission_scheduling_policy: ROUND_ROBIN
+      admission_control_policy: RX_WINDOW_BASED
+      admission_window_bytes: 2147483647
+      rue {
+        algorithm: "swift"
+        falcon_latency_ns: 234
+        falcon_unit_time_ns: 131.072
+        tw_unit_time_ns: 512
+        initial_fcwnd: 32
+        delay_select: FABRIC
+        base_delay_us: 25
+        swift {
+          target_rx_buffer_level: 15
+          max_flow_scaling: 763
+          max_decrease_on_eack_nack_drop: false
+        }
+        event_queue_size: 65536
+        fixed_latency_model {
+          latency_ns: 66
+        }
+        initial_ncwnd: 64
+        event_queue_threshold_1: 65536
+        event_queue_threshold_2: 65536
+        event_queue_threshold_3: 65536
+      }
+      ulp_xoff_thresholds {
+        tx_packet_request: 0
+        tx_buffer_request: 0
+        tx_packet_data: 0
+        tx_buffer_data: 0
+        rx_packet_request: 0
+        rx_buffer_request: 0
+      }
+      connection_scheduler_weight: 1
+      retransmission_scheduler_weight: 1
+      ack_nack_scheduler_weight: 2
+      ack_request_fcwnd_threshold: 2
+      ack_request_percent: 10
+      falcon_network_requests_rx_buffer_pool_thresholds {
+        green_zone_end: 2147483647
+        yellow_zone_end: 2147483647
+      }
+      falcon_network_requests_rx_packet_pool_thresholds {
+        green_zone_end: 2147483647
+        yellow_zone_end: 2147483647
+      }
+      falcon_network_requests_tx_packet_pool_thresholds {
+        green_zone_end: 2147483647
+        yellow_zone_end: 2147483647
+      }
+      ema_coefficients {
+        tx_context: 1
+        rx_context: 1
+        rx_buffer: 1
+      }
+      quantization_tables {
+        tx_context {
+          quantization_level_0_threshold: 2048
+          quantization_level_1_threshold: 4096
+          quantization_level_2_threshold: 6144
+          quantization_level_3_threshold: 8192
+          quantization_level_4_threshold: 10240
+          quantization_level_5_threshold: 12288
+          quantization_level_6_threshold: 14336
+          quantization_level_7_threshold: 16384
+          quantization_level_8_threshold: 18432
+          quantization_level_9_threshold: 20480
+          quantization_level_10_threshold: 22528
+          quantization_level_11_threshold: 24576
+          quantization_level_12_threshold: 26624
+          quantization_level_13_threshold: 28672
+          quantization_level_14_threshold: 30720
+          quantization_level_15_threshold: 32768
+          quantization_level_16_threshold: 34816
+          quantization_level_17_threshold: 36864
+          quantization_level_18_threshold: 38912
+          quantization_level_19_threshold: 40960
+          quantization_level_20_threshold: 43008
+          quantization_level_21_threshold: 45056
+          quantization_level_22_threshold: 47104
+          quantization_level_23_threshold: 49152
+          quantization_level_24_threshold: 51200
+          quantization_level_25_threshold: 53248
+          quantization_level_26_threshold: 55296
+          quantization_level_27_threshold: 57344
+          quantization_level_28_threshold: 59392
+          quantization_level_29_threshold: 61440
+          quantization_level_30_threshold: 63488
+        }
+        rx_context {
+          quantization_level_0_threshold: 2048
+          quantization_level_1_threshold: 4096
+          quantization_level_2_threshold: 6144
+          quantization_level_3_threshold: 8192
+          quantization_level_4_threshold: 10240
+          quantization_level_5_threshold: 12288
+          quantization_level_6_threshold: 14336
+          quantization_level_7_threshold: 16384
+          quantization_level_8_threshold: 18432
+          quantization_level_9_threshold: 20480
+          quantization_level_10_threshold: 22528
+          quantization_level_11_threshold: 24576
+          quantization_level_12_threshold: 26624
+          quantization_level_13_threshold: 28672
+          quantization_level_14_threshold: 30720
+          quantization_level_15_threshold: 32768
+          quantization_level_16_threshold: 34816
+          quantization_level_17_threshold: 36864
+          quantization_level_18_threshold: 38912
+          quantization_level_19_threshold: 40960
+          quantization_level_20_threshold: 43008
+          quantization_level_21_threshold: 45056
+          quantization_level_22_threshold: 47104
+          quantization_level_23_threshold: 49152
+          quantization_level_24_threshold: 51200
+          quantization_level_25_threshold: 53248
+          quantization_level_26_threshold: 55296
+          quantization_level_27_threshold: 57344
+          quantization_level_28_threshold: 59392
+          quantization_level_29_threshold: 61440
+          quantization_level_30_threshold: 63488
+        }
+        rx_buffer {
+          quantization_level_0_threshold: 2048
+          quantization_level_1_threshold: 4096
+          quantization_level_2_threshold: 6144
+          quantization_level_3_threshold: 8192
+          quantization_level_4_threshold: 10240
+          quantization_level_5_threshold: 12288
+          quantization_level_6_threshold: 14336
+          quantization_level_7_threshold: 16384
+          quantization_level_8_threshold: 18432
+          quantization_level_9_threshold: 20480
+          quantization_level_10_threshold: 22528
+          quantization_level_11_threshold: 24576
+          quantization_level_12_threshold: 26624
+          quantization_level_13_threshold: 28672
+          quantization_level_14_threshold: 30720
+          quantization_level_15_threshold: 32768
+          quantization_level_16_threshold: 34816
+          quantization_level_17_threshold: 36864
+          quantization_level_18_threshold: 38912
+          quantization_level_19_threshold: 40960
+          quantization_level_20_threshold: 43008
+          quantization_level_21_threshold: 45056
+          quantization_level_22_threshold: 47104
+          quantization_level_23_threshold: 49152
+          quantization_level_24_threshold: 51200
+          quantization_level_25_threshold: 53248
+          quantization_level_26_threshold: 55296
+          quantization_level_27_threshold: 57344
+          quantization_level_28_threshold: 59392
+          quantization_level_29_threshold: 61440
+          quantization_level_30_threshold: 63488
+        }
+      }
+      version: 2
+      enable_rx_buffer_occupancy_reflection: true
+      early_retx {
+        ooo_count_threshold: 3
+        enable_ooo_count: false
+        ooo_distance_threshold: 3
+        enable_ooo_distance: true
+        enable_eack_own: false
+        early_retx_threshold: 16
+      }
+      op_boundary_ar_bit {
+        enable: false
+        acks_per_sec: 15000000
+        ack_burst_size: 10000
+        ack_refill_interval_ns: 200
+      }
+      eack_trigger_by_hole_in_rx_bitmap: true
+      inter_host_rx_scheduling_policy: ROUND_ROBIN
+      inter_host_rx_scheduling_tick_ns: 0
+      rx_falcon_ulp_link_gbps: 400.0
+    }
+    rdma_configuration {
+      mtu: 4096
+      max_segment_length: 1073741824
+      max_inline_payload_length: 224
+      work_scheduler_quanta: 4096
+      chip_cycle_time_ns: 5
+      global_credits {
+        tx_packet_request: 2147483647
+        tx_buffer_request: 2147483647
+        rx_packet_request: 2147483647
+        rx_buffer_request: 2147483647
+        tx_packet_data: 2147483647
+        tx_buffer_data: 2147483647
+      }
+      per_qp_credits {
+        tx_packet_request: 2147483647
+        tx_buffer_request: 2147483647
+        rx_packet_request: 2147483647
+        rx_buffer_request: 2147483647
+        tx_packet_data: 2147483647
+        tx_buffer_data: 2147483647
+      }
+      scheduler_pipeline_delay_in_cycles: 0
+      tx_rate_limiter {
+        refill_interval_ns: 500
+        burst_size_bytes: 12500
+      }
+      inbound_read_queue_depth: 2147483647
+      outbound_read_queue_depth: 2147483647
+      rnr_timeout_us: 0
+      write_random_rnr_probability: 0
+      read_random_rnr_probability: 0
+      rx_buffer_config {
+        buffer_size_bytes: 250000
+        buffer_size_bytes: 250000
+        buffer_size_bytes: 250000
+        buffer_size_bytes: 250000
+      }
+    }
+    packet_builder_configuration {
+      packet_rate_million_pps: 200
+      tx_queue_length_threshold: 16
+      random_drop_probability: 0
+      random_drop_burst_size: 1
+      random_drop_ack: false
+    }
+    rnic_configuration {
+      host_interface_config {
+        write_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+        read_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+      }
+      host_interface_config {
+        write_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+        read_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+      }
+      host_interface_config {
+        write_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+        read_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+      }
+      host_interface_config {
+        write_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+        read_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 0
+          memory_interface_queue_size_packets: 2147483647
+        }
+      }
+    }
+  }
+  # The router and port information, as well as connectivity, are manually obtained and parsed from the corresponding NED file.
+  connection_routing_configs {
+    static_routing_rule_entries {
+      src_host_id: "host_116_16"
+      dst_host_id: "host_66_38"
+      path_static_routing_port_list {
+        # Host 16 ->
+        # Router 116 port 5  ->
+        # Router 16  port 0  ->
+        # Router 17  port 1  ->
+        # Router 22  port 16 ->
+        # Router 66  port 38 ->
+        # Host 38
+        forward_routing_port_list: "[5, 0, 1, 16, 38]"
+        # Host 38 ->
+        # Router 66  port 3  ->
+        # Router 22  port 11 ->
+        # Router 17  port 7  ->
+        # Router 16  port 26 ->
+        # Router 116 port 16 ->
+        # Host 16
+        reverse_routing_port_list: "[3, 11, 7, 26, 16]"
+      }
+      path_static_routing_port_list {
+        # Host 16 ->
+        # Router 116 port 3  ->
+        # Router 18  port 0  ->
+        # Router 19  port 1  ->
+        # Router 20  port 16 ->
+        # Router 66  port 38 ->
+        # Host 38
+        forward_routing_port_list: "[3, 0, 1, 16, 38]"
+        # Host 38 ->
+        # Router 66  port 5  ->
+        # Router 20  port 11 ->
+        # Router 19  port 7  ->
+        # Router 18  port 26 ->
+        # Router 116 port 16 ->
+        # Host 16
+        reverse_routing_port_list: "[5, 11, 7, 26, 16]"
+      }
+      path_static_routing_port_list {
+        # Host 16 ->
+        # Router 116 port 5  ->
+        # Router 16  port 0  ->
+        # Router 17  port 1  ->
+        # Router 22  port 16 ->
+        # Router 66  port 38 ->
+        # Host 38
+        forward_routing_port_list: "[5, 0, 1, 16, 38]"
+        # Host 38 ->
+        # Router 66  port 3  ->
+        # Router 22  port 11 ->
+        # Router 17  port 7  ->
+        # Router 16  port 26 ->
+        # Router 116 port 16 ->
+        # Host 16
+        reverse_routing_port_list: "[3, 11, 7, 26, 16]"
+      }
+      path_static_routing_port_list {
+        # Host 16 ->
+        # Router 116 port 3  ->
+        # Router 18  port 0  ->
+        # Router 19  port 1  ->
+        # Router 20  port 16 ->
+        # Router 66  port 38 ->
+        # Host 38
+        forward_routing_port_list: "[3, 0, 1, 16, 38]"
+        # Host 38 ->
+        # Router 66  port 5  ->
+        # Router 20  port 11 ->
+        # Router 19  port 7  ->
+        # Router 18  port 26 ->
+        # Router 116 port 16 ->
+        # Host 16
+        reverse_routing_port_list: "[5, 11, 7, 26, 16]"
+      }
+    }
+  }
+}
+
+stats_collection {
+  falcon_flags {
+    enable_vector_scheduler_lengths: false
+    enable_histogram_scheduler_lengths: false
+    enable_rue_cc_metrics: false
+    enable_rue_event_queue_length: false
+    enable_xoff_timelines: false
+    enable_max_retransmissions: false
+    enable_per_connection_rdma_counters: false
+    enable_per_connection_network_counters: false
+    enable_per_connection_ack_nack_counters: false
+    enable_per_connection_initiator_txn_counters: false
+    enable_per_connection_target_txn_counters: false
+    enable_per_connection_rue_counters: false
+    enable_per_connection_rue_drop_counters: false
+    enable_per_connection_ack_reason_counters: false
+    enable_per_connection_packet_drop_counters: false
+    enable_per_connection_retx_counters: false
+    enable_solicitation_counters: false
+    enable_per_connection_resource_credit_counters: false
+    enable_per_connection_cwnd_pause: false
+    enable_per_connection_max_rsn_difference: false
+    enable_per_connection_scheduler_queue_length: false
+    enable_per_connection_scheduler_queue_length_histogram: false
+    enable_per_connection_backpressure_alpha_carving_limits: false
+    enable_per_connection_window_usage: false
+    enable_per_connection_initial_tx_rsn_timeline: false
+    enable_per_connection_retx_rsn_timeline: false
+    enable_per_connection_rsn_receive_timeline: false
+    enable_connection_scheduler_max_delayed_packet_stats: false
+    enable_resource_manager_ema_occupancy: false
+    enable_global_resource_credits_timeline: false
+    enable_inter_host_rx_scheduler_queue_length: false
+    enable_ambito_load_factor: false
+  }
+  packet_builder_flags {
+    enable_scalar_packet_delay: false
+    enable_vector_packet_delay: false
+    enable_queue_length: false
+    enable_discard_and_drops: false
+    enable_scalar_tx_rx_packets_bytes: false
+    enable_vector_tx_rx_bytes: false
+    enable_pfc: false
+    enable_xoff_duration: false
+    enable_per_connection_traffic_stats: false
+  }
+  rdma_flags {
+    enable_op_timeseries: false
+    enable_per_qp_xoff: false
+    enable_total_xoff: false
+    enable_credit_stall: false
+    enable_histograms: false
+  }
+  router_flags {
+    enable_port_stats_collection: false
+    port_stats_collection_interval_us: 5
+    enable_scalar_per_port_tx_rx_packets: true
+    enable_vector_per_port_tx_rx_bytes: false
+    enable_port_load_and_util_gamma: false
+    enable_per_port_ingress_discards: false
+    enable_packet_discards: false
+    enable_per_port_per_queue_stats: false
+    enable_pfc_stats: false
+  }
+  traffic_generator_flags {
+    enable_scalar_offered_load: false
+    enable_vector_offered_load: false
+    enable_op_schedule_interval: false
+    enable_scalar_op_stats: false
+    enable_vector_op_stats: false
+    enable_per_qp_tx_rx_bytes: false
+  }
+}
+
+traffic_pattern {
+  explicit_pattern {
+    flows { initiator_host_id: "host_116_16_0" target_host_id: "host_66_38_0" }
+    traffic_characteristics {
+      conn_type: ORDERED_RC
+      conn_config {
+        op_code: WRITE
+        msg_size_distribution: FIXED_SIZE
+        size_distribution_params { mean: 1000 }
+        arrival_time_distribution: UNIFORM_TIME_DIST
+        offered_load_ratio: 1
+      }
+      offered_load: 0.1
+      sharing_cid: false
+      inline_message: false
+      degree_of_multipathing: 4
+    }
+  }
+}

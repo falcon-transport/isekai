@@ -1,0 +1,71 @@
+// Copyright 2024 Google LLC
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package isekai;
+
+option java_multiple_files = true;
+
+// Routing Information for a node in OMNest simulation.
+message RoutingConfig {
+  message SrcMacToVrfEntry {
+    optional bytes src_mac = 1;  // Required
+    optional uint32 vrf_id = 2;  // Required
+  }
+
+  // Flow in OMNest simulation.
+  message Flow {
+    optional bytes ip_address = 1;  // Required
+    optional bytes ip_mask = 2;     // Required
+    oneof id {
+      // ID of the output group, used for flows not for VRF 65534 (NDv6).
+      uint32 group_id = 3;
+      // Index of the port, used for flows for VRF 65534 (NDv6).
+      uint32 port_index = 4;
+    }
+  }
+
+  // {dst_ip} -> {group_id/port_index}.
+  message VirtualRoutingFunction {
+    repeated Flow flows = 1;  // Repeated
+  }
+
+  // Entry for Group.
+  message GroupEntry {
+    // Weight of the output port.
+    optional uint32 weight = 1;  // Required
+    // Index of the output port in OMNest simulation.
+    optional uint32 port_index = 2;  // Required
+  }
+
+  // Group table.
+  message GroupTable {
+    optional bytes output_src_mac = 1;            // Required
+    repeated GroupEntry group_table_entries = 2;  // Repeated
+  }
+
+  // The ID of the node.
+  optional string node_id = 5;  // Required
+  // {src_mac} -> {vrf_id}.
+  repeated SrcMacToVrfEntry src_mac_to_vrf_entries = 1;  // Repeated
+  // {vrf_id} -> {dst_ip} -> {group_id}, used for flows not for VRF 65534
+  // (NDv6).
+  map<uint32, VirtualRoutingFunction> vrfs = 2;
+  // group_id -> (output_src_mac, ([weight, port_index], ..., [weight,
+  // port_index])).
+  map<uint32, GroupTable> groups = 3;
+  // {dst_ip} -> {port_index}, used for flows for VRF 65534 (NDv6).
+  optional VirtualRoutingFunction ip_to_port_index = 4;
+}

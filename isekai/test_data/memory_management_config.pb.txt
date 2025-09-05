@@ -1,0 +1,261 @@
+pfc_config {
+  pfc_xon: true
+  rx_pfc_delay: 100
+  pause_duration: 10000
+}
+buffer_carving_config {
+  ingress_service_pool_size: 1000
+  egress_service_pool_size: 800
+  port_configs {
+    port_id: 0
+    qos_config {
+      egress_alpha: 1
+      queue_configs {
+        queue_id: 0
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 1
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 2
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 3
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 4
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 5
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 6
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 7
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+    }
+  }
+  port_configs {
+    port_id: 1
+    qos_config {
+      egress_alpha: 1
+      queue_configs {
+        queue_id: 0
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 1
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 2
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 3
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 4
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 5
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 6
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+      queue_configs {
+        queue_id: 7
+        cos_config {
+          ingress_alpha: 1
+          egress_alpha: 1
+          wred_config {
+            weight: 0.002
+            min_avg_queue_size: 10000
+            max_avg_queue_size: 10000
+            max_mark_prob: 0.05
+            rate: 150
+          }
+          pfc_headroom: 100
+        }
+      }
+    }
+  }
+}

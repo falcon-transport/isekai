@@ -1,0 +1,158 @@
+network {
+  hosts {
+    id: "host1"
+  }
+  hosts {
+    id: "host2"
+  }
+  hosts {
+    id: "host3"
+  }
+  hosts {
+    id: "host4"
+  }
+  hosts {
+    id: "host5"
+  }
+  hosts {
+    id: "host6"
+  }
+  hosts {
+    id: "host7"
+  }
+  hosts {
+    id: "host8"
+  }
+  hosts {
+    id: "host9"
+  }
+  hosts {
+    id: "host10"
+  }
+  hosts {
+    id: "host11"
+  }
+  hosts {
+    id: "host12"
+  }
+}
+
+traffic_pattern {
+  composite_pattern {
+    # fixed incast
+    incast {
+      sender_host_ids: "host1_0"
+      sender_host_ids: "host2_0"
+      sender_host_ids: "host3_0"
+      sender_host_ids: "host4_0"
+      victim_host_ids: "host5_0"
+      incast_degree: 3
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 1000
+          }
+          arrival_time_distribution: UNIFORM_TIME_DIST
+          offered_load_ratio: 1
+        }
+        offered_load: 1
+        sharing_cid: false
+        inline_message: false
+      }
+    }
+    # revolving incast
+    incast {
+      sender_host_ids: "host6_0"
+      sender_host_ids: "host7_0"
+      sender_host_ids: "host8_0"
+      sender_host_ids: "host9_0"
+      sender_host_ids: "host10_0"
+      victim_host_ids: "host6_0"
+      victim_host_ids: "host7_0"
+      victim_host_ids: "host8_0"
+      victim_host_ids: "host9_0"
+      victim_host_ids: "host10_0"
+      incast_degree: 3
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 1000
+          }
+          arrival_time_distribution: UNIFORM_TIME_DIST
+          offered_load_ratio: 1
+        }
+        offered_load: 1
+        sharing_cid: false
+        inline_message: false
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host1_0"
+      initiator_host_ids: "host2_0"
+      initiator_host_ids: "host3_0"
+      initiator_host_ids: "host4_0"
+      initiator_host_ids: "host5_0"
+      initiator_host_ids: "host6_0"
+      initiator_host_ids: "host7_0"
+      initiator_host_ids: "host8_0"
+      initiator_host_ids: "host9_0"
+      initiator_host_ids: "host10_0"
+      initiator_host_ids: "host11_0"
+      initiator_host_ids: "host12_0"
+      target_host_ids: "host1_0"
+      target_host_ids: "host2_0"
+      target_host_ids: "host3_0"
+      target_host_ids: "host4_0"
+      target_host_ids: "host5_0"
+      target_host_ids: "host6_0"
+      target_host_ids: "host7_0"
+      target_host_ids: "host8_0"
+      target_host_ids: "host9_0"
+      target_host_ids: "host10_0"
+      target_host_ids: "host11_0"
+      target_host_ids: "host12_0"
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 1000
+          }
+          arrival_time_distribution: UNIFORM_TIME_DIST
+          offered_load_ratio: 1
+        }
+        offered_load: 1
+        sharing_cid: false
+        inline_message: false
+      }
+    }
+    explicit_pattern {
+      flows {
+        initiator_host_id: "host11_0"
+        target_host_id: "host12_0"
+      }
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 1000
+          }
+          arrival_time_distribution: UNIFORM_TIME_DIST
+          offered_load_ratio: 1
+        }
+        offered_load: 1
+        sharing_cid: false
+        inline_message: false
+      }
+    }
+  }
+}
