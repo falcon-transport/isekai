@@ -1,0 +1,66 @@
+// Copyright 2024 Google LLC
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package isekai.rue;
+
+message SwiftConfiguration {
+  // The time units must be set based on a FALCON unit time resolution and
+  // a traffic shaper (TS) resolution
+
+  // Fabric window settings
+  optional double max_fabric_congestion_window = 1;
+  optional double min_fabric_congestion_window = 2;
+  optional double fabric_additive_increment_factor = 3;
+  optional double fabric_multiplicative_decrease_factor = 4;
+  optional double max_fabric_multiplicative_decrease = 5;
+  optional bool max_decrease_on_eack_nack_drop = 28;
+  optional uint32 fabric_base_delay = 29;
+
+  // NIC window settings
+  optional double max_nic_congestion_window = 6;
+  optional double min_nic_congestion_window = 7;
+  optional double nic_additive_increment_factor = 8;
+  optional double nic_multiplicative_decrease_factor = 9;
+  optional double max_nic_multiplicative_decrease = 10;
+  optional uint32 target_rx_buffer_level = 11;
+
+  // Common settings
+  optional double rtt_smoothing_alpha = 12;
+  optional double delay_smoothing_alpha = 13;
+  optional uint32 topo_scaling_per_hop = 14;
+  optional uint32 min_retransmit_timeout = 15;
+  optional double retransmit_timeout_scalar = 16;
+  optional uint32 retransmit_limit = 17;
+  optional double min_flow_scaling_window = 18;
+  optional double max_flow_scaling_window = 19;
+  optional uint32 max_flow_scaling = 20;
+  optional bool calc_rtt_smooth = 21;
+  optional double ipg_time_scalar = 22;
+  optional uint32 ipg_bits = 23;  // # bits for max ipg value.
+  optional bool randomize_path = 24;
+
+  // PLB settings
+  optional double plb_target_rtt_multiplier = 25;
+  optional double plb_congestion_threshold = 26;
+  optional uint32 plb_attempt_threshold = 27;
+
+  // Settings to ensure swift is deterministic.
+  optional uint32 flow_label_rng_seed = 30;
+
+  // Per-connection backpressure settings.
+  optional double backpressure_alpha = 31;
+  optional double backpressure_retransmit_alpha = 32;
+}

@@ -1,0 +1,984 @@
+// Copyright 2024 Google LLC
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package isekai;
+
+import "isekai/fabric/memory_management_config.proto";
+
+option java_multiple_files = true;
+
+message HostConfigProfile {
+  optional string profile_name = 1;
+  optional FalconConfig falcon_configuration = 2;
+  optional RdmaConfig rdma_configuration = 4;
+  // Memory management unit configuration. Host and router will eventually share
+  // the MMU code. For now, the MMU config is used to determine if host supports
+  // PFC and ECN.
+  optional MemoryManagementUnitConfig mmu_config = 5;
+  optional PacketBuildConfig packet_builder_configuration = 6;
+  optional TrafficShaperConfig traffic_shaper_configuration = 7;
+  optional RNicConfig rnic_configuration = 8;
+}
+
+message RNicConfig {
+  // Configuration for number of host interface
+  repeated MemoryInterfaceConfig host_interface_config = 1;
+}
+
+message MemoryInterfaceConfig {
+  enum MemoryDelayDistribution {
+    CONST = 0;
+    UNIFORM = 1;
+    EXPONENTIAL = 2;
+    DISCRETE = 3;
+    //
+  }
+  message MemoryQueueInterfaceConfig {
+    // Models the bandwidth of the memory link in bytes per second.
+    optional uint64 bandwidth_bps = 1;
+    optional MemoryDelayDistribution delay_distribution = 2;
+
+    // Used when memory_delay_distribution is CONST.
+    optional uint64 memory_delay_const_ns = 3;
+    // Used when memory_delay_distribution is UNIFORM.
+    optional uint64 memory_delay_uniform_low_ns = 4;
+    optional uint64 memory_delay_uniform_high_ns = 5;
+    // Used when memory_delay_distribution is EXPONENTIAL.
+    optional uint64 memory_delay_exponential_mean_ns = 6;
+    // Used when memory_delay_distribution is DISCRETE.
+    //
+    // discrete mapping. The mapping format:
+    // "delay0:weight0,weight1:prob1,delay2:weight2". The probability of each
+    // delay is the weight of the ith delay divided by the sum of all weights.
+    // The sum of all weights need not be 1.
+    optional string memory_delay_discrete_mapping = 7;
+
+    optional uint64 memory_interface_queue_size_packets = 8;
+  }
+
+  optional MemoryQueueInterfaceConfig write_queue_config = 1;
+  optional MemoryQueueInterfaceConfig read_queue_config = 2;
+}
+
+message HostConfig {
+  optional string id = 1;
+  optional string ip_address = 2;
+  oneof config {
+    string host_config_profile_name = 3;
+    HostConfigProfile host_config = 4;
+  }
+}
+
+message RouterConfigProfile {
+  enum PortSelectionPolicy {
+    UNSUPPORTED_POLICY = 0;
+    WCMP = 1;
+    RANDOM = 2;
+    ROUND_ROBIN = 3;
+  }
+
+  enum ArbitrationScheme {
+    UNSUPPORTED_SCHEME = 0;
+    FIXED_PRIORITY = 1;
+    WEIGHTED_ROUND_ROBIN = 2;
+  }
+
+  // Required. The name of the config profile so that it can be used for
+  // different routers.
+  optional string profile_name = 1;
+  // The number of ports.
+  optional uint32 port_num = 2;
+  // The number of TX queues per port.
+  optional uint32 tx_queue_num = 3;
+  // The routing pipeline delay in ns.
+  optional uint32 routing_pipeline_delay_ns = 4;
+  // The routing scheme used in routing pipeline.
+  optional PortSelectionPolicy port_selection_policy = 5;
+  // The arbitration scheme for TX packets.
+  optional ArbitrationScheme arbitration_scheme = 6;
+  // Memory management unit configuration.
+  optional MemoryManagementUnitConfig mmu_config = 8;
+  // Enabler of per-flow round robin.
+  optional bool per_flow_round_robin = 9;
+}
+
+message RouterConfig {
+  optional string router_name = 1;
+  // The path of the protobuf file that stores the routing table information.
+  optional string routing_table = 4;
+  oneof config {
+    string router_config_profile_name = 2;
+    RouterConfigProfile router_config = 3;
+  }
+}
+
+// This message specifies connections' routing information.
+message ConnectionRoutingConfig {
+  // The static routing information between a src and dst host.
+  repeated StaticRoutingRuleEntry static_routing_rule_entries = 1;
+}
+
+// This message specifies a static route rule between the source host and
+// the destination host.
+message StaticRoutingRuleEntry {
+  optional string src_host_id = 1;
+  optional string dst_host_id = 2;
+  // This message includes the forward and reverse static routing port lists for
+  // a path. The two lists specify the router ports that packets on this path
+  // should traverse sequentially, in the forward and reverse direction.
+  message StaticRoutingList {
+    optional string forward_routing_port_list = 1;
+    optional string reverse_routing_port_list = 2;
+  }
+  // We also support static routing for multipathing; therefore, the number of
+  // path_static_routing_port_list messages must match the degree of
+  // multipathing specified in the src_host. For non-multipathing cases, we
+  // should only have 1 path_static_routing_port_list.
+  repeated StaticRoutingList path_static_routing_port_list = 3;
+}
+
+message NetworkConfig {
+  optional ConnectionRoutingConfig connection_routing_configs = 6;
+  repeated HostConfig hosts = 1;
+  repeated RouterConfig routers = 2;
+  repeated HostConfigProfile host_configs = 3;
+  repeated RouterConfigProfile router_configs = 4;
+}
+
+// Traffic characteristics per connection.
+message TrafficCharacteristics {
+  enum MessageSizeDistribution {
+    FIXED_SIZE = 0;
+    NORMAL_SIZE_DIST = 1;
+    UNIFORM_SIZE_DIST = 2;
+    CUSTOM_SIZE_DIST = 3;
+  }
+
+  message MessageSizeCdf {
+    // Each quantile, starting from index 0, represents a message size with
+    // probability (1 / quantiles.size()). E.g., [4096, 4096, 8192, 16384] means
+    // there are 50% chance the generated message size will be 4096B, 25% 8192B,
+    // and 25% 16384B.
+    repeated double quantiles = 1 [packed = true];
+  }
+
+  // The op size is in bytes.
+  message SizeDistributionParams {
+    optional double mean = 1;
+    optional double stddev = 2;
+    optional double min = 3;
+    optional double max = 4;
+    optional MessageSizeCdf cdf = 5;
+  }
+
+  enum ArrivalTimeDistribution {
+    UNIFORM_TIME_DIST = 0;
+    POISSON_PROCESS = 1;
+  }
+
+  enum ConnectionType {
+    UD = 0;
+    ORDERED_RC = 1;
+    UNORDERED_RC = 2;
+  }
+
+  enum RdmaOp {
+    SEND = 0;
+    RECEIVE = 1;
+    READ = 2;
+    WRITE = 3;
+    RANDOM_OP = 4;
+  }
+
+  // The distribution of different op types.
+  message OpConfig {
+    optional double write_ratio = 1;
+    optional double read_ratio = 2;
+    optional double send_ratio = 3;
+    optional double recv_ratio = 4;
+  }
+
+  message ConnectionConfig {
+    optional RdmaOp op_code = 1;
+    optional MessageSizeDistribution msg_size_distribution = 2;
+    optional SizeDistributionParams size_distribution_params = 3;
+    optional ArrivalTimeDistribution arrival_time_distribution = 4;
+    // The max number of packets will be generated (-1 means unlimited). With
+    // this option, we can create, for example, single incast instance or
+    // multiple incast instances in the test.
+    optional int32 max_generated_packets = 5;
+    // The ratio of offered_load for this config.
+    optional double offered_load_ratio = 6;
+    // The ratio of different op types.
+    optional OpConfig op_config = 7;
+  }
+
+  optional ConnectionType conn_type = 1;
+  // To support mixed op code and/or mixed op size on the same connection, we
+  // have multiple ConnectionConfigs with corresponding ratios. The sum of
+  // all connection config ratios should be 1.
+  repeated ConnectionConfig conn_config = 12;
+  // The unit is gigabits/s.
+  optional double offered_load = 5;
+  optional bool sharing_cid = 7;  // For UD mode only, not supported yet.
+  optional bool inline_message = 8;
+  optional uint32 traffic_start_time_ns = 9;
+  optional uint32 degree_of_multipathing = 10;
+}
+
+message TrafficPatternConfig {
+  // At each time, N number of hosts (incast degree) will be randomly selected
+  // as the senders to perform N-to-1 incast.
+  message IncastTraffic {
+    repeated string sender_host_ids = 1;
+    // -1 means all senders will be selected for incast.
+    optional int32 incast_degree = 4;
+    // For fixed incast, we have only one victim. For revolving incast, we have
+    // a set of victims, and each time one of the victims_ids will be selected
+    // as the victim.
+    repeated string victim_host_ids = 2;
+    // For now, we have to use UNIFORM_TIME_DIST for arrival_time_distribution
+    // in order to start incast at the same time.
+    optional TrafficCharacteristics traffic_characteristics = 3;
+  }
+
+  // Only the hosts in initiator_host_ids send traffic to those in
+  // target_host_ids in a uniform random manner.
+  // 1. To create a fully connected network with uniform random traffic, we can
+  // let the hosts in the initiator_host_ids the same as those in the
+  // target_host_ids.
+  // 2. To create a bipartite network where two groups of hosts send traffic to
+  // each other, we can define two uniform random traffic patterns and reverse
+  // the hosts in initiator_host_ids and target_host_ids.
+  message UniformRandomTraffic {
+    repeated string initiator_host_ids = 1;
+    repeated string target_host_ids = 2;
+    optional TrafficCharacteristics traffic_characteristics = 3;
+    optional bool bidirectional = 4;
+    optional int32 repetitions = 5;
+  }
+
+  message ExplicitPattern {
+    message Flow {
+      optional string initiator_host_id = 1;
+      optional string target_host_id = 2;
+    }
+
+    repeated Flow flows = 1;
+    optional TrafficCharacteristics traffic_characteristics = 2;
+    optional bool bidirectional = 3;
+  }
+
+  message CompositePattern {
+    repeated IncastTraffic incast = 1;
+    repeated UniformRandomTraffic uniform_random = 2;
+    repeated ExplicitPattern explicit_pattern = 3;
+  }
+
+  oneof pattern_type {
+    IncastTraffic incast = 1;
+    UniformRandomTraffic uniform_random = 2;
+    ExplicitPattern explicit_pattern = 3;
+    CompositePattern composite_pattern = 4;
+  }
+
+  optional string description = 6;
+}
+
+message RdmaRxBufferConfig {
+  // Per host Rx buffer: each entry means a new bifurcated host. The number of
+  // entries must be equal to the number of host interface in RNicConfig.
+  repeated uint32 buffer_size_bytes = 1;
+}
+
+message RdmaConfig {
+  // Max payload size within an RDMA op. Typically power of 2 from 256 onwards.
+  optional uint32 mtu = 1;
+  // Maximum size of operations accepted by RDMA.
+  optional uint64 max_segment_length = 2;
+  // Maximum limit on the inline payload length send with an RDMA operation.
+  optional uint32 max_inline_payload_length = 3;
+  // RDMA work scheduler quanta in bytes. This quanta can range from 1KB to 16KB
+  // in 1 KB increments.
+  optional uint32 work_scheduler_quanta = 4;
+  // The time it takes for the RDMA model to post a transaction to Falcon, and
+  // cycle back for the next transaction. Effectively, the inter-transaction
+  // time interval or gap.
+  optional uint64 chip_cycle_time_ns = 7;
+
+  // PCR26 RDMA-Falcon interface credits.
+  message FalconResourceCredits {
+    optional uint32 tx_packet_request = 1;
+    optional uint32 tx_buffer_request = 2;
+    optional uint32 rx_packet_request = 3;
+    optional uint32 rx_buffer_request = 4;
+    optional uint32 tx_packet_data = 5;
+    optional uint32 tx_buffer_data = 6;
+  }
+  // Global Falcon credits available to RDMA.
+  optional FalconResourceCredits global_credits = 9;
+  // Falcon credits available to each QP.
+  optional FalconResourceCredits per_qp_credits = 10;
+  // RDMA scheduler pipeline delay in number of cycles.
+  optional uint64 scheduler_pipeline_delay_in_cycles = 15;
+  // RDMA TX rate limiter configuration (models the GRL in hardware). These
+  // variable must be configured together to achieve the target rate of 200Gbps
+  // (or whatever TX bandwidth we must support). Default values for 200Gbps are
+  // refill interval of 0.5us, and refill size of 12.5KB.
+  message TxRateLimiter {
+    optional uint32 refill_interval_ns = 1;
+    optional uint32 burst_size_bytes = 2;
+  }
+  optional TxRateLimiter tx_rate_limiter = 16;
+  // IRD/ORD limits.
+  optional uint32 inbound_read_queue_depth = 17;
+  optional uint32 outbound_read_queue_depth = 18;
+  // The RNR timeout (in microsecond).
+  optional uint32 rnr_timeout_us = 21;
+  // The probability of randomly RNR NACK a write.
+  optional double write_random_rnr_probability = 22;
+  // The probability of randomly RNR NACK a read request.
+  optional double read_random_rnr_probability = 23;
+  // Per Host RDMA Rx buffer.
+  optional RdmaRxBufferConfig rx_buffer_config = 24;
+  // Parameter to enable/disable PCIe delay for completion messages.
+  optional bool enable_pcie_delay_for_completion = 25;
+  // Time taken by RDMA to process an incoming packet and send out an ACK/NACK
+  // to Falcon that does not involve the host.
+  optional uint32 ack_nack_latency_ns = 26;
+  // Time taken by RDMA to process and enqueue a read response into the work
+  // scheduler.
+  optional uint32 response_latency_ns = 27;
+  // Max per-qp op rate in millions/s.
+  optional uint32 max_qp_oprate_million_per_sec = 29;
+}
+
+message FalconConfig {
+  // Size (number of entries) of active connection context cache.
+  optional int32 connection_context_cache_size = 1;
+  reserved 2;
+  // The threshold for deciding if a push is solicited or not (in bytes).
+  optional uint32 threshold_solicit = 3;
+
+  // Indicates the simulation mode (e.g., kProtocol represents using blocks
+  // that implement just the Falcon protocol functionality and not the something
+  // details).
+  enum SimulationMode {
+    PROTOCOL = 0;
+  }
+  optional SimulationMode simulation_mode = 4;
+
+  // Time taken to access any connection metadata measured in nanoseconds
+  // (used by Connection State Manager).
+  optional uint64 lookup_delay_ns = 5;
+
+  // Indicates the minimum sized TX buffer (in bytes) that can be allocated to
+  // a transaction (used by Flow Control Manager).
+  optional int32 tx_buffer_minimum_allocation_unit = 6;
+  // Indicates the minimum sized TX buffer (in bytes) that can be allocated to
+  // a transaction (used by Flow Control Manager).
+  optional int32 rx_buffer_minimum_allocation_unit = 7;
+
+  // Indicates the resource reservation mode. The default mode is in which
+  // resources are reserved in the first phase of the transaction which
+  // reflects the reservation policy used by Falcon.
+  enum ResourceReservationMode {
+    FIRST_PHASE_RESERVATION = 0;
+    BYPASS_RESERVATION = 1;
+  }
+  optional ResourceReservationMode resource_reservation_mode = 8;
+
+  // Initial global credits corresponding to Falcon resource pools. Default to
+  // INT32_MAX for all credit types (essentially turning off credit tracking)
+  message ResourceCredits {
+    message TxPacketCredits {
+      optional int32 ulp_requests = 1;
+      optional int32 ulp_data = 2;
+      optional int32 network_requests = 3;
+    }
+    optional TxPacketCredits tx_packet_credits = 1;
+    message TxBufferCredits {
+      optional int32 ulp_requests = 1;
+      optional int32 ulp_data = 2;
+      optional int32 network_requests = 3;
+    }
+    optional TxBufferCredits tx_buffer_credits = 2;
+    message RxPacketCredits {
+      optional int32 ulp_requests = 1;
+      optional int32 network_requests = 3;
+    }
+    optional RxPacketCredits rx_packet_credits = 3;
+    message RxBufferCredits {
+      optional int32 ulp_requests = 1;
+      optional int32 network_requests = 3;
+    }
+    optional RxBufferCredits rx_buffer_credits = 4;
+  }
+  optional ResourceCredits resource_credits = 9;
+
+  // Threshold limits for both request and global xoff. If any of the request
+  // resources fall below the configured threshold, Falcon issues a request xoff
+  // to ULP. If the response (data) resources fall below the configured
+  // threshold, then Falcon issues a global xoff to ULP.
+  message UlpXoffThresholds {
+    optional int32 tx_packet_request = 1;
+    optional int32 tx_buffer_request = 2;
+    optional int32 tx_packet_data = 3;
+    optional int32 tx_buffer_data = 4;
+    optional int32 rx_packet_request = 5;
+    optional int32 rx_buffer_request = 6;
+  }
+  optional UlpXoffThresholds ulp_xoff_thresholds = 18;
+
+  message FalconNetworkRequestsOccupancyThresholds {
+    // Defines the end of green zone (beginning of yellow zone) at this
+    // occupancy level (in terms of buffer credits).
+    optional uint32 green_zone_end = 1;
+    // Defines the end of yellow zone (beginning of red zone) at this occupancy
+    // level (in terms of buffer credits).
+    optional uint32 yellow_zone_end = 2;
+  }
+  optional FalconNetworkRequestsOccupancyThresholds
+      falcon_network_requests_rx_buffer_pool_thresholds = 24;
+  optional FalconNetworkRequestsOccupancyThresholds
+      falcon_network_requests_rx_packet_pool_thresholds = 25;
+  optional FalconNetworkRequestsOccupancyThresholds
+      falcon_network_requests_tx_packet_pool_thresholds = 26;
+
+  message TargetBufferOccupancyEmaCoefficients {
+    optional uint32 tx_context = 1;
+    optional uint32 rx_context = 2;
+    optional uint32 rx_buffer = 3;
+  }
+  optional TargetBufferOccupancyEmaCoefficients ema_coefficients = 27;
+
+  message TargetBufferOccupancyQuantizationTables {
+    // Quantization table to map 16bit to 5bit values that are sent to the
+    // initiator.
+    message QuantizationTable {
+      optional uint32 quantization_level_0_threshold = 1;
+      optional uint32 quantization_level_1_threshold = 2;
+      optional uint32 quantization_level_2_threshold = 3;
+      optional uint32 quantization_level_3_threshold = 4;
+      optional uint32 quantization_level_4_threshold = 5;
+      optional uint32 quantization_level_5_threshold = 6;
+      optional uint32 quantization_level_6_threshold = 7;
+      optional uint32 quantization_level_7_threshold = 8;
+      optional uint32 quantization_level_8_threshold = 9;
+      optional uint32 quantization_level_9_threshold = 10;
+      optional uint32 quantization_level_10_threshold = 11;
+      optional uint32 quantization_level_11_threshold = 12;
+      optional uint32 quantization_level_12_threshold = 13;
+      optional uint32 quantization_level_13_threshold = 14;
+      optional uint32 quantization_level_14_threshold = 15;
+      optional uint32 quantization_level_15_threshold = 16;
+      optional uint32 quantization_level_16_threshold = 17;
+      optional uint32 quantization_level_17_threshold = 18;
+      optional uint32 quantization_level_18_threshold = 19;
+      optional uint32 quantization_level_19_threshold = 20;
+      optional uint32 quantization_level_20_threshold = 21;
+      optional uint32 quantization_level_21_threshold = 22;
+      optional uint32 quantization_level_22_threshold = 23;
+      optional uint32 quantization_level_23_threshold = 24;
+      optional uint32 quantization_level_24_threshold = 25;
+      optional uint32 quantization_level_25_threshold = 26;
+      optional uint32 quantization_level_26_threshold = 27;
+      optional uint32 quantization_level_27_threshold = 28;
+      optional uint32 quantization_level_28_threshold = 29;
+      optional uint32 quantization_level_29_threshold = 30;
+      optional uint32 quantization_level_30_threshold = 31;
+    }
+    optional QuantizationTable tx_context = 1;
+    optional QuantizationTable rx_context = 2;
+    optional QuantizationTable rx_buffer = 3;
+  }
+  optional TargetBufferOccupancyQuantizationTables quantization_tables = 28;
+
+  optional uint64 falcon_tick_time_ns = 10;
+  // Defines scheduling policies
+  enum SchedulingPolicy {
+    ROUND_ROBIN = 0;
+    WEIGHTED_ROUND_ROBIN = 1;
+  }
+  // Defines scheduling policies for the packet type based scheduler.
+  message ConnectionSchedulerPolicies {
+    // Configures the inter packet type scheduling policy adopted by the Falcon
+    // connection scheduler.
+    optional SchedulingPolicy inter_packet_type_scheduling_policy = 1;
+    // Configures the intra packet type scheduling policy adopted by the Falcon
+    // connection scheduler.
+    optional SchedulingPolicy intra_packet_type_scheduling_policy = 2;
+  }
+
+  // Configures the connection scheduler type and the relevant policies.
+  optional ConnectionSchedulerPolicies connection_scheduler_policies = 12;
+
+  // Configures the inter connection scheduling policy adopted by the Falcon
+  // retransmission scheduler.
+  optional SchedulingPolicy inter_connection_retransmission_scheduling_policy =
+      13;
+  // Configures the intra connection scheduling policy adopted by the Falcon
+  // retransmission scheduler.
+  optional SchedulingPolicy intra_connection_retransmission_scheduling_policy =
+      14;
+
+  // The WRR arbiter will arbitrate packets from connection, retransmission, and
+  // ack/nack schedulers based on their weights.
+  optional uint32 connection_scheduler_weight = 19;
+  optional uint32 retransmission_scheduler_weight = 20;
+  optional uint32 ack_nack_scheduler_weight = 21;
+
+  // Represents the admission control policy adopted by the FALCON connection
+  // scheduler.
+  enum AdmissionControlPolicy {
+    RX_WINDOW_BASED = 0;
+    RX_RATE_BASED = 1;
+    TX_RATE_BASED = 2;
+    RX_TX_RATE_BASED = 3;
+    RX_TX_RATE_RX_WINDOW_BASED = 4;
+  }
+  optional AdmissionControlPolicy admission_control_policy = 15;
+  // Represents size of the admission window, i.e., number of incoming bytes
+  // that can be handled. Sized according to the bandwidth delay product.
+  optional int32 admission_window_bytes = 16;
+  // Corresponds to the metadata related to the solicitation rate limiters.
+  message RateBasedSolicitationMetadata {
+    optional uint64 solicitation_rate_gbps =
+        1;  // represents rate at which tokens are added to the bucket.
+    optional uint64 burst_size_bytes = 2;    // represents token bucket size.
+    optional uint64 refill_interval_ns = 3;  // represents bucket refill.
+  }
+  optional RateBasedSolicitationMetadata rx_rate_limiter_metadata = 29;
+  optional RateBasedSolicitationMetadata tx_rate_limiter_metadata = 30;
+
+  // The version of Falcon.
+  optional int32 version = 37;
+  message EarlyRetx {
+    // Threshold for OOO-count.
+    optional uint32 ooo_count_threshold = 1;
+    // Early retransmission: enable OOO-count.
+    optional bool enable_ooo_count = 2;
+    // Threshold for OOO-distance.
+    optional uint32 ooo_distance_threshold = 3;
+    // Early retransmission: enable OOO-distance.
+    optional bool enable_ooo_distance = 4;
+    // Enables EACK-OWN early retransmission logic.
+    optional bool enable_eack_own = 5;
+
+    message EackOwnMetadata {
+      optional bool enable_recency_check_bypass = 1;
+      optional bool enable_scanning_exit_criteria_bypass = 2;
+      optional bool enable_smaller_psn_recency_check_bypass = 3;
+      optional bool ignore_incoming_ar_bit = 4;
+      optional bool enable_pause_initial_transmission_on_oow_drops = 5;
+      optional uint32 request_window_slack = 6;
+      optional uint32 data_window_slack = 7;
+    }
+    optional EackOwnMetadata eack_own_metadata = 16;
+
+    // Threshold of early-retx times per packet.
+    optional uint32 early_retx_threshold = 15;
+  }
+  optional EarlyRetx early_retx = 43;
+  // EACK triggering condition based on data rx bitmap. True: rx bitmap has
+  // holes. False: rx bitmap != 0.
+  optional bool eack_trigger_by_hole_in_rx_bitmap = 46;
+
+  // Flag to control reflection of receiver buffer occupancy on ACKs/NACKs.
+  // Added temporary until we get confidence in the finite resource modeling.
+  // This effectively turns on ncwnd modulation.
+  //
+  optional bool enable_rx_buffer_occupancy_reflection = 38;
+
+  // Configuration options for the per-connection backpressure manager.
+  message PerConnectionBackpressure {
+    optional bool enable_backpressure = 1;
+
+    // We use alpha carving to calculate a dynamic buffer limit for each
+    // connection. If a connection's resource usage exceeds its buffer limits,
+    // we assert xoff.
+    message AlphaCarvingConfiguration {
+      // Base_alpha is selected based on the maximum per QP
+      // credit. For example, if we have 4300 total Tx contexts, and per-QP max
+      // credits is 512. Choosing an alpha value of 1/8 would enable having
+      // lower buffer limits than the max per-QP credit.
+      optional double base_alpha = 1;
+      // If enable_bound is asserted, we calculate an upper bound for the
+      // dynamic
+      // limit. The upper bound is calculated using: min(NCWND, FCWND) +
+      // extra_credits.
+      optional bool enable_bound = 2;
+      // If quantization_bits is set larger than 0, FALCON quantizes the dynamic
+      // limit before giving it to RDMA. Otherwise, FALCON gives the absolute
+      // value to RDMA.
+      optional uint32 quantization_bits = 3;
+      // Reserve a small amount of request_tx_packet and response_tx_packet
+      // resources in FALCON. This part of the resource is not visible to the
+      // alpha carving.
+      optional uint32 tx_packet_headroom = 4;
+      // Whether to use the pre-calculated alpha from Swift RUE's response.
+      optional bool use_swift_response = 5;
+    }
+
+    message XoffPolicy {
+      // We assert the xoff when the connection queue length is larger than the
+      // high_threshold. We de-assert the xoff when the queue length is
+      // smaller than the low_threshold.
+      message ConnectionQueueStaticThreshold {
+        optional uint32 high_threshold = 1;
+        optional uint32 low_threshold = 2;
+      }
+      // We assert/de-assert the xoff when the connection queue length is
+      // larger/smaller than the dynamic threshold. The dynamic threshold is
+      // calculated using fcwnd * scale. Scale is a constant number that
+      // normalizes fcwnd into a reasonable range.
+      message ConnectionQueueDynamicThreshold {
+        optional double scale = 1;
+      }
+
+      oneof per_connection_rdma_xoff_policy {
+        ConnectionQueueStaticThreshold connection_queue_static_threshold = 1;
+        ConnectionQueueDynamicThreshold connection_queue_dynamic_threshold = 2;
+        AlphaCarvingConfiguration alpha_carving_configuration = 3;
+      }
+    }
+
+    oneof backpressure_policy {
+      XoffPolicy xoff_policy = 2;
+      AlphaCarvingConfiguration dynamic_credit_policy = 3;
+    }
+  }
+
+  // Configuration options for the RUE
+  message Rue {
+    //
+    optional string algorithm = 1;
+    // Represents the rate of RUE processing speed as an interval between
+    // events. 66ns -> 15.1515M events/sec
+    optional uint64 event_interval_ns = 2 [deprecated = true];
+    // Represents Falcon latency in creating the event and reading the response.
+    optional uint64 falcon_latency_ns = 3;
+    // Represents the Falcon unit time, the granularity of each time tick
+    // measured by Falcon hardware. Actual Falcon hardware defaults to 131072ps
+    optional double falcon_unit_time_ns = 4;
+    // Represents the Timing Wheel unit time, the granularity of each time tick
+    // at which the timing wheel operates. Actual Falcon TW hardware defaults to
+    // 512 ns.
+    optional uint64 tw_unit_time_ns = 5;
+    // Initial fcwnd size.
+    optional uint32 initial_fcwnd = 6;
+    // Initial ncwnd size.
+    optional uint32 initial_ncwnd = 15;
+    // Initial retransmit timeout for bypass mode and min retransmit timeout
+    // when Swift is running.
+    optional uint64 initial_retransmit_timeout_ns = 23;
+    // Delay selection.
+    enum DelaySelect {
+      FULL = 0;
+      FABRIC = 1;
+      FORWARD = 2;
+      REVERSE = 3;
+    }
+    optional DelaySelect delay_select = 7;
+    // Target delay.
+    optional uint32 base_delay_us = 8;
+
+    // Configuration options for swift.
+    //
+    // FalconConfig::Rue config under a new oneof cc_config field.
+    message Swift {
+      optional bool randomize_path = 1;
+      optional double plb_target_rtt_multiplier = 2;
+      optional double plb_congestion_threshold = 3;
+      optional uint32 plb_attempt_threshold = 4;
+      optional uint32 target_rx_buffer_level = 11;
+      optional uint32 max_flow_scaling = 20;
+      optional bool max_decrease_on_eack_nack_drop = 28;
+      optional uint32 max_fcwnd = 5;
+      optional uint32 max_ncwnd = 6;
+      optional double fabric_additive_increment_factor = 7;
+    }
+    optional Swift swift = 9;
+
+    optional uint64 event_queue_size = 10;
+    optional uint64 event_queue_threshold_1 = 16;
+    optional uint64 event_queue_threshold_2 = 17;
+    optional uint64 event_queue_threshold_3 = 18;
+    optional uint64 predicate_1_time_threshold_ns = 19;
+    optional uint64 predicate_2_packet_count_threshold = 20;
+
+    message FixedLatencyModel {
+      // Required.
+      optional uint64 latency_ns = 1;
+    }
+    message GaussianLatencyModel {
+      // Required.
+      optional uint64 mean_ns = 1;
+      // Required.
+      optional uint64 stddev_ns = 2;
+      // Required.
+      optional uint64 min_ns = 3;
+    }
+    message BurstLatencyModel {
+      // Inject long latencies of ${burst_ns} every ${interval} events.
+      // Otherwise apply constant latency of ${base_ns}.
+      // Required.
+      optional uint32 interval = 1;
+      // Required.
+      optional uint64 base_ns = 2;
+      // Required.
+      optional uint64 burst_ns = 3;
+    }
+    oneof latency_model {
+      FixedLatencyModel fixed_latency_model = 11;
+      GaussianLatencyModel gaussian_latency_model = 12;
+      BurstLatencyModel burst_latency_model = 13;
+    }
+  }
+  optional Rue rue = 17;
+
+  // Parameters controlling the setting of the AR (ack requested) bit in the
+  // Falcon header to request an explicit ACK for congestion control purposes.
+  // When the fcwnd of a connection is less than or equal to the ar_threshold (0
+  // - 15), set the AR bit in Falcon header for all TX packets of that
+  // connection. Otherwise, set the AR bit with ar_percent % probability.
+  optional bool enable_ack_request_bit = 58;
+  optional uint32 ack_request_fcwnd_threshold = 22;
+  optional uint32 ack_request_percent = 23;
+  message AckCoalescingThresholds {
+    optional uint32 count = 1;
+    optional uint64 timeout_ns = 2;
+  }
+  optional AckCoalescingThresholds ack_coalescing_thresholds = 52;
+
+  // Configuration related to op-boundary rate-limited AR-bit in GEN_2.
+  message OpBoundaryArBit {
+    optional bool enable = 1;
+    optional uint32 acks_per_sec = 2;
+    optional uint32 ack_burst_size = 3;
+    optional uint32 ack_refill_interval_ns = 4;
+  }
+  optional OpBoundaryArBit op_boundary_ar_bit = 44;
+
+  optional SchedulingPolicy inter_host_rx_scheduling_policy = 49;
+  optional uint64 inter_host_rx_scheduling_tick_ns = 50;
+  optional double rx_falcon_ulp_link_gbps = 51;
+
+  message Gen2ConfigOptions {
+    // Flags related to multipathing and multipath connections.
+    message MultipathConfig {
+      // Specifies the path selection policy for flow labels on outgoing
+      // packets. WEIGHTED_ROUND_ROBIN uses weights decided by RUE that are
+      // based on the congestion on each path to choose the flow label of the
+      // packet. ROUND_ROBIN will obliviously round-robin over the flow labels
+      // and send packets on each path independent of that path's state.
+      // MAX_OPEN_FCWND will choose the flow label corresponding to the path
+      // with the highest open fcwnd.
+      enum PathSelectionPolicy {
+        OPEN_LOOP_FCWND_WEIGHTED_ROUND_ROBIN = 0;
+        OPEN_LOOP_ROUND_ROBIN = 1;
+      }
+      optional PathSelectionPolicy path_selection_policy = 1;
+
+      // Enables single path connections to accept stale ACKs and send an event
+      // to RUE with the ACK information. Defaults to false in the code.
+      optional bool single_path_connection_accept_stale_acks = 4;
+      // Enables multipath connections to accept stale ACKs and send an event to
+      // RUE with the ACK information. Defaults to false in the code.
+      optional bool multipath_connection_accept_stale_acks = 5;
+      // With batched packet scheduling mode, the WRR policy will consume all
+      // credits for an eligible entity before going over to the next eligible
+      // entity. The value of this configuration only matters with a
+      // WEIGHTED_ROUND_ROBIN policy.
+      optional bool batched_packet_scheduling = 6;
+      enum RetxFlowLabel {
+        // For retx, use the same flow label as the initial tx packet.
+        SAME_FLOW_ID_AS_INITIAL_TX = 0;
+      }
+      optional RetxFlowLabel retx_flow_label = 8;
+    }
+    optional MultipathConfig multipath_config = 1;
+
+    // Flags related to per-connection ULP backpressure.
+    optional PerConnectionBackpressure per_connection_ulp_backpressure = 3;
+    optional bool decrement_orc_on_pull_response = 4;
+  }
+  optional Gen2ConfigOptions gen2_config_options = 59;
+}
+
+message PacketBuildConfig {
+  optional uint32 packet_rate_million_pps = 1;
+  // If the number of packets in Tx queue is larger than the threshold, PB will
+  // send Xoff to Falcon.
+  optional uint32 tx_queue_length_threshold = 2;
+  // Random drop probability.
+  optional double random_drop_probability = 3;
+  // Records T1 before or after packet builder. By default, T1 is before PB,
+  // because the queue in PB is simulating ECQ, and T1 is before ECQ.
+  optional bool record_t1_after_packet_builder = 4;
+  // Random drop burst size.
+  optional double random_drop_burst_size = 5;
+  // Random drop ACK/NACK packets or not.
+  optional bool random_drop_ack = 6;
+}
+
+message TrafficShaperConfig {
+  // Number of slots in timing wheel.
+  optional uint64 timing_wheel_slots = 1;
+  // Duration of each timing wheel slot in ns.
+  optional uint32 slot_granularity_ns = 2;
+}
+
+message StatisticsCollectionConfig {
+  // We can always use TIME_SERIES_STAT to record stats, and then calculate the
+  // meaningful results.
+  // The SCALAR_MIN/MAX/MEAN/SUM_STAT directly records the min/max/mean/sum
+  // value of the collected stats.
+  enum StatisticsType {
+    UNSUPPORTED_STAT = 0;
+    TIME_SERIES_STAT = 1;
+    SCALAR_MIN_STAT = 2;
+    SCALAR_MAX_STAT = 3;
+    SCALAR_MEAN_STAT = 4;
+    SCALAR_SUM_STAT = 5;
+    HISTOGRAM_STAT = 6;
+  }
+
+  message FalconFlags {
+    optional bool enable_vector_scheduler_lengths = 1;
+    optional bool enable_histogram_scheduler_lengths = 2;
+    optional bool enable_rue_cc_metrics = 3;
+    optional bool enable_rue_event_queue_length = 4;
+    optional bool enable_xoff_timelines = 5;
+    optional bool enable_max_retransmissions = 6;
+    optional bool enable_per_connection_rdma_counters = 7;
+    optional bool enable_per_connection_network_counters = 8;
+    optional bool enable_per_connection_ack_nack_counters = 9;
+    optional bool enable_per_connection_initiator_txn_counters = 10;
+    optional bool enable_per_connection_target_txn_counters = 11;
+    optional bool enable_per_connection_rue_counters = 12;
+    optional bool enable_per_connection_rue_drop_counters = 13;
+    optional bool enable_per_connection_ack_reason_counters = 14;
+    optional bool enable_per_connection_packet_drop_counters = 15;
+    optional bool enable_per_connection_retx_counters = 16;
+    optional bool enable_solicitation_counters = 17;
+    optional bool enable_per_connection_resource_credit_counters = 18;
+    optional bool enable_per_connection_cwnd_pause = 19;
+    optional bool enable_per_connection_max_rsn_difference = 20;
+    optional bool enable_per_connection_scheduler_queue_length = 21;
+    optional bool enable_per_connection_scheduler_queue_length_histogram = 22;
+    optional bool enable_per_connection_backpressure_alpha_carving_limits = 23;
+    optional bool enable_per_connection_window_usage = 24;
+    optional bool enable_per_connection_initial_tx_rsn_timeline = 25;
+    optional bool enable_per_connection_retx_rsn_timeline = 26;
+    optional bool enable_per_connection_rsn_receive_timeline = 27;
+    optional bool enable_connection_scheduler_max_delayed_packet_stats = 28;
+    optional bool enable_resource_manager_ema_occupancy = 29;
+    optional bool enable_global_resource_credits_timeline = 30;
+    optional bool enable_inter_host_rx_scheduler_queue_length = 31;
+    optional bool enable_ambito_load_factor = 32;
+    optional bool enable_per_connection_rx_from_ulp_rsn_timeline = 33;
+  }
+  message PacketBuilderFlags {
+    optional bool enable_scalar_packet_delay = 1;
+    optional bool enable_vector_packet_delay = 2;
+    optional bool enable_queue_length = 3;
+    optional bool enable_discard_and_drops = 4;
+    optional bool enable_scalar_tx_rx_packets_bytes = 5;
+    optional bool enable_vector_tx_rx_bytes = 6;
+    optional bool enable_pfc = 7;
+    optional bool enable_xoff_duration = 9;
+    // This stat calls Falcon to update per-connection rx/tx bytes.
+    optional bool enable_per_connection_traffic_stats = 10;
+  }
+  message RdmaFlags {
+    optional bool enable_op_timeseries = 1;
+    optional bool enable_per_qp_xoff = 2;
+    optional bool enable_total_xoff = 3;
+    optional bool enable_credit_stall = 4;
+    optional bool enable_histograms = 5;
+  }
+  message RouterFlags {
+    // Enable per-port statistics (egress link capacity and total queue length).
+    optional bool enable_port_stats_collection = 1;
+    // Period of port statistics collection.
+    optional uint32 port_stats_collection_interval_us = 2;
+    optional bool enable_scalar_per_port_tx_rx_packets = 3;
+    optional bool enable_vector_per_port_tx_rx_bytes = 4;
+    optional bool enable_port_load_and_util_gamma = 5;
+    optional bool enable_per_port_ingress_discards = 6;
+    optional bool enable_packet_discards = 7;
+    optional bool enable_per_port_per_queue_stats = 8;
+    optional bool enable_pfc_stats = 9;
+  }
+  message TrafficGeneratorFlags {
+    optional bool enable_scalar_offered_load = 1;
+    optional bool enable_vector_offered_load = 2;
+    optional bool enable_op_schedule_interval = 3;
+    optional bool enable_scalar_op_stats = 4;
+    optional bool enable_vector_op_stats = 5;
+    optional bool enable_per_qp_tx_rx_bytes = 6;
+  }
+  optional FalconFlags falcon_flags = 1;
+  optional PacketBuilderFlags packet_builder_flags = 2;
+  optional RdmaFlags rdma_flags = 3;
+  optional RouterFlags router_flags = 4;
+  optional TrafficGeneratorFlags traffic_generator_flags = 5;
+}
+
+// Config for Network Generator. These fields can be swept on in the Simulation
+// Kit.
+message NetworkGeneratorConfig {
+  // Transport protocol.
+  enum TransportProtocol {
+    UNSUPPORTED = 0;
+    FALCON = 1;
+  }
+  // Path to the input nib_snapshot (RecordIO format NIB snapshot).
+  optional string nib_snapshot = 1;
+  // Evenly select ToR port from nodes or not.
+  optional bool select_tor_port_evenly = 2;
+  // Seed for deterministically randomly selecting hosts
+  optional uint32 random_seed = 3;
+  // Number of hosts. -1 means that it will try to select all available hosts.
+  optional int32 num_hosts = 4;
+  // Simulation time limit in millisecond.
+  optional double sim_time_limit_ms = 5;
+  // Transport protocol.
+  optional TransportProtocol transport_protocol = 6;
+  // The link delay in nanosecond between NIC and S1 router. The default value
+  // is -1, which means not specify link delay from this FLAG.
+  optional double nic_s1_link_delay_ns = 7;
+  // The link delay in nanosecond between S1 and S2 router. The default value is
+  // -1, which means not specify link delay from this FLAG.
+  optional double s1_s2_link_delay_ns = 8;
+  // The link delay in nanosecond between S2 and S3 router. The default value is
+  // -1, which means not specify link delay from this FLAG.
+  optional double s2_s3_link_delay_ns = 9;
+  // The target fabric RTT in nanosecond for intra-rack experiments. If set, the
+  // simulation will calculate and override nic_s1_link_delay_ns.
+  // This RTT includes packet serialization delay and the calculation is based
+  // on 1B dataload. Thus the final RTT the simulation run reaches might be
+  // slightly higher than the number specified in intra_rack_rtt_ns.
+  optional double intra_rack_rtt_ns = 10;
+}
+
+message SimulationConfig {
+  optional NetworkConfig network = 1;
+  optional TrafficPatternConfig traffic_pattern = 2;
+  optional StatisticsCollectionConfig stats_collection = 3;
+  optional NetworkGeneratorConfig network_generator_config = 4;
+}

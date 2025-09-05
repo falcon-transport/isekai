@@ -1,0 +1,27 @@
+--- src/inet/linklayer/ethernet/EtherFrame.msg
++++ src/inet/linklayer/ethernet/EtherFrame.msg
+@@ -32,6 +32,7 @@
+ enum EthernetControlOpCode
+ {
+     ETHERNET_CONTROL_PAUSE = 1;
++    ETHERNET_CONTROL_PFC = 0x101;
+ }
+ 
+ enum SapCode;
+@@ -74,6 +75,16 @@
+     int pauseTime; // in 512 bit-time units
+ }
+ 
++// Priority flow control frame.
++// Detailed format can be found here: https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6032693
++class EthernetPfcFrame extends EthernetControlFrame
++{
++    chunkLength = B(18);
++    opCode = ETHERNET_CONTROL_PFC;
++    short classEnable;  // Each bit indicates if the corresponding timeClass is valid (0 for invalid).
++    short timeClass[8];  // timeClass[i] indicates the the pause time in nanoseconds (0 for X-on, positive values for X-off).
++}
++
+ class EthernetPadding extends FieldsChunk
+ {
+ }

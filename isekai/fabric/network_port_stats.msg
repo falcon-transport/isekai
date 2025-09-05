@@ -1,0 +1,4 @@
+message CollectPortStatisticsMessage
+{
+    int portId;
+}

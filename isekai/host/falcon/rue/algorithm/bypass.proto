@@ -1,0 +1,38 @@
+// Copyright 2024 Google LLC
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package isekai.rue;
+
+message BypassConfiguration {
+  message Gen2TestOnly {
+    // Override flow_label_weight in RUE response.
+    optional int32 override_flow_weight_flow1 = 1;
+    optional int32 override_flow_weight_flow2 = 2;
+    optional int32 override_flow_weight_flow3 = 3;
+    optional int32 override_flow_weight_flow4 = 4;
+    // Change the flow label for the corresponding flow for every RUE response.
+    optional bool always_repath_flow1 = 5;
+    optional bool always_repath_flow2 = 6;
+    optional bool always_repath_flow3 = 7;
+    optional bool always_repath_flow4 = 8;
+    optional bool always_wrr_restart = 9;
+    optional int32 override_alpha_request = 10;
+    optional int32 override_alpha_response = 11;
+    optional int32 override_fipg = 12;
+    optional int32 override_nipg = 13;
+  }
+  optional Gen2TestOnly gen2_test_only = 1;
+}
