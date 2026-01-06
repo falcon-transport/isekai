@@ -1,122 +1,57 @@
 network {
   hosts {
-    id: "host_0"
+    id: "host_64_10"
     ip_address: "fc00:0100:500:b::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_1"
-    ip_address: "fc00:0100:500:c::1"
+    id: "host_65_10"
+    ip_address: "fc00:0100:500:50b::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_2"
-    ip_address: "fc00:0100:500:d::1"
+    id: "host_66_10"
+    ip_address: "fc00:0100:500:4b::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_3"
-    ip_address: "fc00:0100:500:e::1"
+    id: "host_67_10"
+    ip_address: "fc00:0100:500:54b::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_4"
-    ip_address: "fc00:0100:500:f::1"
+    id: "host_68_10"
+    ip_address: "fc00:0100:500:b8e::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_5"
-    ip_address: "fc00:0100:500:10::1"
+    id: "host_69_10"
+    ip_address: "fc00:0100:500:bae::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_6"
-    ip_address: "fc00:0100:500:11::1"
+    id: "host_70_10"
+    ip_address: "fc00:0100:500:bca::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_7"
-    ip_address: "fc00:0100:500:12::1"
+    id: "host_71_10"
+    ip_address: "fc00:0100:500:c0d::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_8"
-    ip_address: "fc00:0100:500:13::1"
+    id: "host_72_10"
+    ip_address: "fc00:0100:500:c2d::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_9"
-    ip_address: "fc00:0100:500:14::1"
+    id: "host_73_10"
+    ip_address: "fc00:0100:500:c4d::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_10"
-    ip_address: "fc00:0100:500:15::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_11"
-    ip_address: "fc00:0100:500:16::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_12"
-    ip_address: "fc00:0100:500:17::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_13"
-    ip_address: "fc00:0100:500:18::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_14"
-    ip_address: "fc00:0100:500:19::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_15"
-    ip_address: "fc00:0100:500:1a::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_16"
-    ip_address: "fc00:0100:500:1b::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_17"
-    ip_address: "fc00:0100:500:1c::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_18"
-    ip_address: "fc00:0100:500:1d::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_19"
-    ip_address: "fc00:0100:500:1e::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_20"
-    ip_address: "fc00:0100:500:1f::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_21"
-    ip_address: "fc00:0100:500:20::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_22"
-    ip_address: "fc00:0100:500:21::1"
-    host_config_profile_name: "host_config"
-  }
-  hosts {
-    id: "host_23"
-    ip_address: "fc00:0100:500:22::1"
+    id: "host_74_10"
+    ip_address: "fc00:0100:500:cca::1"
     host_config_profile_name: "host_config"
   }
   routers {
@@ -319,24 +254,35 @@ network {
           quantization_level_30_threshold: 10912
         }
       }
-      version: 2
+      version: 3
       enable_rx_buffer_occupancy_reflection: true
       early_retx {
         ooo_count_threshold: 3
         enable_ooo_count: false
         ooo_distance_threshold: 3
         enable_ooo_distance: true
-        enable_eack_own: true
-        early_retx_threshold: 2147483647
+        enable_eack_own: false
+        early_retx_threshold: 16
         eack_own_metadata {
           enable_recency_check_bypass: true
           enable_scanning_exit_criteria_bypass: true
           enable_smaller_psn_recency_check_bypass: true
           ignore_incoming_ar_bit: true
           enable_pause_initial_transmission_on_oow_drops: true
-          request_window_slack: 128
-          data_window_slack: 128
+          request_window_slack: 32
+          data_window_slack: 64
         }
+        enable_rack: false
+        rack_time_window_rtt_factor: 0.25
+        min_rack_time_window_ns: 0
+        rack_bypass_rto_check: false
+        rack_bypass_scan_range_limit: false
+        enable_tlp: false
+        min_tlp_timeout_ns: 50000
+        tlp_timeout_rtt_factor: 2.0
+        tlp_per_window_probe: false
+        tlp_type: FIRST_UNRECEIVED
+        tlp_bypass_scan_range_limit: false
       }
       op_boundary_ar_bit {
         enable: true
@@ -348,6 +294,22 @@ network {
       inter_host_rx_scheduling_policy: ROUND_ROBIN
       inter_host_rx_scheduling_tick_ns: 5
       rx_falcon_ulp_link_gbps: 400
+      gen2_config_options {
+        multipath_config {
+          path_selection_policy: OPEN_LOOP_FCWND_WEIGHTED_ROUND_ROBIN
+          single_path_connection_accept_stale_acks: false
+          multipath_connection_accept_stale_acks: false
+          batched_packet_scheduling: false
+        }
+        per_connection_ulp_backpressure {
+          enable_backpressure: false
+          xoff_policy {
+            alpha_carving_configuration {
+              tx_packet_headroom: 0
+            }
+          }
+        }
+      }
       ack_coalescing_thresholds {
         count: 10
         timeout_ns: 8000
@@ -437,34 +399,6 @@ network {
           egress_alpha: 8
           queue_configs {
             queue_id: 0
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 1
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 2
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 3
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 4
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 5
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 6
-            cos_profile_name: "default_cos"
-          }
-          queue_configs {
-            queue_id: 7
             cos_profile_name: "default_cos"
           }
         }
@@ -876,27 +810,33 @@ network {
 }
 traffic_pattern {
   incast {
-    sender_host_ids: "host_1_0"
-    sender_host_ids: "host_2_0"
-    sender_host_ids: "host_3_0"
-    sender_host_ids: "host_4_0"
-    sender_host_ids: "host_5_0"
-    victim_host_ids: "host_0_0"
-    incast_degree: 5
+    sender_host_ids: "host_65_10_0"
+    sender_host_ids: "host_66_10_0"
+    sender_host_ids: "host_67_10_0"
+    sender_host_ids: "host_68_10_0"
+    sender_host_ids: "host_69_10_0"
+    sender_host_ids: "host_70_10_0"
+    sender_host_ids: "host_71_10_0"
+    sender_host_ids: "host_72_10_0"
+    sender_host_ids: "host_73_10_0"
+    sender_host_ids: "host_74_10_0"
+    victim_host_ids: "host_64_10_0"
+    incast_degree: 10
     traffic_characteristics {
       conn_type: ORDERED_RC
-      offered_load: 38
+      offered_load: 15
       sharing_cid: false
       inline_message: false
       conn_config {
         op_code: WRITE
         msg_size_distribution: FIXED_SIZE
         size_distribution_params {
-          mean: 1048576
+          mean: 128000
         }
         arrival_time_distribution: UNIFORM_TIME_DIST
         offered_load_ratio: 1
       }
+      degree_of_multipathing: 1
     }
   }
 }
@@ -933,7 +873,6 @@ stats_collection {
     enable_resource_manager_ema_occupancy: true
     enable_global_resource_credits_timeline: false
     enable_inter_host_rx_scheduler_queue_length: false
-    enable_ambito_load_factor: false
     enable_per_connection_rx_from_ulp_rsn_timeline: false
   }
   packet_builder_flags {
@@ -945,7 +884,6 @@ stats_collection {
     enable_vector_tx_rx_bytes: false
     enable_pfc: false
     enable_xoff_duration: false
-    enable_per_connection_traffic_stats: false
   }
   rdma_flags {
     enable_op_timeseries: false
@@ -959,7 +897,6 @@ stats_collection {
     port_stats_collection_interval_us: 5
     enable_scalar_per_port_tx_rx_packets: false
     enable_vector_per_port_tx_rx_bytes: true
-    enable_port_load_and_util_gamma: false
     enable_per_port_ingress_discards: true
     enable_packet_discards: false
     enable_per_port_per_queue_stats: true

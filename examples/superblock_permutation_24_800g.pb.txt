@@ -1,122 +1,242 @@
 network {
   hosts {
-    id: "host_0"
+    id: "host_64_10"
     ip_address: "fc00:0100:500:b::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_1"
+    id: "host_64_11"
     ip_address: "fc00:0100:500:c::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_2"
+    id: "host_64_12"
     ip_address: "fc00:0100:500:d::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_3"
+    id: "host_64_13"
     ip_address: "fc00:0100:500:e::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_4"
+    id: "host_64_14"
     ip_address: "fc00:0100:500:f::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_5"
+    id: "host_64_15"
     ip_address: "fc00:0100:500:10::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_6"
+    id: "host_64_16"
     ip_address: "fc00:0100:500:11::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_7"
+    id: "host_64_17"
     ip_address: "fc00:0100:500:12::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_8"
+    id: "host_64_18"
     ip_address: "fc00:0100:500:13::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_9"
+    id: "host_64_19"
     ip_address: "fc00:0100:500:14::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_10"
+    id: "host_64_20"
     ip_address: "fc00:0100:500:15::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_11"
+    id: "host_64_21"
     ip_address: "fc00:0100:500:16::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_12"
+    id: "host_64_22"
     ip_address: "fc00:0100:500:17::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_13"
+    id: "host_64_23"
     ip_address: "fc00:0100:500:18::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_14"
+    id: "host_64_24"
     ip_address: "fc00:0100:500:19::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_15"
+    id: "host_64_25"
     ip_address: "fc00:0100:500:1a::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_16"
+    id: "host_64_26"
     ip_address: "fc00:0100:500:1b::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_17"
+    id: "host_64_27"
     ip_address: "fc00:0100:500:1c::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_18"
+    id: "host_64_28"
     ip_address: "fc00:0100:500:1d::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_19"
+    id: "host_64_29"
     ip_address: "fc00:0100:500:1e::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_20"
+    id: "host_64_30"
     ip_address: "fc00:0100:500:1f::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_21"
+    id: "host_64_31"
     ip_address: "fc00:0100:500:20::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_22"
+    id: "host_64_32"
     ip_address: "fc00:0100:500:21::1"
     host_config_profile_name: "host_config"
   }
   hosts {
-    id: "host_23"
+    id: "host_64_33"
     ip_address: "fc00:0100:500:22::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_10"
+    ip_address: "fc00:0100:500:4cc::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_11"
+    ip_address: "fc00:0100:500:4cc::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_12"
+    ip_address: "fc00:0100:500:4cd::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_13"
+    ip_address: "fc00:0100:500:4ce::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_14"
+    ip_address: "fc00:0100:500:4cf::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_15"
+    ip_address: "fc00:0100:500:4d0::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_16"
+    ip_address: "fc00:0100:500:4d1::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_17"
+    ip_address: "fc00:0100:500:4d2::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_18"
+    ip_address: "fc00:0100:500:4d3::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_19"
+    ip_address: "fc00:0100:500:4d4::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_20"
+    ip_address: "fc00:0100:500:4d5::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_21"
+    ip_address: "fc00:0100:500:4d6::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_22"
+    ip_address: "fc00:0100:500:4d7::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_23"
+    ip_address: "fc00:0100:500:4d8::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_24"
+    ip_address: "fc00:0100:500:4d9::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_25"
+    ip_address: "fc00:0100:500:4da::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_26"
+    ip_address: "fc00:0100:500:4db::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_27"
+    ip_address: "fc00:0100:500:4dc::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_28"
+    ip_address: "fc00:0100:500:4dd::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_29"
+    ip_address: "fc00:0100:500:4de::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_30"
+    ip_address: "fc00:0100:500:4df::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_31"
+    ip_address: "fc00:0100:500:4e0::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_32"
+    ip_address: "fc00:0100:500:4e1::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_123_33"
+    ip_address: "fc00:0100:500:4e2::1"
     host_config_profile_name: "host_config"
   }
   routers {
@@ -131,7 +251,7 @@ network {
       simulation_mode: PROTOCOL
       lookup_delay_ns: 0
       tx_buffer_minimum_allocation_unit: 64
-      rx_buffer_minimum_allocation_unit: 256
+      rx_buffer_minimum_allocation_unit: 512
       resource_reservation_mode: FIRST_PHASE_RESERVATION
       resource_credits {
         tx_packet_credits {
@@ -319,24 +439,35 @@ network {
           quantization_level_30_threshold: 10912
         }
       }
-      version: 2
+      version: 3
       enable_rx_buffer_occupancy_reflection: true
       early_retx {
         ooo_count_threshold: 3
         enable_ooo_count: false
-        ooo_distance_threshold: 3
-        enable_ooo_distance: true
-        enable_eack_own: true
-        early_retx_threshold: 2147483647
+        ooo_distance_threshold: 12
+        enable_ooo_distance: false
+        enable_eack_own: false
+        early_retx_threshold: 16
         eack_own_metadata {
           enable_recency_check_bypass: true
           enable_scanning_exit_criteria_bypass: true
           enable_smaller_psn_recency_check_bypass: true
           ignore_incoming_ar_bit: true
           enable_pause_initial_transmission_on_oow_drops: true
-          request_window_slack: 128
-          data_window_slack: 128
+          request_window_slack: 32
+          data_window_slack: 64
         }
+        enable_rack: false
+        rack_time_window_rtt_factor: 0.25
+        min_rack_time_window_ns: 0
+        rack_bypass_rto_check: false
+        rack_bypass_scan_range_limit: false
+        enable_tlp: false
+        min_tlp_timeout_ns: 0
+        tlp_timeout_rtt_factor: 1.1
+        tlp_per_window_probe: false
+        tlp_type: FIRST_UNRECEIVED
+        tlp_bypass_scan_range_limit: false
       }
       op_boundary_ar_bit {
         enable: true
@@ -347,7 +478,24 @@ network {
       eack_trigger_by_hole_in_rx_bitmap: true
       inter_host_rx_scheduling_policy: ROUND_ROBIN
       inter_host_rx_scheduling_tick_ns: 5
-      rx_falcon_ulp_link_gbps: 400
+      rx_falcon_ulp_link_gbps: 983.0
+      gen2_config_options {
+        multipath_config {
+          path_selection_policy: CLOSED_LOOP_MAX_OPEN_FCWND_RR_WHEN_TIE
+          single_path_connection_accept_stale_acks: false
+          multipath_connection_accept_stale_acks: true
+          batched_packet_scheduling: false
+          retx_flow_label: SAME_FLOW_ID_AS_INITIAL_TX
+        }
+        per_connection_ulp_backpressure {
+          enable_backpressure: false
+          xoff_policy {
+            alpha_carving_configuration {
+              tx_packet_headroom: 0
+            }
+          }
+        }
+      }
       ack_coalescing_thresholds {
         count: 10
         timeout_ns: 8000
@@ -355,7 +503,7 @@ network {
       enable_ack_request_bit: true
     }
     rdma_configuration {
-      mtu: 4096
+      mtu: 8192
       max_segment_length: 1073741824
       max_inline_payload_length: 224
       work_scheduler_quanta: 4096
@@ -369,17 +517,17 @@ network {
         tx_buffer_data: 5775
       }
       per_qp_credits {
-        tx_packet_request: 512
-        tx_buffer_request: 512
-        rx_packet_request: 512
-        rx_buffer_request: 6661
-        tx_packet_data: 512
-        tx_buffer_data: 512
+        tx_packet_request: 1024
+        tx_buffer_request: 1024
+        rx_packet_request: 1024
+        rx_buffer_request: 8192
+        tx_packet_data: 1024
+        tx_buffer_data: 1024
       }
       scheduler_pipeline_delay_in_cycles: 0
       tx_rate_limiter {
         refill_interval_ns: 250
-        burst_size_bytes: 12500
+        burst_size_bytes: 25000
       }
       inbound_read_queue_depth: 2147483647
       outbound_read_queue_depth: 2147483647
@@ -398,7 +546,7 @@ network {
       packet_rate_million_pps: 200
       tx_queue_length_threshold: 16
       random_drop_probability: 0
-      random_drop_burst_size: 1
+      random_drop_burst_size: 3
       random_drop_ack: false
     }
     rnic_configuration {
@@ -877,68 +1025,531 @@ network {
 traffic_pattern {
   composite_pattern {
     uniform_random {
-      initiator_host_ids: "host_0_0"
-      initiator_host_ids: "host_1_0"
-      initiator_host_ids: "host_2_0"
-      initiator_host_ids: "host_3_0"
-      initiator_host_ids: "host_4_0"
-      initiator_host_ids: "host_5_0"
-      initiator_host_ids: "host_6_0"
-      initiator_host_ids: "host_7_0"
-      initiator_host_ids: "host_8_0"
-      initiator_host_ids: "host_9_0"
-      initiator_host_ids: "host_10_0"
-      initiator_host_ids: "host_11_0"
-      initiator_host_ids: "host_12_0"
-      initiator_host_ids: "host_13_0"
-      initiator_host_ids: "host_14_0"
-      initiator_host_ids: "host_15_0"
-      initiator_host_ids: "host_16_0"
-      initiator_host_ids: "host_17_0"
-      initiator_host_ids: "host_18_0"
-      initiator_host_ids: "host_19_0"
-      initiator_host_ids: "host_20_0"
-      initiator_host_ids: "host_21_0"
-      initiator_host_ids: "host_22_0"
-      initiator_host_ids: "host_23_0"
-      target_host_ids: "host_0_0"
-      target_host_ids: "host_1_0"
-      target_host_ids: "host_2_0"
-      target_host_ids: "host_3_0"
-      target_host_ids: "host_4_0"
-      target_host_ids: "host_5_0"
-      target_host_ids: "host_6_0"
-      target_host_ids: "host_7_0"
-      target_host_ids: "host_8_0"
-      target_host_ids: "host_9_0"
-      target_host_ids: "host_10_0"
-      target_host_ids: "host_11_0"
-      target_host_ids: "host_12_0"
-      target_host_ids: "host_13_0"
-      target_host_ids: "host_14_0"
-      target_host_ids: "host_15_0"
-      target_host_ids: "host_16_0"
-      target_host_ids: "host_17_0"
-      target_host_ids: "host_18_0"
-      target_host_ids: "host_19_0"
-      target_host_ids: "host_20_0"
-      target_host_ids: "host_21_0"
-      target_host_ids: "host_22_0"
-      target_host_ids: "host_23_0"
+      initiator_host_ids: "host_64_10_0"
+      target_host_ids: "host_123_10_0"
+      bidirectional: false
       traffic_characteristics {
         conn_type: ORDERED_RC
-        offered_load: 120
+        offered_load: 240
         sharing_cid: false
         inline_message: false
         conn_config {
           op_code: WRITE
           msg_size_distribution: FIXED_SIZE
           size_distribution_params {
-            mean: 1048576
+            mean: 131072
           }
           arrival_time_distribution: POISSON_PROCESS
           offered_load_ratio: 1
+          max_generated_ops: -1
         }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_11_0"
+      target_host_ids: "host_123_11_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_12_0"
+      target_host_ids: "host_123_12_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_13_0"
+      target_host_ids: "host_123_13_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_14_0"
+      target_host_ids: "host_123_14_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_15_0"
+      target_host_ids: "host_123_15_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_16_0"
+      target_host_ids: "host_123_16_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_17_0"
+      target_host_ids: "host_123_17_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_18_0"
+      target_host_ids: "host_123_18_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_19_0"
+      target_host_ids: "host_123_19_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_20_0"
+      target_host_ids: "host_123_20_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_21_0"
+      target_host_ids: "host_123_21_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_22_0"
+      target_host_ids: "host_123_22_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_23_0"
+      target_host_ids: "host_123_23_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_24_0"
+      target_host_ids: "host_123_24_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_25_0"
+      target_host_ids: "host_123_25_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_26_0"
+      target_host_ids: "host_123_26_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_27_0"
+      target_host_ids: "host_123_27_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_28_0"
+      target_host_ids: "host_123_28_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_29_0"
+      target_host_ids: "host_123_29_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_30_0"
+      target_host_ids: "host_123_30_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_31_0"
+      target_host_ids: "host_123_31_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_32_0"
+      target_host_ids: "host_123_32_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
+      }
+    }
+    uniform_random {
+      initiator_host_ids: "host_64_33_0"
+      target_host_ids: "host_123_33_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 240
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 4
       }
     }
   }
@@ -976,7 +1587,6 @@ stats_collection {
     enable_resource_manager_ema_occupancy: true
     enable_global_resource_credits_timeline: false
     enable_inter_host_rx_scheduler_queue_length: false
-    enable_ambito_load_factor: false
     enable_per_connection_rx_from_ulp_rsn_timeline: false
   }
   packet_builder_flags {
@@ -988,7 +1598,6 @@ stats_collection {
     enable_vector_tx_rx_bytes: false
     enable_pfc: false
     enable_xoff_duration: false
-    enable_per_connection_traffic_stats: false
   }
   rdma_flags {
     enable_op_timeseries: false
@@ -1002,7 +1611,6 @@ stats_collection {
     port_stats_collection_interval_us: 5
     enable_scalar_per_port_tx_rx_packets: false
     enable_vector_per_port_tx_rx_bytes: true
-    enable_port_load_and_util_gamma: false
     enable_per_port_ingress_discards: true
     enable_packet_discards: false
     enable_per_port_per_queue_stats: true

@@ -237,6 +237,7 @@ OmnestPacketBuilder::OmnestPacketBuilder(
   // it up.
   transport_ = static_cast<FalconInterface*>(nullptr);
   if (falcon != nullptr) transport_ = falcon;
+
   if (host_module_) {
     //
     // like support_pfc_. Eventually the NIC and router will share the MMU code,
@@ -595,11 +596,8 @@ absl::Duration OmnestPacketBuilder::SendoutPacket(omnetpp::cPacket* packet) {
       std::get<FalconInterface*>(transport_) != nullptr) {
     const auto& falcon_content = falcon_packet->getFalconContent();
     added_delay_ns = falcon_content.metadata.added_delay_ns;
-    if (stats_collection_flags_.enable_per_connection_traffic_stats()) {
-      std::get<FalconInterface*>(transport_)
-          ->UpdateTxBytes(std::make_unique<Packet>(falcon_content),
-                          packet_size);
-    }
+    std::get<FalconInterface*>(transport_)
+        ->UpdateTxBytes(std::make_unique<Packet>(falcon_content), packet_size);
   }
   cumulative_tx_bytes_ += packet_size;
   if (stats_collection_flags_.enable_scalar_tx_rx_packets_bytes()) {
@@ -670,8 +668,7 @@ void OmnestPacketBuilder::ExtractAndHandleTransportPacket(
           received_packet->peekAtFront<inet::UdpHeader>()->getDestinationPort();
       if (RemoveUdpHeader(received_packet)) {
         {
-          if (stats_collection_flags_.enable_per_connection_traffic_stats() &&
-              std::get<FalconInterface*>(transport_) != nullptr) {
+          if (std::get<FalconInterface*>(transport_) != nullptr) {
             const auto& falcon_packet =
                 received_packet->peekAtFront<FalconPacket>();
             const auto& falcon_content = falcon_packet->getFalconContent();

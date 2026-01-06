@@ -47,8 +47,11 @@
 #include "isekai/host/falcon/gen2/falcon_model.h"
 #include "isekai/host/falcon/gen2/falcon_types.h"
 #include "isekai/host/falcon/gen2/falcon_utils.h"
+#include "isekai/host/falcon/gen3/falcon_model.h"
+#include "isekai/host/falcon/gen3/falcon_types.h"
 #include "isekai/host/falcon/rue/format.h"
 #include "isekai/host/falcon/rue/format_gen2.h"
+#include "isekai/host/falcon/rue/format_gen3.h"
 #include "isekai/host/rnic/connection_manager.h"
 
 namespace isekai {
@@ -63,6 +66,12 @@ void FalconTestingHelpers::FalconTestSetup::InitFalcon(
   } else if (config.version() == 2) {
     // If Gen2, use 4 flows (paths) per connection.
     falcon_ = std::make_unique<Gen2FalconModel>(
+        config, &env_, /*stats_collector=*/nullptr,
+        ConnectionManager::GetConnectionManager(), "falcon-host",
+        /* number of hosts */ 4);
+  } else if (config.version() == 3) {
+    // If Gen3, use 4 flows (paths) per connection.
+    falcon_ = std::make_unique<Gen3FalconModel>(
         config, &env_, /*stats_collector=*/nullptr,
         ConnectionManager::GetConnectionManager(), "falcon-host",
         /* number of hosts */ 4);
@@ -221,12 +230,15 @@ FalconTestingHelpers::InitializeConnectionMetadata(const FalconModel* falcon,
   std::unique_ptr<ConnectionMetadata> connection_metadata;
   if (falcon->get_config()->version() == 1) {
     connection_metadata = std::make_unique<ConnectionMetadata>();
-  } else if (falcon->get_config()->version() >= 2) {
+  } else if (falcon->get_config()->version() == 2) {
+    connection_metadata = std::make_unique<Gen2ConnectionMetadata>();
+  } else if (falcon->get_config()->version() >= 3) {
     connection_metadata = std::make_unique<Gen2ConnectionMetadata>();
   } else {
     LOG(FATAL) << "Unsupported Falcon version: "
                << falcon->get_config()->version();
   }
+
   connection_metadata->scid = scid;
   connection_metadata->ordered_mode = ordering_mode;
   connection_metadata->source_bifurcation_id = kSourceBifurcationId;
@@ -403,6 +415,39 @@ void FalconTestingHelpers::FakeRueAdapter<
   if (num_flows > 3) {
     response_queue_.back()->flow_label_4_weight = ccmeta.gen2_flow_weights[3];
   }
+}
+
+template <>
+void FalconTestingHelpers::FakeRueAdapter<
+    falcon_rue::EVENT_Gen3,
+    falcon_rue::Response_Gen3>::ProcessNextEvent(uint32_t now) {
+  auto event = std::move(event_queue_.front());
+  event_queue_.pop();
+  response_queue_.push(std::make_unique<falcon_rue::Response_Gen3>());
+  response_queue_.back()->connection_id = event->connection_id;
+  response_queue_.back()->retransmit_timeout = kDefaultRetransmissionTimeout;
+  response_queue_.back()->fabric_congestion_window =
+      event->fabric_congestion_window;
+  response_queue_.back()->nic_congestion_window = event->nic_congestion_window;
+  response_queue_.back()->inter_packet_gap = 0;
+  response_queue_.back()->nic_window_time_marker =
+      event->nic_window_time_marker;
+  response_queue_.back()->event_queue_select = event->event_queue_select;
+  response_queue_.back()->delay_select = event->delay_select;
+  response_queue_.back()->base_delay = event->base_delay;
+  response_queue_.back()->delay_state = event->delay_state;
+  response_queue_.back()->rtt_state = event->rtt_state;
+  response_queue_.back()->cc_opaque = event->cc_opaque;
+  response_queue_.back()->plb_state = event->plb_state;
+  CHECK_OK_THEN_ASSIGN(
+      ConnectionState* const connection_state,
+      falcon_->get_state_manager()->PerformDirectLookup(event->connection_id));
+  Gen3CongestionControlMetadata& ccmeta =
+      CongestionControlMetadata::DowncastTo<Gen3CongestionControlMetadata>(
+          *connection_state->congestion_control_metadata);
+  int num_flows = ccmeta.gen2_flow_weights.size();
+  response_queue_.back()->flow_id =
+      GetFlowIdFromFlowLabel(event->flow_label, num_flows);
 }
 
 template <typename EventT, typename ResponseT>
@@ -663,5 +708,9 @@ template class ProtocolRateUpdateEngineTestPeer<falcon_rue::Event,
                                                 falcon_rue::Response>;
 template class ProtocolRateUpdateEngineTestPeer<falcon_rue::Event_Gen2,
                                                 falcon_rue::Response_Gen2>;
+template class MockRueAdapter<falcon_rue::EVENT_Gen3,
+                              falcon_rue::Response_Gen3>;
+template class ProtocolRateUpdateEngineTestPeer<falcon_rue::EVENT_Gen3,
+                                                falcon_rue::Response_Gen3>;
 
 }  // namespace isekai

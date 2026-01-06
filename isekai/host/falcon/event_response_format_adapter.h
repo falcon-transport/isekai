@@ -27,6 +27,7 @@
 #include "isekai/host/falcon/gen1/falcon_types.h"
 #include "isekai/host/falcon/rue/algorithm/swift.pb.h"
 #include "isekai/host/falcon/rue/format_gen2.h"
+#include "isekai/host/falcon/rue/format_gen3.h"
 
 namespace isekai {
 
@@ -108,6 +109,46 @@ void EventResponseFormatAdapter<falcon_rue::Event_Gen2,
                          const CongestionControlMetadata& ccmeta,
                          uint32_t num_packets_acked, bool eack,
                          bool eack_drop) const;
+
+// Gen_3 template specializations.
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    UpdateConnectionStateFromResponse(
+        ConnectionState* connection_state,
+        const falcon_rue::Response_Gen3* response) const;
+
+template <>
+bool EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    IsRandomizePath(const falcon_rue::Response_Gen3* response) const;
+
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    FillTimeoutRetransmittedEvent(falcon_rue::EVENT_Gen3& event,
+                                  const RueKey* rue_key, const Packet* packet,
+                                  const CongestionControlMetadata& ccmeta,
+                                  uint8_t retransmit_count) const;
+
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    FillNackEvent(falcon_rue::EVENT_Gen3& event, const RueKey* rue_key,
+                  const Packet* packet, const CongestionControlMetadata& ccmeta,
+                  uint32_t num_packets_acked) const;
+
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    FillExplicitAckEvent(falcon_rue::EVENT_Gen3& event, const RueKey* rue_key,
+                         const Packet* packet,
+                         const CongestionControlMetadata& ccmeta,
+                         uint32_t num_packets_acked, bool eack,
+                         bool eack_drop) const;
+
+//
+// TLP
 
 }  // namespace isekai
 

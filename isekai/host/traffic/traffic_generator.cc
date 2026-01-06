@@ -64,11 +64,17 @@ constexpr std::string_view kStatScalarOpScheduleInterval =
 // Flags: enable_scalar_op_stats
 constexpr std::string_view kStatScalarGoodput =
     "traffic_generator.goodput.src_$0.dst_$1";
+constexpr std::string_view kStatScalarGoodputPattern =
+    "traffic_generator.goodput.src_$0.dst_$1.pattern_$2";
 constexpr std::string_view kStatScalarCompletedOps =
     "traffic_generator.completed_ops_scalar.src_$0.dst_$1";
 constexpr std::string_view kStatScalarOpLatency =
     "traffic_generator.op_latency_scalar.src_$0.dst_$1.pattern_$2.opcode_$3."
     "size_$4";
+
+// Records the elapsed time
+constexpr std::string_view kStatScalarElapsedTimeUs =
+    "traffic_generator.elapsed_time_us";
 
 // Collects vector generated op size, completed ops, op size and latency.
 // Flags: enable_vector_op_stats
@@ -180,8 +186,8 @@ TrafficGenerator::TrafficGenerator(
 
 void TrafficGenerator::SetDefaultValuesInConnectionConfig(
     TrafficCharacteristics::ConnectionConfig& config) {
-  if (!config.has_max_generated_packets()) {
-    config.set_max_generated_packets(-1);
+  if (!config.has_max_generated_ops()) {
+    config.set_max_generated_ops(-1);
   }
   if (!config.has_op_config()) {
     config.mutable_op_config()->set_write_ratio(0.25);
@@ -697,11 +703,11 @@ void TrafficGenerator::GenerateOpForUniformRandom(
   if (traffic_pattern->is_initiator == false) return;
 
   if (traffic_pattern->traffic_characteristics.connection_config
-              .max_generated_packets() != -1 &&
-      traffic_pattern->generated_packets >=
+              .max_generated_ops() != -1 &&
+      traffic_pattern->num_generated_ops >=
           traffic_pattern->traffic_characteristics.connection_config
-              .max_generated_packets()) {
-    // Reaches the max number of packets that can be generated.
+              .max_generated_ops()) {
+    // Reaches the max number of ops that can be generated.
     return;
   }
 
@@ -819,11 +825,11 @@ void TrafficGenerator::GenerateOpForIncast(IncastInfo* const traffic_pattern) {
   if (traffic_pattern->is_initiator == false) return;
 
   if (traffic_pattern->traffic_characteristics.connection_config
-              .max_generated_packets() != -1 &&
-      traffic_pattern->generated_packets >=
+              .max_generated_ops() != -1 &&
+      traffic_pattern->num_generated_ops >=
           traffic_pattern->traffic_characteristics.connection_config
-              .max_generated_packets()) {
-    // Reaches the max number of packets that can be generated.
+              .max_generated_ops()) {
+    // Reaches the max number of ops that can be generated.
     return;
   }
 
@@ -844,11 +850,11 @@ void TrafficGenerator::GenerateOpForExplicitPattern(
     ExplicitPatternInfo* const traffic_pattern) {
   if (traffic_pattern->is_initiator == false) return;
   if (traffic_pattern->traffic_characteristics.connection_config
-              .max_generated_packets() != -1 &&
-      traffic_pattern->generated_packets >=
+              .max_generated_ops() != -1 &&
+      traffic_pattern->num_generated_ops >=
           traffic_pattern->traffic_characteristics.connection_config
-              .max_generated_packets()) {
-    // Reaches the max number of packets that can be generated.
+              .max_generated_ops()) {
+    // Reaches the max number of ops that can be generated.
     return;
   }
   double next_event_time = 0;
@@ -924,6 +930,15 @@ void TrafficGenerator::GenerateQpTraffic(
   // Collects the registered statistics.
   UpdateOfferedLoadStats(msg_size, op_code, traffic_pattern_info, host_ids);
   UpdateOpSchedulingIntervalStats();
+
+  // Updates elapsed time.
+  if (stats_collection_) {
+    CHECK_OK(stats_collection_->UpdateStatistic(
+        kStatScalarElapsedTimeUs,
+        absl::ToDoubleMicroseconds(env_->ElapsedTime()),
+        StatisticsCollectionConfig::SCALAR_MAX_STAT));
+  }
+
   // Updates the tx bytes per Qp.
   if (stats_collection_ &&
       stats_collection_flags_.enable_per_qp_tx_rx_bytes()) {
@@ -945,12 +960,12 @@ void TrafficGenerator::GenerateQpTraffic(
   rdma_->PerformOp(local_qp_id, op_code, {msg_size},
                    traffic_pattern_info->traffic_characteristics.inline_message,
                    completion_callback, remote_qp_id);
-  traffic_pattern_info->generated_packets++;
+  traffic_pattern_info->num_generated_ops++;
 
   VLOG(2) << host_id_ << " issues op [local_qp_id: " << local_qp_id
           << "; remote_qp_id: " << remote_qp_id << "; msg_size: " << msg_size
           << "; op_code: " << ConvertOpCodeToString(op_code)
-          << "; seq_id: " << traffic_pattern_info->generated_packets
+          << "; seq_id: " << traffic_pattern_info->num_generated_ops
           << "] @time: " << env_->ElapsedTime();
 }
 
@@ -1037,6 +1052,11 @@ void TrafficGenerator::UpdateOpLevelStats(
     config_op_size = op_size;
   }
 
+  // Updates elapsed time.
+  CHECK_OK(stats_collection_->UpdateStatistic(
+      kStatScalarElapsedTimeUs, absl::ToDoubleMicroseconds(env_->ElapsedTime()),
+      StatisticsCollectionConfig::SCALAR_MAX_STAT));
+
   // Uses the goodput scalar for integration test on forge only.
   auto goodput_stat_name =
       absl::Substitute(kStatScalarGoodput, host_ids.first, host_ids.second);
@@ -1046,6 +1066,18 @@ void TrafficGenerator::UpdateOpLevelStats(
   if (stats_collection_flags_.enable_scalar_op_stats()) {
     CHECK_OK(stats_collection_->UpdateStatistic(
         goodput_stat_name, total_completed_op_size,
+        StatisticsCollectionConfig::SCALAR_MAX_STAT));
+  }
+
+  if (stats_collection_flags_.enable_scalar_op_stats()) {
+    auto goodput_pattern_stat_name = absl::Substitute(
+        kStatScalarGoodputPattern, host_ids.first, host_ids.second,
+        traffic_pattern_info->traffic_pattern_id);
+    auto& total_pattern_completed_op_size = host_ids_to_stats_[{
+        host_ids.first, host_ids.second}][goodput_pattern_stat_name];
+    total_pattern_completed_op_size += config_op_size * 8 / kGiga;
+    CHECK_OK(stats_collection_->UpdateStatistic(
+        goodput_pattern_stat_name, total_pattern_completed_op_size,
         StatisticsCollectionConfig::SCALAR_MAX_STAT));
   }
 

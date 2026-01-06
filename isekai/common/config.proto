@@ -66,7 +66,7 @@ message MemoryInterfaceConfig {
     // The sum of all weights need not be 1.
     optional string memory_delay_discrete_mapping = 7;
 
-    optional uint64 memory_interface_queue_size_packets = 8;
+    optional uint64 memory_interface_queue_size_packets = 8 [default = 1];
   }
 
   optional MemoryQueueInterfaceConfig write_queue_config = 1;
@@ -216,10 +216,10 @@ message TrafficCharacteristics {
     optional MessageSizeDistribution msg_size_distribution = 2;
     optional SizeDistributionParams size_distribution_params = 3;
     optional ArrivalTimeDistribution arrival_time_distribution = 4;
-    // The max number of packets will be generated (-1 means unlimited). With
+    // The max number of ops will be generated (-1 means unlimited). With
     // this option, we can create, for example, single incast instance or
     // multiple incast instances in the test.
-    optional int32 max_generated_packets = 5;
+    optional int32 max_generated_ops = 5;
     // The ratio of offered_load for this config.
     optional double offered_load_ratio = 6;
     // The ratio of different op types.
@@ -311,8 +311,8 @@ message RdmaConfig {
   optional uint64 max_segment_length = 2;
   // Maximum limit on the inline payload length send with an RDMA operation.
   optional uint32 max_inline_payload_length = 3;
-  // RDMA work scheduler quanta in bytes. MEV Vol1 states that this quanta can
-  // range from 1KB to 16KB in 1 KB increments.
+  // RDMA work scheduler quanta in bytes. This quanta can range from 1KB to 16KB
+  // in 1 KB increments.
   optional uint32 work_scheduler_quanta = 4;
   // The time it takes for the RDMA model to post a transaction to Falcon, and
   // cycle back for the next transaction. Effectively, the inter-transaction
@@ -589,6 +589,42 @@ message FalconConfig {
     }
     optional EackOwnMetadata eack_own_metadata = 16;
 
+    // RACK:
+    // Enable RACK.
+    optional bool enable_rack = 6;
+    // RACK's reorder window is calculated using rtt * this factor.
+    optional double rack_time_window_rtt_factor = 7;
+    // RACK's minimum reorder window in nanosecond.
+    optional uint64 min_rack_time_window_ns = 8;
+    // If true, disable RACK RTO check during scan, disable RACK RTO background
+    // scans, and retransmit all packets meeting RACK xmit_ts criteria upon ACK.
+    optional bool rack_bypass_rto_check = 9;
+    // If true, disables RACK scan range limit, allowing RACK scan to cover
+    // entire TX window. Otherwise, by default, RACK scan range is limited to
+    // the ACK request/data bitmap sizes.
+    optional bool rack_bypass_scan_range_limit = 18;
+    // TLP:
+    // Enable TLP.
+    optional bool enable_tlp = 10;
+    // TLP's Minimum PTO.
+    optional uint64 min_tlp_timeout_ns = 11;
+    // TLP's PTO is calculated using rtt * this factor.
+    optional double tlp_timeout_rtt_factor = 12;
+    // If true, send one probe per window. Otherwise, single probe will be sent
+    // across both windows, selecting the earliest overall transmit timestamp.
+    optional bool tlp_per_window_probe = 17;
+
+    enum TlpType {
+      LAST_UNRECEIVED = 0;
+      FIRST_UNRECEIVED = 1;
+    }
+    // Specifies the probe selection, either first or last unreceived.
+    optional TlpType tlp_type = 13;
+    // If true, disables scan range limit when TLP LAST_UNRECEIVED probe
+    // selection policy is set. TLP will use the last unreceived packet across
+    // the entire TX window. Otherwise, by default, TLP probe will be the
+    // last unreceived packet within range of the ACK request/data bitmaps.
+    optional bool tlp_bypass_scan_range_limit = 19;
     // Threshold of early-retx times per packet.
     optional uint32 early_retx_threshold = 15;
   }
@@ -611,54 +647,22 @@ message FalconConfig {
     // connection. If a connection's resource usage exceeds its buffer limits,
     // we assert xoff.
     message AlphaCarvingConfiguration {
-      // Base_alpha is selected based on the maximum per QP
-      // credit. For example, if we have 4300 total Tx contexts, and per-QP max
-      // credits is 512. Choosing an alpha value of 1/8 would enable having
-      // lower buffer limits than the max per-QP credit.
-      optional double base_alpha = 1;
-      // If enable_bound is asserted, we calculate an upper bound for the
-      // dynamic
-      // limit. The upper bound is calculated using: min(NCWND, FCWND) +
-      // extra_credits.
-      optional bool enable_bound = 2;
-      // If quantization_bits is set larger than 0, FALCON quantizes the dynamic
-      // limit before giving it to RDMA. Otherwise, FALCON gives the absolute
-      // value to RDMA.
-      optional uint32 quantization_bits = 3;
+      reserved 1, 2, 3;
       // Reserve a small amount of request_tx_packet and response_tx_packet
       // resources in FALCON. This part of the resource is not visible to the
       // alpha carving.
       optional uint32 tx_packet_headroom = 4;
-      // Whether to use the pre-calculated alpha from Swift RUE's response.
-      optional bool use_swift_response = 5;
+      reserved 5;
     }
 
     message XoffPolicy {
-      // We assert the xoff when the connection queue length is larger than the
-      // high_threshold. We de-assert the xoff when the queue length is
-      // smaller than the low_threshold.
-      message ConnectionQueueStaticThreshold {
-        optional uint32 high_threshold = 1;
-        optional uint32 low_threshold = 2;
-      }
-      // We assert/de-assert the xoff when the connection queue length is
-      // larger/smaller than the dynamic threshold. The dynamic threshold is
-      // calculated using fcwnd * scale. Scale is a constant number that
-      // normalizes fcwnd into a reasonable range.
-      message ConnectionQueueDynamicThreshold {
-        optional double scale = 1;
-      }
-
       oneof per_connection_rdma_xoff_policy {
-        ConnectionQueueStaticThreshold connection_queue_static_threshold = 1;
-        ConnectionQueueDynamicThreshold connection_queue_dynamic_threshold = 2;
         AlphaCarvingConfiguration alpha_carving_configuration = 3;
       }
     }
 
     oneof backpressure_policy {
       XoffPolicy xoff_policy = 2;
-      AlphaCarvingConfiguration dynamic_credit_policy = 3;
     }
   }
 
@@ -776,6 +780,7 @@ message FalconConfig {
   optional SchedulingPolicy inter_host_rx_scheduling_policy = 49;
   optional uint64 inter_host_rx_scheduling_tick_ns = 50;
   optional double rx_falcon_ulp_link_gbps = 51;
+  reserved 60;
 
   message Gen2ConfigOptions {
     // Flags related to multipathing and multipath connections.
@@ -790,6 +795,7 @@ message FalconConfig {
       enum PathSelectionPolicy {
         OPEN_LOOP_FCWND_WEIGHTED_ROUND_ROBIN = 0;
         OPEN_LOOP_ROUND_ROBIN = 1;
+        CLOSED_LOOP_MAX_OPEN_FCWND_RR_WHEN_TIE = 2;
       }
       optional PathSelectionPolicy path_selection_policy = 1;
 
@@ -817,6 +823,14 @@ message FalconConfig {
     optional bool decrement_orc_on_pull_response = 4;
   }
   optional Gen2ConfigOptions gen2_config_options = 59;
+
+  message Gen3ConfigOptions {
+    // If specified, applies an RX window size other than gen3 default. If
+    // specified, value must be set to one of the sizes defined in constants.h
+    // as `k*BitmapWidth`.
+    optional int32 rx_window_size = 1;
+  }
+  optional Gen3ConfigOptions gen3_config_options = 61;
 }
 
 message PacketBuildConfig {
@@ -889,7 +903,6 @@ message StatisticsCollectionConfig {
     optional bool enable_resource_manager_ema_occupancy = 29;
     optional bool enable_global_resource_credits_timeline = 30;
     optional bool enable_inter_host_rx_scheduler_queue_length = 31;
-    optional bool enable_ambito_load_factor = 32;
     optional bool enable_per_connection_rx_from_ulp_rsn_timeline = 33;
   }
   message PacketBuilderFlags {
@@ -901,8 +914,7 @@ message StatisticsCollectionConfig {
     optional bool enable_vector_tx_rx_bytes = 6;
     optional bool enable_pfc = 7;
     optional bool enable_xoff_duration = 9;
-    // This stat calls Falcon to update per-connection rx/tx bytes.
-    optional bool enable_per_connection_traffic_stats = 10;
+    reserved 10;
   }
   message RdmaFlags {
     optional bool enable_op_timeseries = 1;
@@ -918,7 +930,6 @@ message StatisticsCollectionConfig {
     optional uint32 port_stats_collection_interval_us = 2;
     optional bool enable_scalar_per_port_tx_rx_packets = 3;
     optional bool enable_vector_per_port_tx_rx_bytes = 4;
-    optional bool enable_port_load_and_util_gamma = 5;
     optional bool enable_per_port_ingress_discards = 6;
     optional bool enable_packet_discards = 7;
     optional bool enable_per_port_per_queue_stats = 8;

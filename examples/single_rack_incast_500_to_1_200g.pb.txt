@@ -319,7 +319,7 @@ network {
           quantization_level_30_threshold: 10912
         }
       }
-      version: 2
+      version: 3
       enable_rx_buffer_occupancy_reflection: true
       early_retx {
         ooo_count_threshold: 3
@@ -327,16 +327,27 @@ network {
         ooo_distance_threshold: 3
         enable_ooo_distance: true
         enable_eack_own: true
-        early_retx_threshold: 2147483647
+        early_retx_threshold: 16
         eack_own_metadata {
           enable_recency_check_bypass: true
           enable_scanning_exit_criteria_bypass: true
           enable_smaller_psn_recency_check_bypass: true
           ignore_incoming_ar_bit: true
           enable_pause_initial_transmission_on_oow_drops: true
-          request_window_slack: 128
-          data_window_slack: 128
+          request_window_slack: 32
+          data_window_slack: 64
         }
+        enable_rack: false
+        rack_time_window_rtt_factor: 0.25
+        min_rack_time_window_ns: 0
+        rack_bypass_rto_check: false
+        rack_bypass_scan_range_limit: false
+        enable_tlp: false
+        min_tlp_timeout_ns: 50000
+        tlp_timeout_rtt_factor: 2.0
+        tlp_per_window_probe: false
+        tlp_type: FIRST_UNRECEIVED
+        tlp_bypass_scan_range_limit: false
       }
       op_boundary_ar_bit {
         enable: true
@@ -348,6 +359,22 @@ network {
       inter_host_rx_scheduling_policy: ROUND_ROBIN
       inter_host_rx_scheduling_tick_ns: 5
       rx_falcon_ulp_link_gbps: 400
+      gen2_config_options {
+        multipath_config {
+          path_selection_policy: OPEN_LOOP_FCWND_WEIGHTED_ROUND_ROBIN
+          single_path_connection_accept_stale_acks: false
+          multipath_connection_accept_stale_acks: false
+          batched_packet_scheduling: false
+        }
+        per_connection_ulp_backpressure {
+          enable_backpressure: false
+          xoff_policy {
+            alpha_carving_configuration {
+              tx_packet_headroom: 0
+            }
+          }
+        }
+      }
       ack_coalescing_thresholds {
         count: 10
         timeout_ns: 8000
@@ -898,6 +925,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -922,6 +950,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -946,6 +975,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -970,6 +1000,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -994,6 +1025,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1018,6 +1050,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1042,6 +1075,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1066,6 +1100,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1090,6 +1125,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1114,6 +1150,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1138,6 +1175,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1162,6 +1200,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1186,6 +1225,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1210,6 +1250,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1234,6 +1275,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1258,6 +1300,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1282,6 +1325,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1306,6 +1350,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1330,6 +1375,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1354,6 +1400,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1378,6 +1425,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1402,6 +1450,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1426,6 +1475,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1450,6 +1500,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1474,6 +1525,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1498,6 +1550,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1522,6 +1575,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1546,6 +1600,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1570,6 +1625,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1594,6 +1650,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1618,6 +1675,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1642,6 +1700,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1666,6 +1725,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1690,6 +1750,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1714,6 +1775,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1738,6 +1800,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1762,6 +1825,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1786,6 +1850,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1810,6 +1875,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1834,6 +1900,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1858,6 +1925,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1882,6 +1950,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1906,6 +1975,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1930,6 +2000,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1954,6 +2025,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -1978,6 +2050,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2002,6 +2075,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2026,6 +2100,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2050,6 +2125,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2074,6 +2150,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2098,6 +2175,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2122,6 +2200,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2146,6 +2225,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2170,6 +2250,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2194,6 +2275,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2218,6 +2300,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2242,6 +2325,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2266,6 +2350,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2290,6 +2375,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2314,6 +2400,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2338,6 +2425,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2362,6 +2450,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2386,6 +2475,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2410,6 +2500,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2434,6 +2525,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2458,6 +2550,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2482,6 +2575,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2506,6 +2600,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2530,6 +2625,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2554,6 +2650,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2578,6 +2675,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2602,6 +2700,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2626,6 +2725,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2650,6 +2750,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2674,6 +2775,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2698,6 +2800,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2722,6 +2825,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2746,6 +2850,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2770,6 +2875,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2794,6 +2900,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2818,6 +2925,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2842,6 +2950,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2866,6 +2975,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2890,6 +3000,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2914,6 +3025,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2938,6 +3050,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2962,6 +3075,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -2986,6 +3100,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3010,6 +3125,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3034,6 +3150,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3058,6 +3175,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3082,6 +3200,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3106,6 +3225,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3130,6 +3250,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3154,6 +3275,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3178,6 +3300,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3202,6 +3325,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3226,6 +3350,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3250,6 +3375,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
     incast {
@@ -3274,6 +3400,7 @@ traffic_pattern {
           arrival_time_distribution: UNIFORM_TIME_DIST
           offered_load_ratio: 1
         }
+        degree_of_multipathing: 1
       }
     }
   }
@@ -3311,7 +3438,6 @@ stats_collection {
     enable_resource_manager_ema_occupancy: true
     enable_global_resource_credits_timeline: false
     enable_inter_host_rx_scheduler_queue_length: false
-    enable_ambito_load_factor: false
     enable_per_connection_rx_from_ulp_rsn_timeline: false
   }
   packet_builder_flags {
@@ -3323,7 +3449,6 @@ stats_collection {
     enable_vector_tx_rx_bytes: false
     enable_pfc: false
     enable_xoff_duration: false
-    enable_per_connection_traffic_stats: false
   }
   rdma_flags {
     enable_op_timeseries: false
@@ -3337,7 +3462,6 @@ stats_collection {
     port_stats_collection_interval_us: 5
     enable_scalar_per_port_tx_rx_packets: false
     enable_vector_per_port_tx_rx_bytes: true
-    enable_port_load_and_util_gamma: false
     enable_per_port_ingress_discards: true
     enable_packet_discards: false
     enable_per_port_per_queue_stats: true

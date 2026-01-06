@@ -1,6 +1,6 @@
 # Falcon Gen 2. Only enable_rue_cc_metrics is set to true for stats_collection
 # config. Traffic is just uniform random writes with large message size (2MB),
-# capped at only 10 such messages (max_generated_packets = 10).
+# capped at only 10 such messages (max_generated_ops = 10).
 # Multipathing enabled with degree 4, and CC algorithm is Bypass.
 network {
   hosts { id: "host0" ip_address: "2001:db8:85a2::1" host_config_profile_name: "host_config" }
@@ -830,7 +830,6 @@ stats_collection {
     enable_resource_manager_ema_occupancy: false
     enable_global_resource_credits_timeline: false
     enable_inter_host_rx_scheduler_queue_length: false
-    enable_ambito_load_factor: false
   }
   packet_builder_flags {
     enable_scalar_packet_delay: false
@@ -841,7 +840,6 @@ stats_collection {
     enable_vector_tx_rx_bytes: false
     enable_pfc: false
     enable_xoff_duration: false
-    enable_per_connection_traffic_stats: false
   }
   rdma_flags {
     enable_op_timeseries: false
@@ -855,7 +853,6 @@ stats_collection {
     port_stats_collection_interval_us: 5
     enable_scalar_per_port_tx_rx_packets: false
     enable_vector_per_port_tx_rx_bytes: false
-    enable_port_load_and_util_gamma: false
     enable_per_port_ingress_discards: false
     enable_packet_discards: false
     enable_per_port_per_queue_stats: false
@@ -872,7 +869,7 @@ stats_collection {
 }
 
 # Traffic is just uniform random writes with large message size (2MB), capped at
-# only 10 such messages (max_generated_packets = 10).
+# only 10 such messages (max_generated_ops = 10).
 traffic_pattern {
   composite_pattern {
     uniform_random {
@@ -886,7 +883,7 @@ traffic_pattern {
           size_distribution_params { mean: 2097152 }
           arrival_time_distribution: POISSON_PROCESS
           offered_load_ratio: 1
-          max_generated_packets: 10
+          max_generated_ops: 10
         }
         offered_load: 200
         sharing_cid: false

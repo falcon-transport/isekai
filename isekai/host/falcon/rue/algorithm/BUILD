@@ -170,3 +170,22 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "swift_gen3_test",
+    srcs = ["swift_gen3_test.cc"],
+    deps = [
+        ":algorithm",
+        ":config_cc_proto",
+        ":dram_state_manager",
+        ":stateful_algorithm",
+        "//isekai/common:testing",
+        "//isekai/host/falcon",
+        "//isekai/host/falcon/rue",
+        "@com_google_absl//absl/log",
+        "@com_google_absl//absl/log:check",
+        "@com_google_absl//absl/random",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

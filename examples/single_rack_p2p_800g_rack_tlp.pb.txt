@@ -1,0 +1,1000 @@
+network {
+  hosts {
+    id: "host_0"
+    ip_address: "fc00:0100:500:b::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_1"
+    ip_address: "fc00:0100:500:c::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_2"
+    ip_address: "fc00:0100:500:d::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_3"
+    ip_address: "fc00:0100:500:e::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_4"
+    ip_address: "fc00:0100:500:f::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_5"
+    ip_address: "fc00:0100:500:10::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_6"
+    ip_address: "fc00:0100:500:11::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_7"
+    ip_address: "fc00:0100:500:12::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_8"
+    ip_address: "fc00:0100:500:13::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_9"
+    ip_address: "fc00:0100:500:14::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_10"
+    ip_address: "fc00:0100:500:15::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_11"
+    ip_address: "fc00:0100:500:16::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_12"
+    ip_address: "fc00:0100:500:17::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_13"
+    ip_address: "fc00:0100:500:18::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_14"
+    ip_address: "fc00:0100:500:19::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_15"
+    ip_address: "fc00:0100:500:1a::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_16"
+    ip_address: "fc00:0100:500:1b::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_17"
+    ip_address: "fc00:0100:500:1c::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_18"
+    ip_address: "fc00:0100:500:1d::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_19"
+    ip_address: "fc00:0100:500:1e::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_20"
+    ip_address: "fc00:0100:500:1f::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_21"
+    ip_address: "fc00:0100:500:20::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_22"
+    ip_address: "fc00:0100:500:21::1"
+    host_config_profile_name: "host_config"
+  }
+  hosts {
+    id: "host_23"
+    ip_address: "fc00:0100:500:22::1"
+    host_config_profile_name: "host_config"
+  }
+  routers {
+    router_name: "router"
+    router_config_profile_name: "router_config"
+  }
+  host_configs {
+    profile_name: "host_config"
+    falcon_configuration {
+      connection_context_cache_size: 10000
+      threshold_solicit: 16384
+      simulation_mode: PROTOCOL
+      lookup_delay_ns: 0
+      tx_buffer_minimum_allocation_unit: 64
+      rx_buffer_minimum_allocation_unit: 512
+      resource_reservation_mode: FIRST_PHASE_RESERVATION
+      resource_credits {
+        tx_packet_credits {
+          ulp_requests: 5775
+          ulp_data: 2640
+          network_requests: 0
+        }
+        tx_buffer_credits {
+          ulp_requests: 5775
+          ulp_data: 2640
+          network_requests: 0
+        }
+        rx_packet_credits {
+          ulp_requests: 5775
+          network_requests: 8393
+        }
+        rx_buffer_credits {
+          ulp_requests: 8192
+          network_requests: 11264
+        }
+      }
+      falcon_tick_time_ns: 3
+      connection_scheduler_policies {
+        inter_packet_type_scheduling_policy: ROUND_ROBIN
+        intra_packet_type_scheduling_policy: ROUND_ROBIN
+      }
+      inter_connection_retransmission_scheduling_policy: ROUND_ROBIN
+      intra_connection_retransmission_scheduling_policy: ROUND_ROBIN
+      admission_control_policy: RX_WINDOW_BASED
+      admission_window_bytes: 2147483647
+      rue {
+        algorithm: "swift"
+        falcon_latency_ns: 234
+        falcon_unit_time_ns: 131.072
+        tw_unit_time_ns: 512
+        initial_fcwnd: 32
+        delay_select: FABRIC
+        base_delay_us: 25
+        swift {
+          randomize_path: true
+          max_fcwnd: 256
+          max_ncwnd: 256
+          fabric_additive_increment_factor: 1
+          target_rx_buffer_level: 15
+          max_flow_scaling: 763
+          max_decrease_on_eack_nack_drop: false
+        }
+        event_queue_size: 65536
+        fixed_latency_model {
+          latency_ns: 66
+        }
+        initial_ncwnd: 64
+        event_queue_threshold_1: 65536
+        event_queue_threshold_2: 65536
+        event_queue_threshold_3: 65536
+      }
+      ulp_xoff_thresholds {
+        tx_packet_request: 1
+        tx_buffer_request: 1
+        tx_packet_data: 1
+        tx_buffer_data: 1
+        rx_packet_request: 1
+        rx_buffer_request: 1
+      }
+      connection_scheduler_weight: 1
+      retransmission_scheduler_weight: 1
+      ack_nack_scheduler_weight: 2
+      ack_request_fcwnd_threshold: 2
+      ack_request_percent: 10
+      falcon_network_requests_rx_buffer_pool_thresholds {
+        green_zone_end: 10678
+        yellow_zone_end: 10678
+      }
+      falcon_network_requests_rx_packet_pool_thresholds {
+        green_zone_end: 7943
+        yellow_zone_end: 7943
+      }
+      falcon_network_requests_tx_packet_pool_thresholds {
+        green_zone_end: 1
+        yellow_zone_end: 1
+      }
+      ema_coefficients {
+        tx_context: 1
+        rx_context: 1
+        rx_buffer: 1
+      }
+      quantization_tables {
+        tx_context {
+          quantization_level_0_threshold: 4294967295
+          quantization_level_1_threshold: 4294967295
+          quantization_level_2_threshold: 4294967295
+          quantization_level_3_threshold: 4294967295
+          quantization_level_4_threshold: 4294967295
+          quantization_level_5_threshold: 4294967295
+          quantization_level_6_threshold: 4294967295
+          quantization_level_7_threshold: 4294967295
+          quantization_level_8_threshold: 4294967295
+          quantization_level_9_threshold: 4294967295
+          quantization_level_10_threshold: 4294967295
+          quantization_level_11_threshold: 4294967295
+          quantization_level_12_threshold: 4294967295
+          quantization_level_13_threshold: 4294967295
+          quantization_level_14_threshold: 4294967295
+          quantization_level_15_threshold: 4294967295
+          quantization_level_16_threshold: 4294967295
+          quantization_level_17_threshold: 4294967295
+          quantization_level_18_threshold: 4294967295
+          quantization_level_19_threshold: 4294967295
+          quantization_level_20_threshold: 4294967295
+          quantization_level_21_threshold: 4294967295
+          quantization_level_22_threshold: 4294967295
+          quantization_level_23_threshold: 4294967295
+          quantization_level_24_threshold: 4294967295
+          quantization_level_25_threshold: 4294967295
+          quantization_level_26_threshold: 4294967295
+          quantization_level_27_threshold: 4294967295
+          quantization_level_28_threshold: 4294967295
+          quantization_level_29_threshold: 4294967295
+          quantization_level_30_threshold: 4294967295
+        }
+        rx_context {
+          quantization_level_0_threshold: 262
+          quantization_level_1_threshold: 524
+          quantization_level_2_threshold: 786
+          quantization_level_3_threshold: 1048
+          quantization_level_4_threshold: 1310
+          quantization_level_5_threshold: 1572
+          quantization_level_6_threshold: 1834
+          quantization_level_7_threshold: 2096
+          quantization_level_8_threshold: 2358
+          quantization_level_9_threshold: 2620
+          quantization_level_10_threshold: 2882
+          quantization_level_11_threshold: 3144
+          quantization_level_12_threshold: 3406
+          quantization_level_13_threshold: 3668
+          quantization_level_14_threshold: 3930
+          quantization_level_15_threshold: 4192
+          quantization_level_16_threshold: 4454
+          quantization_level_17_threshold: 4716
+          quantization_level_18_threshold: 4978
+          quantization_level_19_threshold: 5240
+          quantization_level_20_threshold: 5502
+          quantization_level_21_threshold: 5764
+          quantization_level_22_threshold: 6026
+          quantization_level_23_threshold: 6288
+          quantization_level_24_threshold: 6550
+          quantization_level_25_threshold: 6812
+          quantization_level_26_threshold: 7074
+          quantization_level_27_threshold: 7336
+          quantization_level_28_threshold: 7598
+          quantization_level_29_threshold: 7860
+          quantization_level_30_threshold: 8122
+        }
+        rx_buffer {
+          quantization_level_0_threshold: 352
+          quantization_level_1_threshold: 704
+          quantization_level_2_threshold: 1056
+          quantization_level_3_threshold: 1408
+          quantization_level_4_threshold: 1760
+          quantization_level_5_threshold: 2112
+          quantization_level_6_threshold: 2464
+          quantization_level_7_threshold: 2816
+          quantization_level_8_threshold: 3168
+          quantization_level_9_threshold: 3520
+          quantization_level_10_threshold: 3872
+          quantization_level_11_threshold: 4224
+          quantization_level_12_threshold: 4576
+          quantization_level_13_threshold: 4928
+          quantization_level_14_threshold: 5280
+          quantization_level_15_threshold: 5632
+          quantization_level_16_threshold: 5984
+          quantization_level_17_threshold: 6336
+          quantization_level_18_threshold: 6688
+          quantization_level_19_threshold: 7040
+          quantization_level_20_threshold: 7392
+          quantization_level_21_threshold: 7744
+          quantization_level_22_threshold: 8096
+          quantization_level_23_threshold: 8448
+          quantization_level_24_threshold: 8800
+          quantization_level_25_threshold: 9152
+          quantization_level_26_threshold: 9504
+          quantization_level_27_threshold: 9856
+          quantization_level_28_threshold: 10208
+          quantization_level_29_threshold: 10560
+          quantization_level_30_threshold: 10912
+        }
+      }
+      version: 3
+      enable_rx_buffer_occupancy_reflection: true
+      early_retx {
+        ooo_count_threshold: 3
+        enable_ooo_count: false
+        ooo_distance_threshold: 3
+        enable_ooo_distance: false
+        enable_eack_own: false
+        early_retx_threshold: 16
+        eack_own_metadata {
+          enable_recency_check_bypass: true
+          enable_scanning_exit_criteria_bypass: true
+          enable_smaller_psn_recency_check_bypass: true
+          ignore_incoming_ar_bit: true
+          enable_pause_initial_transmission_on_oow_drops: true
+          request_window_slack: 32
+          data_window_slack: 64
+        }
+        enable_rack: true
+        rack_time_window_rtt_factor: 0.25
+        min_rack_time_window_ns: 0
+        rack_bypass_rto_check: false
+        rack_bypass_scan_range_limit: false
+        enable_tlp: true
+        min_tlp_timeout_ns: 0
+        tlp_timeout_rtt_factor: 1.1
+        tlp_per_window_probe: false
+        tlp_type: FIRST_UNRECEIVED
+        tlp_bypass_scan_range_limit: false
+      }
+      op_boundary_ar_bit {
+        enable: true
+        acks_per_sec: 15000000
+        ack_burst_size: 10000
+        ack_refill_interval_ns: 200
+      }
+      eack_trigger_by_hole_in_rx_bitmap: true
+      inter_host_rx_scheduling_policy: ROUND_ROBIN
+      inter_host_rx_scheduling_tick_ns: 5
+      rx_falcon_ulp_link_gbps: 983.0
+      gen2_config_options {
+        multipath_config {
+          path_selection_policy: OPEN_LOOP_FCWND_WEIGHTED_ROUND_ROBIN
+          single_path_connection_accept_stale_acks: false
+          multipath_connection_accept_stale_acks: false
+          batched_packet_scheduling: false
+        }
+        per_connection_ulp_backpressure {
+          enable_backpressure: false
+          xoff_policy {
+            alpha_carving_configuration {
+              tx_packet_headroom: 0
+            }
+          }
+        }
+      }
+      ack_coalescing_thresholds {
+        count: 10
+        timeout_ns: 8000
+      }
+      enable_ack_request_bit: true
+    }
+    rdma_configuration {
+      mtu: 8192
+      max_segment_length: 1073741824
+      max_inline_payload_length: 224
+      work_scheduler_quanta: 4096
+      chip_cycle_time_ns: 5
+      global_credits {
+        tx_packet_request: 5775
+        tx_buffer_request: 5775
+        rx_packet_request: 5775
+        rx_buffer_request: 6661
+        tx_packet_data: 5775
+        tx_buffer_data: 5775
+      }
+      per_qp_credits {
+        tx_packet_request: 1024
+        tx_buffer_request: 1024
+        rx_packet_request: 1024
+        rx_buffer_request: 8192
+        tx_packet_data: 1024
+        tx_buffer_data: 1024
+      }
+      scheduler_pipeline_delay_in_cycles: 0
+      tx_rate_limiter {
+        refill_interval_ns: 250
+        burst_size_bytes: 25000
+      }
+      inbound_read_queue_depth: 2147483647
+      outbound_read_queue_depth: 2147483647
+      rnr_timeout_us: 0
+      write_random_rnr_probability: 0
+      read_random_rnr_probability: 0
+      rx_buffer_config {
+        buffer_size_bytes: 512000
+      }
+      enable_pcie_delay_for_completion: false
+      ack_nack_latency_ns: 3000
+      response_latency_ns: 3000
+      max_qp_oprate_million_per_sec: 40
+    }
+    packet_builder_configuration {
+      packet_rate_million_pps: 200
+      tx_queue_length_threshold: 16
+      random_drop_probability: 0.02
+      random_drop_burst_size: 3
+      random_drop_ack: false
+    }
+    rnic_configuration {
+      host_interface_config {
+        write_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 3000
+          memory_interface_queue_size_packets: 3
+        }
+        read_queue_config {
+          bandwidth_bps: 0
+          delay_distribution: CONST
+          memory_delay_const_ns: 3000
+          memory_interface_queue_size_packets: 3
+        }
+      }
+    }
+  }
+  router_configs {
+    profile_name: "router_config"
+    port_num: 100
+    tx_queue_num: 1
+    routing_pipeline_delay_ns: 600
+    port_selection_policy: WCMP
+    arbitration_scheme: FIXED_PRIORITY
+    mmu_config {
+      buffer_carving_config {
+        cos_configs {
+          profile_name: "default_cos"
+          ingress_alpha: 8
+          egress_alpha: 8
+        }
+        qos_configs {
+          profile_name: "default_port"
+          egress_alpha: 8
+          queue_configs {
+            queue_id: 0
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 1
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 2
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 3
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 4
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 5
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 6
+            cos_profile_name: "default_cos"
+          }
+          queue_configs {
+            queue_id: 7
+            cos_profile_name: "default_cos"
+          }
+        }
+        ingress_service_pool_size: 256000
+        egress_service_pool_size: 256000
+        port_configs {
+          port_id: 0
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 1
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 2
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 3
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 4
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 5
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 6
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 7
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 8
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 9
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 10
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 11
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 12
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 13
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 14
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 15
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 16
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 17
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 18
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 19
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 20
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 21
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 22
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 23
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 24
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 25
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 26
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 27
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 28
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 29
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 30
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 31
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 32
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 33
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 34
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 35
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 36
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 37
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 38
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 39
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 40
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 41
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 42
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 43
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 44
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 45
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 46
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 47
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 48
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 49
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 50
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 51
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 52
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 53
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 54
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 55
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 56
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 57
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 58
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 59
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 60
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 61
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 62
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 63
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 64
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 65
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 66
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 67
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 68
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 69
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 70
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 71
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 72
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 73
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 74
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 75
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 76
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 77
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 78
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 79
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 80
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 81
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 82
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 83
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 84
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 85
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 86
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 87
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 88
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 89
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 90
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 91
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 92
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 93
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 94
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 95
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 96
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 97
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 98
+          qos_profile_name: "default_port"
+        }
+        port_configs {
+          port_id: 99
+          qos_profile_name: "default_port"
+        }
+      }
+    }
+  }
+}
+traffic_pattern {
+  composite_pattern {
+    uniform_random {
+      initiator_host_ids: "host_0_0"
+      target_host_ids: "host_1_0"
+      bidirectional: false
+      traffic_characteristics {
+        conn_type: ORDERED_RC
+        offered_load: 800
+        sharing_cid: false
+        inline_message: false
+        conn_config {
+          op_code: WRITE
+          msg_size_distribution: FIXED_SIZE
+          size_distribution_params {
+            mean: 131072
+          }
+          arrival_time_distribution: POISSON_PROCESS
+          offered_load_ratio: 1
+          max_generated_ops: -1
+        }
+        degree_of_multipathing: 1
+      }
+    }
+  }
+}
+stats_collection {
+  falcon_flags {
+    enable_vector_scheduler_lengths: false
+    enable_histogram_scheduler_lengths: false
+    enable_rue_cc_metrics: true
+    enable_rue_event_queue_length: true
+    enable_xoff_timelines: false
+    enable_max_retransmissions: true
+    enable_per_connection_rdma_counters: false
+    enable_per_connection_network_counters: true
+    enable_per_connection_ack_nack_counters: true
+    enable_per_connection_initiator_txn_counters: true
+    enable_per_connection_target_txn_counters: true
+    enable_per_connection_rue_counters: true
+    enable_per_connection_rue_drop_counters: true
+    enable_per_connection_ack_reason_counters: true
+    enable_per_connection_packet_drop_counters: true
+    enable_per_connection_retx_counters: true
+    enable_solicitation_counters: false
+    enable_per_connection_resource_credit_counters: false
+    enable_per_connection_cwnd_pause: true
+    enable_per_connection_max_rsn_difference: true
+    enable_per_connection_scheduler_queue_length: true
+    enable_per_connection_scheduler_queue_length_histogram: true
+    enable_per_connection_backpressure_alpha_carving_limits: false
+    enable_per_connection_window_usage: true
+    enable_per_connection_initial_tx_rsn_timeline: true
+    enable_per_connection_retx_rsn_timeline: true
+    enable_per_connection_rsn_receive_timeline: true
+    enable_connection_scheduler_max_delayed_packet_stats: true
+    enable_resource_manager_ema_occupancy: true
+    enable_global_resource_credits_timeline: false
+    enable_inter_host_rx_scheduler_queue_length: false
+    enable_per_connection_rx_from_ulp_rsn_timeline: false
+  }
+  packet_builder_flags {
+    enable_scalar_packet_delay: false
+    enable_vector_packet_delay: false
+    enable_queue_length: false
+    enable_discard_and_drops: true
+    enable_scalar_tx_rx_packets_bytes: true
+    enable_vector_tx_rx_bytes: false
+    enable_pfc: false
+    enable_xoff_duration: false
+  }
+  rdma_flags {
+    enable_op_timeseries: false
+    enable_per_qp_xoff: false
+    enable_total_xoff: false
+    enable_credit_stall: false
+    enable_histograms: false
+  }
+  router_flags {
+    enable_port_stats_collection: false
+    port_stats_collection_interval_us: 5
+    enable_scalar_per_port_tx_rx_packets: false
+    enable_vector_per_port_tx_rx_bytes: true
+    enable_per_port_ingress_discards: true
+    enable_packet_discards: false
+    enable_per_port_per_queue_stats: true
+    enable_pfc_stats: false
+  }
+  traffic_generator_flags {
+    enable_scalar_offered_load: false
+    enable_vector_offered_load: false
+    enable_op_schedule_interval: false
+    enable_scalar_op_stats: true
+    enable_vector_op_stats: true
+    enable_per_qp_tx_rx_bytes: false
+  }
+}

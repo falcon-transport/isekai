@@ -47,12 +47,6 @@ Gen2UlpBackpressureManager::Gen2UlpBackpressureManager(
       switch (xoff_config.per_connection_rdma_xoff_policy_case()) {
         case FalconConfig::PerConnectionBackpressure::XoffPolicy::
             kAlphaCarvingConfiguration:
-          if (xoff_config.alpha_carving_configuration().quantization_bits() !=
-              0) {
-            LOG(WARNING)
-                << "Non-zero quantization bits will be ignored in XoffPolicy.";
-          }
-
           backpressure_policy_ =
               std::make_unique<AlphaCarvingUlpBackpressurePolicy>(
                   falcon, xoff_config.alpha_carving_configuration()

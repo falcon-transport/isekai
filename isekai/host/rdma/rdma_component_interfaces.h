@@ -47,16 +47,27 @@ struct RdmaOp {
   // Completion callback function that is called when the operation finishes.
   const CompletionCallback completion_callback;
 
-  // Each OP is divided into multiple packets (or transactions). psn is the
-  // sequence number of the first packet on this OP, and end_psn is the sequence
-  // number of the last packet of this OP.
-  uint32_t psn = 0, end_psn = 0;
+  // Each OP is divided into multiple lower layer units. In Falcon, each
+  // OP is divided into multiple requests (or transactions). start_seq is
+  // the request sequence number (rsn) of the first request on this OP, and
+  // end_seq is the request sequence number (rsn) of the last request of this
+  // OP.
+  // BEGIN_GOOGLE_INTERNAL
+  // With RoCE, seq represents packet sequence number (psn).
+  // END_GOOGLE_INTERNAL
+  uint32_t start_seq = 0, end_seq = 0;
   // Length of the op.
   uint32_t length = 0;
-  // Number of packets of this op.
-  uint32_t n_pkts = 0;
-  // Number of packets finished.
-  uint32_t n_pkt_finished = 0;
+  // Number of request sequence numbers (rsn) of this op.
+  // BEGIN_GOOGLE_INTERNAL
+  // With RoCE, this is the number of packets.
+  // END_GOOGLE_INTERNAL
+  uint32_t n_seqs = 0;
+  // Number of request sequence numbers (rsn) finished.
+  // BEGIN_GOOGLE_INTERNAL
+  // With RoCE, this is the number of packets finished.
+  // END_GOOGLE_INTERNAL
+  uint32_t n_seqs_finished = 0;
 
   // Collects per-op latency statistics.
   struct {
@@ -121,10 +132,10 @@ struct BaseQpContext {
   std::deque<InboundReadRequest> inbound_read_request_queue;
   // Completion queue for requests sent out to the network (or Falcon). Contains
   // the original RDMA Op along with the completion callback that was provided
-  // when issuing the op. It is keyed by the RSN (PSN) of the last packet
-  // associated with the RdmaOp. The RdmaOp is inserted into this map once the
-  // last packet is sent out, but the callback is executed only when all the
-  // ACKs are received.
+  // when issuing the op. It is keyed by the RSN (PSN) of the last request
+  // (packet) associated with the RdmaOp. The RdmaOp is inserted into this map
+  // once the last request (packet) is sent out, but the callback is executed
+  // only when all the ACKs are received.
   absl::flat_hash_map<uint32_t, std::unique_ptr<RdmaOp>> completion_queue;
   // Map from rsn to the RdmaOp.
   absl::flat_hash_map<uint32_t, RdmaOp*> rsn_to_op;

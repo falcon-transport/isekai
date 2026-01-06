@@ -25,6 +25,7 @@ cc_library(
         "format.h",
         "format_gen1.h",
         "format_gen2.h",
+        "format_gen3.h",
         "util.h",
     ],
     deps = [

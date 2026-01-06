@@ -31,6 +31,7 @@
 #include "isekai/host/falcon/rue/algorithm/swift.h"
 #include "isekai/host/falcon/rue/format.h"
 #include "isekai/host/falcon/rue/format_gen2.h"
+#include "isekai/host/falcon/rue/util.h"
 
 namespace isekai {
 namespace rue {
@@ -43,11 +44,17 @@ constexpr int kBypassDefaultFlowWeight = 1;
 constexpr int kBypassMinFlowWeight = 0;
 constexpr int kBypassMaxFlowWeight = kMaxFlowWeight;
 
+constexpr uint32_t kBypassDefaultFlowLabel = 0;
+
 // Utility function to convert always_repath flag string to array of booleans.
 std::array<bool, 4> GetAlwaysRepathFromFlag(absl::string_view flag_str);
 
 // Utility function to convert flow weight string to array of flow weights.
 std::array<int, 4> GetFlowWeightsFromString(std::string_view flow_weights_str);
+
+// Utility function to convert flow label string to array of flow labels.
+std::array<uint32_t, 4> GetFlowLabelsFromString(
+    std::string_view flow_labels_str);
 
 // This is a simple RUE algorithm module that only keeps the
 // fabric congestion window, NIC congestion window, and the inter packet gap
@@ -108,11 +115,18 @@ class Bypass {
   bool always_wrr_restart_ = false;
   int alpha_request_ = 0;
   int alpha_response_ = 0;
-  int fipg_ = 0;
-  int nipg_ = 0;
+  uint32_t flow_label_1_ = 0;
+  uint32_t flow_label_2_ = 0;
+  uint32_t flow_label_3_ = 0;
+  uint32_t flow_label_4_ = 0;
 
   std::unique_ptr<FlowLabelGenerator> flow_label_generator_;
+  int retransmit_timeout_;
+  const BypassConfiguration config_;
 };
+
+bool ShouldDisableCsig(uint32_t connection_id,
+                       const BypassConfiguration& config);
 
 template <typename EventT, typename ResponseT>
 template <typename ChildT>
@@ -125,6 +139,7 @@ template <typename EventT, typename ResponseT>
 void Bypass<EventT, ResponseT>::Process(const EventT& event,
                                         ResponseT& response,
                                         uint32_t now) const {
+  falcon_rue::PacketTiming timing = falcon_rue::GetPacketTiming(event);
   // Writes the values to the response
   falcon_rue::SetResponse(
       /*connection_id=*/event.connection_id,
@@ -140,8 +155,8 @@ void Bypass<EventT, ResponseT>::Process(const EventT& event,
       /*event_queue_select=*/event.event_queue_select,
       /*delay_select=*/event.delay_select,
       /*base_delay=*/event.base_delay,
-      /*delay_state=*/event.delay_state,
-      /*rtt_state=*/event.rtt_state,
+      /*delay_state=*/timing.delay,
+      /*rtt_state=*/timing.rtt,
       /*cc_opaque=*/event.cc_opaque,
       /*response=*/response);
 }

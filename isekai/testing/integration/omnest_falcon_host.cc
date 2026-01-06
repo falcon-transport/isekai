@@ -29,6 +29,7 @@
 #include "isekai/common/status_util.h"
 #include "isekai/host/falcon/gen1/falcon_model.h"
 #include "isekai/host/falcon/gen2/falcon_model.h"
+#include "isekai/host/falcon/gen3/falcon_model.h"
 #include "isekai/host/rdma/rdma_falcon_model.h"
 #include "isekai/host/rnic/connection_manager.h"
 #include "isekai/host/rnic/memory_interface.h"
@@ -174,6 +175,11 @@ void FalconHost::initialize() {
         rnic_config.host_interface_config_size());
   } else if (falcon_configuration.version() == 2) {
     falcon = std::make_unique<isekai::Gen2FalconModel>(
+        falcon_configuration, get_omnest_env(), get_stats_collection(),
+        connection_manager, get_host_id(),
+        rnic_config.host_interface_config_size());
+  } else if (falcon_configuration.version() == 3) {
+    falcon = std::make_unique<isekai::Gen3FalconModel>(
         falcon_configuration, get_omnest_env(), get_stats_collection(),
         connection_manager, get_host_id(),
         rnic_config.host_interface_config_size());

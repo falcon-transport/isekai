@@ -75,6 +75,10 @@ constexpr int kTxBitmapWidth = 1024;
 // Bitmap sizes for Falcon Gen2.
 constexpr int kGen2RxBitmapWidth = 256;
 constexpr int kGen2TxBitmapWidth = 1024;
+
+// RX bitmap sizes for Falcon Gen3.
+constexpr int kGen3TxBitmapWidth = 1024;
+constexpr int kGen3RxBitmapWidth = 512;
 }  // namespace isekai
 
 #endif  // ISEKAI_COMMON_CONSTANTS_H_

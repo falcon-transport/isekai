@@ -2244,7 +2244,7 @@ INSTANTIATE_TEST_SUITE_P(
     testing::Combine(
         testing::Values(FalconConfig::FIRST_PHASE_RESERVATION),
         /*inter_host_rx_scheduler_tick_ns=*/testing::Values(0, 3, 5),
-        /*version=*/testing::Values(1, 2)),
+        /*version=*/testing::Values(1, 2, 3)),
     [](const testing::TestParamInfo<FalconComponentTest::ParamType>& info) {
       const FalconConfig::ResourceReservationMode rsc_reservation_mode =
           std::get<0>(info.param);

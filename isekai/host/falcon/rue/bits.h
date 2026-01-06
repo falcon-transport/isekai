@@ -70,6 +70,11 @@ inline constexpr uint8_t kPerConnectionBackpressureAlphaBits = 4;
 inline constexpr uint8_t kConnectionQueueCountBits = 14;
 inline constexpr uint8_t kPerHostTargetOccupancyBufferLevelBits = 5;
 
+// Fields that were modified from Gen_2 to Gen_3.
+inline constexpr uint8_t kGen3RetransmitReasonBits = 2;
+// New fields added in Gen_3.
+inline constexpr uint8_t kCwndCarryoverBits = 2;
+
 // Creates a bit mask.
 // Output is constexpr so that compile-time definitions can be created.
 // Example: Mask<uint8>(6) -> 0x3F

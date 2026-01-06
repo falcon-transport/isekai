@@ -46,7 +46,7 @@ class Gen1BypassTest : public GenericBypassTest<
                            typename std::tuple_element<1, TypeParam>::type> {};
 
 using Event_Response_Types = ::testing::Types<
-    std::tuple<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>>;
+    std::tuple<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>>;
 
 TYPED_TEST_SUITE(Gen1BypassTest, Event_Response_Types);
 
@@ -95,8 +95,8 @@ TYPED_TEST(Gen1BypassTest, NoCongestionControl) {
   EXPECT_EQ(this->response_.event_queue_select, 0);
   EXPECT_EQ(this->response_.delay_select, falcon::DelaySelect::kForward);
   EXPECT_EQ(this->response_.base_delay, 100);
-  EXPECT_EQ(this->response_.delay_state, 150);
-  EXPECT_EQ(this->response_.rtt_state, 310);
+  EXPECT_EQ(this->response_.delay_state, 153);
+  EXPECT_EQ(this->response_.rtt_state, 315);
   EXPECT_EQ(this->response_.cc_opaque, 3);
 }
 
@@ -143,8 +143,8 @@ TEST_F(Gen2BypassTest, NoCongestionControl) {
   EXPECT_EQ(this->response_.event_queue_select, 0);
   EXPECT_EQ(this->response_.delay_select, falcon::DelaySelect::kForward);
   EXPECT_EQ(this->response_.base_delay, 100);
-  EXPECT_EQ(this->response_.delay_state, 150);
-  EXPECT_EQ(this->response_.rtt_state, 310);
+  EXPECT_EQ(this->response_.delay_state, 153);
+  EXPECT_EQ(this->response_.rtt_state, 315);
   EXPECT_EQ(this->response_.cc_opaque, 3);
   EXPECT_EQ(this->response_.flow_id, 2);
   EXPECT_EQ(this->response_.flow_label_1_weight, 1);
@@ -212,8 +212,8 @@ TEST_F(Gen2BypassTest, OverrideFlowWeights) {
   EXPECT_EQ(response_.event_queue_select, 0);
   EXPECT_EQ(response_.delay_select, falcon::DelaySelect::kForward);
   EXPECT_EQ(response_.base_delay, 100);
-  EXPECT_EQ(response_.delay_state, 150);
-  EXPECT_EQ(response_.rtt_state, 310);
+  EXPECT_EQ(response_.delay_state, 153);
+  EXPECT_EQ(response_.rtt_state, 315);
   EXPECT_EQ(response_.cc_opaque, 3);
   EXPECT_EQ(response_.flow_id, 2);
   EXPECT_EQ(response_.flow_label_1_weight, 1);
@@ -224,6 +224,10 @@ TEST_F(Gen2BypassTest, OverrideFlowWeights) {
   EXPECT_EQ(response_.flow_label_2_valid, false);
   EXPECT_EQ(response_.flow_label_3_valid, false);
   EXPECT_EQ(response_.flow_label_4_valid, false);
+  EXPECT_EQ(response_.flow_label_1, 0);
+  EXPECT_EQ(response_.flow_label_2, 0);
+  EXPECT_EQ(response_.flow_label_3, 0);
+  EXPECT_EQ(response_.flow_label_4, 0);
   constexpr double kFalconUnitTimeUs = 0.131072;
   const uint32_t k1ms = std::round(1000 / kFalconUnitTimeUs);  // ~1ms
   EXPECT_EQ(response_.retransmit_timeout, k1ms);
@@ -279,8 +283,8 @@ TEST_F(Gen2BypassTest, InvalidFlowWeights) {
   EXPECT_EQ(response_.event_queue_select, 0);
   EXPECT_EQ(response_.delay_select, falcon::DelaySelect::kForward);
   EXPECT_EQ(response_.base_delay, 100);
-  EXPECT_EQ(response_.delay_state, 150);
-  EXPECT_EQ(response_.rtt_state, 310);
+  EXPECT_EQ(response_.delay_state, 153);
+  EXPECT_EQ(response_.rtt_state, 315);
   EXPECT_EQ(response_.cc_opaque, 3);
   EXPECT_EQ(response_.flow_id, 2);
   EXPECT_EQ(response_.flow_label_1_weight,
@@ -347,8 +351,8 @@ TEST_F(Gen2BypassTest, AlwaysRepathFlow1AndFlow3) {
   EXPECT_EQ(response_.event_queue_select, 0);
   EXPECT_EQ(response_.delay_select, falcon::DelaySelect::kForward);
   EXPECT_EQ(response_.base_delay, 100);
-  EXPECT_EQ(response_.delay_state, 150);
-  EXPECT_EQ(response_.rtt_state, 310);
+  EXPECT_EQ(response_.delay_state, 153);
+  EXPECT_EQ(response_.rtt_state, 315);
   EXPECT_EQ(response_.cc_opaque, 3);
   EXPECT_EQ(response_.flow_id, 2);
   EXPECT_EQ(response_.flow_label_1_weight, 1);
@@ -362,7 +366,150 @@ TEST_F(Gen2BypassTest, AlwaysRepathFlow1AndFlow3) {
   EXPECT_NE(response_.flow_label_1, 0);
   EXPECT_EQ(response_.flow_label_2, 0);
   EXPECT_NE(response_.flow_label_3, 0);
+  EXPECT_NE(response_.flow_label_3, 2);
   EXPECT_EQ(response_.flow_label_4, 0);
+  constexpr double kFalconUnitTimeUs = 0.131072;
+  const uint32_t k1ms = std::round(1000 / kFalconUnitTimeUs);  // ~1ms
+  EXPECT_EQ(response_.retransmit_timeout, k1ms);
+}
+
+TEST_F(Gen2BypassTest, AlwaysRepathFlow3AndFlow4) {
+  using BypassTyped =
+      isekai::rue::Bypass<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>;
+  isekai::rue::BypassConfiguration config;
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow1(1);
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow2(2);
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow3(3);
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow4(4);
+  config.mutable_gen2_test_only()->set_always_repath_flow3(true);
+  config.mutable_gen2_test_only()->set_always_repath_flow4(true);
+
+  ASSERT_OK_AND_ASSIGN(
+      std::unique_ptr<BypassTyped> bypass,
+      BypassTyped::Create(isekai::rue::BypassConfiguration(config)));
+  int now = 100400;
+
+  event_.connection_id = 1234;
+  event_.multipath_enable = true;
+  event_.flow_label = 0x12;
+  event_.event_type = falcon::RueEventType::kAck;
+  event_.timestamp_1 = 100000;
+  event_.timestamp_2 = 100153;
+  event_.timestamp_3 = 100200;
+  event_.timestamp_4 = 100315;
+  event_.retransmit_count = 0;
+  event_.retransmit_reason = falcon::RetransmitReason::kTimeout;
+  event_.nack_code = falcon::NackCode::kNotANack;
+  event_.forward_hops = 5;
+  event_.cc_metadata = 0;
+  event_.fabric_congestion_window = 8642;
+  event_.num_packets_acked = 3;
+  event_.event_queue_select = 0;
+  event_.delay_select = falcon::DelaySelect::kForward;
+  event_.fabric_window_time_marker = 99999;
+  event_.base_delay = 100;
+  event_.delay_state = 150;
+  event_.rtt_state = 310;
+  event_.cc_opaque = 3;
+  event_.gen_bit = 0;
+
+  bypass->Process(event_, response_, now);
+
+  EXPECT_EQ(response_.connection_id, 1234);
+  EXPECT_EQ(response_.cc_metadata, 0);
+  EXPECT_EQ(response_.fabric_congestion_window, 8642);
+  EXPECT_EQ(response_.fabric_window_time_marker, 0);
+  EXPECT_EQ(response_.event_queue_select, 0);
+  EXPECT_EQ(response_.delay_select, falcon::DelaySelect::kForward);
+  EXPECT_EQ(response_.base_delay, 100);
+  EXPECT_EQ(response_.delay_state, 153);
+  EXPECT_EQ(response_.rtt_state, 315);
+  EXPECT_EQ(response_.cc_opaque, 3);
+  EXPECT_EQ(response_.flow_id, 2);
+  EXPECT_EQ(response_.flow_label_1_weight, 1);
+  EXPECT_EQ(response_.flow_label_2_weight, 2);
+  EXPECT_EQ(response_.flow_label_3_weight, 3);
+  EXPECT_EQ(response_.flow_label_4_weight, 4);
+  EXPECT_EQ(response_.flow_label_1_valid, false);
+  EXPECT_EQ(response_.flow_label_2_valid, false);
+  EXPECT_EQ(response_.flow_label_3_valid, true);
+  EXPECT_EQ(response_.flow_label_4_valid, true);
+  EXPECT_EQ(response_.flow_label_1, 0);
+  EXPECT_EQ(response_.flow_label_2, 0);
+  EXPECT_NE(response_.flow_label_3, 0);
+  EXPECT_NE(response_.flow_label_3, 2);
+  EXPECT_NE(response_.flow_label_4, 0);
+  EXPECT_NE(response_.flow_label_4, 3);
+  constexpr double kFalconUnitTimeUs = 0.131072;
+  const uint32_t k1ms = std::round(1000 / kFalconUnitTimeUs);  // ~1ms
+  EXPECT_EQ(response_.retransmit_timeout, k1ms);
+}
+
+TEST_F(Gen2BypassTest, AlwaysRepathFlow4) {
+  using BypassTyped =
+      isekai::rue::Bypass<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>;
+  isekai::rue::BypassConfiguration config;
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow1(1);
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow2(2);
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow3(3);
+  config.mutable_gen2_test_only()->set_override_flow_weight_flow4(4);
+  config.mutable_gen2_test_only()->set_always_repath_flow4(true);
+
+  ASSERT_OK_AND_ASSIGN(
+      std::unique_ptr<BypassTyped> bypass,
+      BypassTyped::Create(isekai::rue::BypassConfiguration(config)));
+  int now = 100400;
+
+  event_.connection_id = 1234;
+  event_.multipath_enable = true;
+  event_.flow_label = 0x12;
+  event_.event_type = falcon::RueEventType::kAck;
+  event_.timestamp_1 = 100000;
+  event_.timestamp_2 = 100153;
+  event_.timestamp_3 = 100200;
+  event_.timestamp_4 = 100315;
+  event_.retransmit_count = 0;
+  event_.retransmit_reason = falcon::RetransmitReason::kTimeout;
+  event_.nack_code = falcon::NackCode::kNotANack;
+  event_.forward_hops = 5;
+  event_.cc_metadata = 0;
+  event_.fabric_congestion_window = 8642;
+  event_.num_packets_acked = 3;
+  event_.event_queue_select = 0;
+  event_.delay_select = falcon::DelaySelect::kForward;
+  event_.fabric_window_time_marker = 99999;
+  event_.base_delay = 100;
+  event_.delay_state = 150;
+  event_.rtt_state = 310;
+  event_.cc_opaque = 3;
+  event_.gen_bit = 0;
+
+  bypass->Process(event_, response_, now);
+
+  EXPECT_EQ(response_.connection_id, 1234);
+  EXPECT_EQ(response_.cc_metadata, 0);
+  EXPECT_EQ(response_.fabric_congestion_window, 8642);
+  EXPECT_EQ(response_.fabric_window_time_marker, 0);
+  EXPECT_EQ(response_.event_queue_select, 0);
+  EXPECT_EQ(response_.delay_select, falcon::DelaySelect::kForward);
+  EXPECT_EQ(response_.base_delay, 100);
+  EXPECT_EQ(response_.delay_state, 153);
+  EXPECT_EQ(response_.rtt_state, 315);
+  EXPECT_EQ(response_.cc_opaque, 3);
+  EXPECT_EQ(response_.flow_id, 2);
+  EXPECT_EQ(response_.flow_label_1_weight, 1);
+  EXPECT_EQ(response_.flow_label_2_weight, 2);
+  EXPECT_EQ(response_.flow_label_3_weight, 3);
+  EXPECT_EQ(response_.flow_label_4_weight, 4);
+  EXPECT_EQ(response_.flow_label_1_valid, false);
+  EXPECT_EQ(response_.flow_label_2_valid, false);
+  EXPECT_EQ(response_.flow_label_3_valid, false);
+  EXPECT_EQ(response_.flow_label_4_valid, true);
+  EXPECT_EQ(response_.flow_label_1, 0);
+  EXPECT_EQ(response_.flow_label_2, 0);
+  EXPECT_EQ(response_.flow_label_3, 0);
+  EXPECT_NE(response_.flow_label_4, 0);
+  EXPECT_NE(response_.flow_label_4, 3);
   constexpr double kFalconUnitTimeUs = 0.131072;
   const uint32_t k1ms = std::round(1000 / kFalconUnitTimeUs);  // ~1ms
   EXPECT_EQ(response_.retransmit_timeout, k1ms);

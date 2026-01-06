@@ -24,6 +24,7 @@
 #include "isekai/host/falcon/rue/fixed.h"
 #include "isekai/host/falcon/rue/format_gen1.h"
 #include "isekai/host/falcon/rue/format_gen2.h"
+#include "isekai/host/falcon/rue/format_gen3.h"
 
 namespace isekai {
 namespace rue {
@@ -49,13 +50,13 @@ struct __attribute__((packed)) ABSL_CACHELINE_ALIGNED ConnectionState {};
 // Specialize the struct for Gen_1 generation.
 template <>
 struct __attribute__((packed)) ABSL_CACHELINE_ALIGNED
-    ConnectionState<falcon_rue::Event_GEN1> {
+    ConnectionState<falcon_rue::Event_Gen1> {
   PlbState plb_state;
   uint16_t ncwnd_fraction;
   // Padding to ensure this struct occupies a full 64B.
   uint8_t reserved[58];
 };
-static_assert(sizeof(ConnectionState<falcon_rue::Event_GEN1>) == 64);
+static_assert(sizeof(ConnectionState<falcon_rue::Event_Gen1>) == 64);
 
 //*****************************************************************************
 // Gen_2 specific logic below. Used by only Isekai currently.
@@ -104,6 +105,31 @@ struct __attribute__((packed)) ABSL_CACHELINE_ALIGNED
   }
 };
 static_assert(sizeof(ConnectionState<falcon_rue::Event_Gen2>) == 64);
+
+// Specialize the struct for Gen_3 generation.
+template <>
+struct __attribute__((packed)) ABSL_CACHELINE_ALIGNED
+    ConnectionState<falcon_rue::EVENT_Gen3> {
+  // Holds both the integer and fractional parts of the fcwnd. The fcwnd of all
+  // the 4 flows will be used for processing an event belonging to any of the
+  // flows.
+  std::array<uint32_t, 4> fcwnd = {kInitialFlowFcwnd, kInitialFlowFcwnd,
+                                   kInitialFlowFcwnd, kInitialFlowFcwnd};
+  // Holds the per flow state for flows 1 to 3. Flow 0's state will continue
+  // being stored in the datapath.
+  std::array<PerFlowState, 3> per_flow_states;
+
+  // Padding to ensure this struct occupies a full 64B.
+  uint8_t reserved[12];
+
+  // Returns the event's flow-specific state that will be used for processing.
+  // Assumes 1 <= flow_id <= 3: flow_id cannot be 0 since its state will
+  // continue being stored in the datapath.
+  PerFlowState& GetFlowState(uint8_t flow_id) {
+    return per_flow_states[flow_id - 1];
+  }
+};
+static_assert(sizeof(ConnectionState<falcon_rue::EVENT_Gen3>) == 64);
 
 }  // namespace rue
 }  // namespace isekai

@@ -15,6 +15,7 @@
 #include "isekai/common/packet.h"
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "absl/time/time.h"
@@ -55,8 +56,9 @@ TEST(PacketTest, DebugString) {
   packet.rdma.rsn = 12;
 
   // clang-format off
-  EXPECT_EQ(packet.DebugString(),
-            R"({
+  std::ostringstream stream;
+
+  std::string expected_debug_string = R"({
   metadata {
     traffic_class: 1
     timestamp: 2
@@ -64,7 +66,9 @@ TEST(PacketTest, DebugString) {
     destination_ip_address: 2001:db8:85a2::1
     source_bifurcation_id: 0
     destination_bifurcation_id: 1
-    scid: 8
+    scid: 8)";
+
+    expected_debug_string += R"(
   }
   falcon {
     protocol_type: kRdma
@@ -75,7 +79,9 @@ TEST(PacketTest, DebugString) {
     rdbpsn: 5
     psn: 6
     rsn: 7
-  }
+  })";
+
+    expected_debug_string += R"(
   rdma {
     opcode: kReadRequest
     inline_payload_length: 9
@@ -83,9 +89,13 @@ TEST(PacketTest, DebugString) {
     sgl: [20, 50, 70]
     dest_qp_id: 11
     rsn: 12
-  }
+  })";
+
+    expected_debug_string += R"(
 }
-)");
+)";
+
+  EXPECT_EQ(packet.DebugString(), expected_debug_string);
   // clang-format on
 }
 

@@ -41,7 +41,7 @@ absl::Status Gen2ResourceManager::VerifyResourceAvailabilityOrReserveResources(
   // In case we reserve resources for packets sent by ULP (determined by
   // packet_type being invalid as it is set later on), check if per-connection
   // backpressure needs to be applied.
-  if ((falcon_->GetVersion() == 2) && (reserve_resources == true) &&
+  if ((falcon_->GetVersion() >= 2) && (reserve_resources == true) &&
       (status.ok()) && (packet->packet_type == falcon::PacketType::kInvalid)) {
     // Call the per-connection backpressure manager to check whether
     // backpressure this connection.
@@ -63,7 +63,7 @@ void Gen2ResourceManager::ReturnRdmaManagedFalconResourceCredits(
     ConnectionState* const connection_state,
     const TransactionKey& transaction_key,
     FalconCredit rdma_managed_resource_credits) {
-  if (falcon_->GetVersion() == 2) {
+  if (falcon_->GetVersion() >= 2) {
     // Call the per-connection backpressure manager to check whether
     // backpressure this connection.
     UlpBackpressureManager* const ulp_backpressure_manager =

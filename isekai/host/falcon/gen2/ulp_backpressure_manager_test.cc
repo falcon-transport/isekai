@@ -114,11 +114,10 @@ TEST(UlpBackpressureManagerTest, AlphaCarvingXoffPolicy) {
   per_connection_backpressure->set_enable_backpressure(true);
   auto per_connection_xoff = per_connection_backpressure->mutable_xoff_policy();
 
-  // Config the base alpha.
+  // Configure alpha carving
   auto connection_dynamic_buffer_limit =
       per_connection_xoff->mutable_alpha_carving_configuration();
-  connection_dynamic_buffer_limit->set_base_alpha(2.0);
-  connection_dynamic_buffer_limit->set_enable_bound(false);
+  connection_dynamic_buffer_limit->set_tx_packet_headroom(0);
 
   NiceMock<MockRdma> rdma;
   NiceMock<MockTrafficShaper> shaper;

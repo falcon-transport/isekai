@@ -120,4 +120,9 @@ template class FalconBitmap<kGen2RxBitmapWidth>;
 template FalconBitmap<kAckPacketBitmapWidth>&
 FalconBitmap<kAckPacketBitmapWidth>::operator=(
     const FalconBitmap<kGen2RxBitmapWidth>& another_bitmap);
+
+template class FalconBitmap<kGen3RxBitmapWidth>;
+template FalconBitmap<kAckPacketBitmapWidth>&
+FalconBitmap<kAckPacketBitmapWidth>::operator=(
+    const FalconBitmap<kGen3RxBitmapWidth>& another_bitmap);
 }  // namespace isekai

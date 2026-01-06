@@ -244,7 +244,7 @@ class SwiftTypedTest : public testing::Test {
 };
 
 using Event_Response_Types = ::testing::Types<
-    std::tuple<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>>;
+    std::tuple<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>>;
 TYPED_TEST_SUITE(SwiftTypedTest, Event_Response_Types);
 
 TYPED_TEST(SwiftTypedTest, ProcessAckMd150p) {
@@ -2493,18 +2493,18 @@ TYPED_TEST(SwiftTypedTest, InvalidProfileIndex) {
 
 class SwiftTestGen1
     : public SwiftTypedTest<
-          std::tuple<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>> {
+          std::tuple<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>> {
  public:
   ~SwiftTestGen1() override = default;
 };
 
 TEST_F(SwiftTestGen1, ProcessEackDropMaxDecrease) {
   using SwiftGen1Type =
-      Swift<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>;
+      Swift<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>;
   // Tests the case of EACK drop where the max congestion window decrease is
   // performed.
   auto config =
-      MakeConfig<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>(100);
+      MakeConfig<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>(100);
   config.set_max_decrease_on_eack_nack_drop(true);
   auto status_or_stateful_components =
       CreateStatefulSwiftAlgorithm<EventT, ResponseT>(config);
@@ -2572,11 +2572,11 @@ TEST_F(SwiftTestGen1, ProcessEackDropMaxDecrease) {
 
 TEST_F(SwiftTestGen1, ProcessEackDropNoMaxDecrease) {
   using SwiftGen1Type =
-      Swift<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>;
+      Swift<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>;
   // Tests the case of EACK drop where the max congestion window decrease is not
   // performed because a decrease has occurred too recently.
   auto config =
-      MakeConfig<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>(100);
+      MakeConfig<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>(100);
   config.set_max_decrease_on_eack_nack_drop(true);
   auto status_or_stateful_components =
       CreateStatefulSwiftAlgorithm<EventT, ResponseT>(config);

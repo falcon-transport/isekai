@@ -76,8 +76,8 @@ ${binary_path} -f ${config_file} -n ${sim_ned_paths} -c ${config_section} --resu
 if [ $? -eq 0 ]; then
   # Prints the simulation configs upon success.
   printf "\n\n###Simulation Succeeds###\nConfig file: ${config_file}\nSimulation results in: ${result_dir}\n##########\n\n"
-  python3 ./isekai/scripts/process_goodput_scalar.py ${result_dir}/General-#0.sca 1.0
-  python3 ./isekai/scripts/process_latency_vec.py ${result_dir}/General-#0.vec
+  python3 ./isekai/scripts/process_stats_sca.py ${result_dir}/General-#0.sca goodput --group_by=src --reducer=mean --is_rate
+  python3 ./isekai/scripts/process_stats_vec.py ${result_dir}/General-#0.vec op_latency
 else
   printf "Simulation fails\n"
 fi

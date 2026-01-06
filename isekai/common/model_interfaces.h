@@ -158,7 +158,6 @@ enum class RdmaConnectedMode {
   kUnorderedRc,
 };
 
-// MEV-VOL3-AS4.2-rc4 4.2 SWQP:QP_Type
 enum class QpType { kRC = 5, kUD = 6 };
 
 // Options supplied when creating a QueuePair.
@@ -219,8 +218,7 @@ struct Gen2OpaqueCookie : OpaqueCookie {
   Gen2OpaqueCookie() {}
 };
 
-// An RDMA operation, corresponding to an IB "verb". See MEV Vol1 11.6, RDMA
-// Top Level Flows for a high-level overview of these operations.
+// An RDMA operation, corresponding to an IB "verb".
 enum class RdmaOpcode {
   kSend,
   kRecv,
@@ -279,8 +277,7 @@ class RdmaFalconInterface {
   virtual void HandleRxTransaction(std::unique_ptr<Packet> packet,
                                    std::unique_ptr<OpaqueCookie> cookie) = 0;
   // Indicates the outcome of a transaction at the initiator. FALCON passes this
-  // information to RDMA via this interface for completion generation. See
-  // Section 7.8.8.2.6 in MEV Vol 2, "CRT to RDMA completion interface".
+  // information to RDMA via this interface for completion generation.
   virtual void HandleCompletion(QpId qp_id, uint32_t rsn,
                                 Packet::Syndrome syndrome,
                                 uint8_t destination_bifurcation_id) = 0;
@@ -299,7 +296,6 @@ class RdmaFalconInterface {
                               BackpressureData data) = 0;
 };
 
-// MEV-VOL3-AS4.2-rc4 4.2 SWQP:CRT_ordering_mode
 enum class OrderingMode { kOrdered = 0, kUnordered = 1 };
 
 // Encapsulates the FALCON packet and sends it out to the network.

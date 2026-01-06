@@ -541,7 +541,7 @@ std::unique_ptr<Packet> RdmaFalconRoundRobinWorkScheduler::CreateRequestPacket(
   if (!op->stats.is_scheduled) {
     op->stats.is_scheduled = true;
     op->stats.start_timestamp = env_->ElapsedTime();
-    op->psn = packet->rdma.rsn;
+    op->start_seq = packet->rdma.rsn;
   }
 
   // Update the map from RSN to RdmaOp.
@@ -552,8 +552,8 @@ std::unique_ptr<Packet> RdmaFalconRoundRobinWorkScheduler::CreateRequestPacket(
   if (is_end_packet) {
     packet->metadata.is_last_packet = true;
     op->stats.finish_timestamp = env_->ElapsedTime();
-    op->end_psn = packet->rdma.rsn;
-    op->n_pkts = op->end_psn - op->psn + 1;
+    op->end_seq = packet->rdma.rsn;
+    op->n_seqs = op->end_seq - op->start_seq + 1;
     context->completion_queue.emplace(packet->rdma.rsn,
                                       std::move(context->send_queue.front()));
     context->send_queue.pop_front();

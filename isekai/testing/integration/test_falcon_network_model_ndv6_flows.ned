@@ -10,7 +10,11 @@ network TestFalconNetworkNdv6Flows
       router_name = "router";
       num_port = 50;
     }
-    host[2]: FalconHost;
+    host[2]: FalconHost {
+        gates:
+          in;
+          out;
+      }
 
   connections:
     host[0].in <-- Eth100G <-- router.port$o[39];

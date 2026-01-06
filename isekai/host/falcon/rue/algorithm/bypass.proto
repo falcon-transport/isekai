@@ -31,8 +31,18 @@ message BypassConfiguration {
     optional bool always_wrr_restart = 9;
     optional int32 override_alpha_request = 10;
     optional int32 override_alpha_response = 11;
-    optional int32 override_fipg = 12;
-    optional int32 override_nipg = 13;
+    optional int32 override_flow_label_flow1 = 19;
+    optional int32 override_flow_label_flow2 = 20;
+    optional int32 override_flow_label_flow3 = 21;
+    optional int32 override_flow_label_flow4 = 22;
   }
   optional Gen2TestOnly gen2_test_only = 1;
+
+  // The following are not present in the Gen_2 Event, and cannot be forwarded
+  // to the Gen_2 response. Instead, these values are copied from
+  // SwRueEngineProfile to the Gen_2 response.
+  optional uint32 initial_fabric_ipg = 2 [default = 0];
+  optional uint32 initial_nic_ipg = 3 [default = 0];
+  optional uint32 initial_ar_rate = 4 [default = 0];
+  optional uint32 initial_csig_selector = 5 [default = 0];
 }

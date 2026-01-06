@@ -487,14 +487,14 @@ void RdmaFalconModel::ProcessIncomingReadResponse(
   auto it = context->rsn_to_op.find(packet->rdma.rsn);
   CHECK(it != context->rsn_to_op.end());
   RdmaOp* rdma_op = it->second;
-  rdma_op->n_pkt_finished++;
-  // If n_pkts > 0 (i.e., the last packet of this op has been sent), and
-  // finished packets == n_pkts, do completion.
-  if (rdma_op->n_pkts > 0 && rdma_op->n_pkt_finished == rdma_op->n_pkts) {
+  rdma_op->n_seqs_finished++;
+  // If n_seqs > 0 (i.e., the last request of this op has been sent), and
+  // finished sequences == n_seqs, do completion.
+  if (rdma_op->n_seqs > 0 && rdma_op->n_seqs_finished == rdma_op->n_seqs) {
     CompletionCallback completion_callback =
         std::move(rdma_op->completion_callback);
-    CollectOpStats(context, rdma_op->end_psn);
-    context->completion_queue.erase(rdma_op->end_psn);
+    CollectOpStats(context, rdma_op->end_seq);
+    context->completion_queue.erase(rdma_op->end_seq);
     --context->outbound_read_requests;
     // If this read response brings us below the ORD limit, add the QP back to
     // the active set.
@@ -700,14 +700,14 @@ void RdmaFalconModel::ProcessCompletion(FalconQpContext* context, uint32_t rsn,
   auto it = context->rsn_to_op.find(rsn);
   CHECK(it != context->rsn_to_op.end());
   RdmaOp* rdma_op = it->second;
-  rdma_op->n_pkt_finished++;
-  // If n_pkts > 0 (i.e., the last packet of this op has been sent), and
-  // finished packets == n_pkts, do completion.
-  if (rdma_op->n_pkts > 0 && rdma_op->n_pkt_finished == rdma_op->n_pkts) {
+  rdma_op->n_seqs_finished++;
+  // If n_seqs > 0 (i.e., the last request of this op has been sent), and
+  // finished sequences == n_seqs, do completion.
+  if (rdma_op->n_seqs > 0 && rdma_op->n_seqs_finished == rdma_op->n_seqs) {
     CompletionCallback completion_callback =
         std::move(rdma_op->completion_callback);
-    CollectOpStats(context, rdma_op->end_psn);
-    context->completion_queue.erase(rdma_op->end_psn);
+    CollectOpStats(context, rdma_op->end_seq);
+    context->completion_queue.erase(rdma_op->end_seq);
     if (config_.enable_pcie_delay_for_completion()) {
       rdma_per_host_rx_buffers_->Push(
           destination_bifurcation_id, /*pcie_payload=*/0,
@@ -792,9 +792,9 @@ void RdmaFalconModel::CollectOpStats(FalconQpContext* context, uint32_t rsn) {
   CollectScalarStats(absl::Substitute(kStatVectorOpLength, qp_id, cid, op_id),
                      op.length);
   CollectScalarStats(absl::Substitute(kStatVectorOpStartRsn, qp_id, cid, op_id),
-                     op.psn);
+                     op.start_seq);
   CollectScalarStats(absl::Substitute(kStatVectorOpEndRsn, qp_id, cid, op_id),
-                     op.end_psn);
+                     op.end_seq);
   CollectScalarStats(
       absl::Substitute(kStatVectorOpPostTimestamp, qp_id, cid, op_id),
       absl::ToDoubleNanoseconds(op.stats.post_timestamp));

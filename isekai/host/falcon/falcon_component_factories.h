@@ -44,6 +44,10 @@
 #include "isekai/host/falcon/gen2/reliability_manager.h"
 #include "isekai/host/falcon/gen2/resource_manager.h"
 #include "isekai/host/falcon/gen2/ulp_backpressure_manager.h"
+#include "isekai/host/falcon/gen3/ack_coalescing_engine.h"
+#include "isekai/host/falcon/gen3/connection_state_manager.h"
+#include "isekai/host/falcon/gen3/rate_update_engine.h"
+#include "isekai/host/falcon/gen3/reliability_manager.h"
 
 namespace isekai {
 
@@ -57,6 +61,8 @@ static std::unique_ptr<ConnectionStateManager> CreateConnectionStateManager(
       return std::make_unique<ProtocolConnectionStateManager>(falcon);
     case 2:
       return std::make_unique<Gen2ConnectionStateManager>(falcon);
+    case 3:
+      return std::make_unique<Gen3ConnectionStateManager>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
   }
@@ -69,8 +75,10 @@ inline std::unique_ptr<AckCoalescingEngineInterface> CreateAckCoalescingEngine(
   auto falcon_generation = falcon->GetVersion();
   if (falcon_generation == 1) {
     return std::make_unique<Gen1AckCoalescingEngine>(falcon);
-  } else if (falcon_generation >= 2) {
+  } else if (falcon_generation == 2) {
     return std::make_unique<Gen2AckCoalescingEngine>(falcon);
+  } else if (falcon_generation >= 3) {
+    return std::make_unique<Gen3AckCoalescingEngine>(falcon);
   } else {
     LOG(FATAL) << "Invalid Falcon protocol generation.";
   }
@@ -85,6 +93,7 @@ static std::unique_ptr<ResourceManager> CreateResourceManager(
     case 1:
       return std::make_unique<ProtocolResourceManager>(falcon);
     case 2:
+    case 3:
       return std::make_unique<Gen2ResourceManager>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -100,6 +109,7 @@ static std::unique_ptr<UlpBackpressureManager> CreateUlpBackpressureManager(
     case 1:
       LOG(FATAL) << "This version does not support this feature.";
     case 2:
+    case 3:
       return std::make_unique<Gen2UlpBackpressureManager>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -114,6 +124,7 @@ static std::unique_ptr<InterHostRxScheduler> CreateInterHostRxScheduler(
   switch (falcon_generation) {
     case 1:
     case 2:
+    case 3:
       return std::make_unique<ProtocolInterHostRxScheduler>(falcon,
                                                             number_of_hosts);
     default:
@@ -143,6 +154,7 @@ static std::unique_ptr<Scheduler> CreateAckNackScheduler(
   switch (falcon_generation) {
     case 1:
     case 2:
+    case 3:
       return std::make_unique<ProtocolAckNackScheduler>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -156,6 +168,7 @@ static std::unique_ptr<Arbiter> CreateArbiter(FalconModelInterface* falcon) {
   switch (falcon_generation) {
     case 1:
     case 2:
+    case 3:
       return std::make_unique<ProtocolRoundRobinArbiter>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -170,6 +183,7 @@ static std::unique_ptr<AdmissionControlManager> CreateAdmissionControlManager(
   switch (falcon_generation) {
     case 1:
     case 2:
+    case 3:
       return std::make_unique<ProtocolAdmissionControlManager>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -186,6 +200,8 @@ static std::unique_ptr<PacketReliabilityManager> CreatePacketReliabilityManager(
       return std::make_unique<ProtocolPacketReliabilityManager>(falcon);
     case 2:
       return std::make_unique<Gen2ReliabilityManager>(falcon);
+    case 3:
+      return std::make_unique<Gen3ReliabilityManager>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
   }
@@ -201,6 +217,8 @@ static std::unique_ptr<RateUpdateEngine> CreateRateUpdateEngine(
       return std::make_unique<Gen1RateUpdateEngine>(falcon);
     case 2:
       return std::make_unique<Gen2RateUpdateEngine>(falcon);
+    case 3:
+      return std::make_unique<Gen3RateUpdateEngine>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
   }
@@ -214,6 +232,7 @@ static std::unique_ptr<BufferReorderEngine> CreateBufferReorderEngine(
   switch (falcon_generation) {
     case 1:
     case 2:
+    case 3:
       return std::make_unique<ProtocolBufferReorderEngine>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -227,6 +246,7 @@ static std::unique_ptr<FalconStatsManager> CreateStatsManager(
   switch (falcon_generation) {
     case 1:
     case 2:
+    case 3:
       return std::make_unique<FalconStatsManager>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";
@@ -240,6 +260,7 @@ CreatePacketMetadataTransformer(FalconModelInterface* falcon) {
     case 1:
       return std::make_unique<Gen1PacketMetadataTransformer>(falcon);
     case 2:
+    case 3:
       return std::make_unique<Gen2PacketMetadataTransformer>(falcon);
     default:
       LOG(FATAL) << "Invalid Falcon protocol generation.";

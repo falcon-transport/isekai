@@ -6,7 +6,11 @@ network TestFalconNetwork
     string simulation_config;
 
   submodules:
-    host[2]: FalconHost;
+    host[2]: FalconHost {
+      gates:
+        in;
+        out;
+    }
 
   connections:
     host[0].in <-- Eth100G <-- host[1].out;

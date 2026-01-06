@@ -188,8 +188,7 @@ TEST(PacketUtilTest, TestCommunicationBetweenHostAndRouter) {
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
       /* ip_address = */ kTestDstIpv6Address1,
-      /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   // step1: Host generates the packet.
   auto packet = packet_builder.CreateFalconPacket(
@@ -267,8 +266,7 @@ TEST(PacketUtilTest, TestEcnMark) {
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
       /* ip_address = */ "",
-      /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
   packet_builder.ecn_enabled_ = false;
 
   auto packet_0 = packet_builder.CreateFalconPacket(

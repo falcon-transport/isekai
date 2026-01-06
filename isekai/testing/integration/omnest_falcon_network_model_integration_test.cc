@@ -79,9 +79,11 @@ TEST(OmnestFalconNetworkModelTest, TestRoutingPipeline) {
   double host1_total_tx_packets = omnest_sim.GetStatistics(
       "TestFalconNetworkIntegration.host[1].packet_builder.total_tx_packets");
   double host0_total_rx_packets = omnest_sim.GetStatistics(
-      "TestFalconNetworkIntegration.host[0].packet_builder.total_rx_packets");
+      "TestFalconNetworkIntegration.host[0].packet_builder."
+      "total_rx_packets");
   double host1_total_rx_packets = omnest_sim.GetStatistics(
-      "TestFalconNetworkIntegration.host[1].packet_builder.total_rx_packets");
+      "TestFalconNetworkIntegration.host[1].packet_builder."
+      "total_rx_packets");
 
   // Offered load is 10Gbps, goodput should be around 10Gbps (no packet loss).
   ASSERT_NEAR(average_goodput_0, 10, 0.1);
@@ -256,9 +258,11 @@ TEST(OmnestFalconNetworkModelTest, TestBidirectionConnection) {
   double host1_total_tx_packets = omnest_sim.GetStatistics(
       "TestFalconNetworkIntegration.host[1].packet_builder.total_tx_packets");
   double host0_total_rx_packets = omnest_sim.GetStatistics(
-      "TestFalconNetworkIntegration.host[0].packet_builder.total_rx_packets");
+      "TestFalconNetworkIntegration.host[0].packet_builder."
+      "total_rx_packets");
   double host1_total_rx_packets = omnest_sim.GetStatistics(
-      "TestFalconNetworkIntegration.host[1].packet_builder.total_rx_packets");
+      "TestFalconNetworkIntegration.host[1].packet_builder."
+      "total_rx_packets");
   LOG(INFO) << "host0 tx: " << host0_total_tx_packets
             << " ; rx: " << host0_total_rx_packets;
   LOG(INFO) << "host1 tx: " << host1_total_tx_packets
@@ -423,9 +427,11 @@ TEST(OmnestFalconNetworkModelTest, TestGen2BidirectionConnection) {
       "TestFalconNetworkIntegration.host[1].packet_builder.total_tx_packets");
 
   gen2_host0_total_rx_packets = omnest_gen2_sim.GetStatistics(
-      "TestFalconNetworkIntegration.host[0].packet_builder.total_rx_packets");
+      "TestFalconNetworkIntegration.host[0].packet_builder."
+      "total_rx_packets");
   gen2_host1_total_rx_packets = omnest_gen2_sim.GetStatistics(
-      "TestFalconNetworkIntegration.host[1].packet_builder.total_rx_packets");
+      "TestFalconNetworkIntegration.host[1].packet_builder.total_rx_"
+      "packets");
 
   EXPECT_GT(gen2_host0_total_tx_packets,
             10 * 1e9 * kSimulationTime / (4000 * 8));

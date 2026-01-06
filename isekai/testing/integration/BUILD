@@ -75,6 +75,7 @@ cc_library(
         "//isekai/common:status_util",
         "//isekai/host/falcon/gen1:falcon_model",
         "//isekai/host/falcon/gen2:falcon_model",
+        "//isekai/host/falcon/gen3:falcon_model",
         "//isekai/host/rdma:rdma_falcon_model",
         "//isekai/host/rnic:connection_manager",
         "//isekai/host/rnic:memory_interface",

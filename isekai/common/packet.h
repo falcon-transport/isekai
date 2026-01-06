@@ -46,8 +46,6 @@ constexpr uint32_t kFalconResyncReservedBits = 20;
 typedef FalconBitmap<kAckPacketBitmapWidth> FalconAckPacketBitmap;
 
 // Packet is a simplified data-structure for storing packet headers and metadata
-// in something as described in MEV Vol 2, Chapter 6. It contains relevant state
-// and context attached to the packet as it flows through the something system.
 struct Packet {
   // Verbs error syndrome, used by the RDMA model to provide NACK reason to
   // FALCON and also passed along in the completion callback to the application.
@@ -60,20 +58,16 @@ struct Packet {
     kRemoteOperationalErrNak = 99,
     kInvRDReqNak = 100
   };
-
-  // List of relevant packet metadata, taken from MEV Vol 2, 6.4.x and more.
   struct Metadata {
     // Common, 6.4.1
     uint8_t traffic_class : 3;  // Determines traffic CoS.
     // RDMA source queue pair ID, required by FALCON to return the completion
-    // for an outgoing transaction. Refer to MEV Vol2, Section 7.8.8.1.2 "RDMA
-    // to CRT packet Meta-Data Interface".
+    // for an outgoing transaction.
     uint32_t rdma_src_qp_id;
     // Length of SGL in TX PMD.
     uint32_t sgl_length = 0;
     // On ingress, timestamp consists of a single valid bit, 32 bits of
-    // nano-second granularity, and 7 bits of sub nano-second granularity that
-    // are synchronized with MEV full chip master timer.
+    // nano-second granularity, and 7 bits of sub nano-second granularity
     uint64_t timestamp : 40;  // IEEE 1588 ingress timestamp.
     // Represents the earliest departure time of the packet, and the Traffic
     // Shaper ensures that the packet is not transmitted until the absolute time
@@ -162,7 +156,6 @@ struct Packet {
     // Source FALCON connection id. This field is metadata only, and is not
     // present in the RDMA packet header.
     uint32_t scid = 0;
-    // See MEV-VOL3-AS4.0-rc3 4.1.12 Opcode Header Mapping
     enum class Opcode {
       kInvalid = 0xFF,
       kSendOnly = 0x04,

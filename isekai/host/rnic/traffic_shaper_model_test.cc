@@ -19,7 +19,6 @@
 #include <queue>
 #include <utility>
 
-#include "absl/memory/memory.h"
 #include "absl/time/time.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
