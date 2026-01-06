@@ -315,8 +315,52 @@ FalconConfig DefaultConfigGenerator::Gen2Falcon::DefaultConfig() {
       ->mutable_multipath_config()
       ->set_retx_flow_label(FalconConfig::Gen2ConfigOptions::MultipathConfig::
                                 SAME_FLOW_ID_AS_INITIAL_TX);
+  config.mutable_gen2_config_options()
+      ->mutable_per_connection_ulp_backpressure()
+      ->CopyFrom(DefaultPerConnectionBackpressure());
   config.mutable_gen2_config_options()->set_decrement_orc_on_pull_response(
       false);
+  return config;
+}
+
+FalconConfig::PerConnectionBackpressure
+DefaultConfigGenerator::Gen2Falcon::DefaultPerConnectionBackpressure() {
+  FalconConfig::PerConnectionBackpressure per_connection_backpressure;
+  per_connection_backpressure.set_enable_backpressure(false);
+  return per_connection_backpressure;
+}
+
+FalconConfig DefaultConfigGenerator::Gen3Falcon::DefaultConfig() {
+  FalconConfig config = Gen2Falcon::DefaultConfig();
+  config.set_version(3);
+  auto early_retx = config.mutable_early_retx();
+  //
+  early_retx->set_enable_rack(false);
+  // RACK needs an extra time window to decide drop vs. OOO. The size of the
+  // time window is set as a fraction of RTT. 0.25 is consistent with TCP
+  // RACK [RFC 8985].
+  early_retx->set_rack_time_window_rtt_factor(0.25);
+  // By default there is no minimum for the reorder window.
+  early_retx->set_min_rack_time_window_ns(0);
+  // RACK RTO retransmission condition applies and background scans are enabled.
+  early_retx->set_rack_bypass_rto_check(false);
+  // RACK scan range is limited to the request/data ACK bitmap sizes.
+  early_retx->set_rack_bypass_scan_range_limit(false);
+  // TLP is disabled by default.
+  early_retx->set_enable_tlp(false);
+  // By default setting the minimum value for TLP timeout to 2x target
+  // delay.
+  early_retx->set_min_tlp_timeout_ns(50000);
+  // This is consistant with TCP TLP [RFC 8985].
+  early_retx->set_tlp_timeout_rtt_factor(2.0);
+  // By default TLP sends the first unreceived packet as probe.
+  early_retx->set_tlp_type(FalconConfig::EarlyRetx::FIRST_UNRECEIVED);
+  // TLP probe selection scan is limited to the request/data ACK bitmap sizes.
+  early_retx->set_tlp_bypass_scan_range_limit(false);
+  // TLP sends at most one probe per timeout across request/data windows.
+  early_retx->set_tlp_per_window_probe(false);
+  // Default RX window size is 256 (same as Gen2).
+  config.mutable_gen3_config_options()->set_rx_window_size(256);
   return config;
 }
 
@@ -326,6 +370,8 @@ FalconConfig DefaultConfigGenerator::DefaultFalconConfig(int version) {
       return Gen1Falcon::DefaultConfig();
     case 2:
       return Gen2Falcon::DefaultConfig();
+    case 3:
+      return Gen3Falcon::DefaultConfig();
     default:
       LOG(FATAL) << "Unsupported version type: " << version;
   }
@@ -437,7 +483,6 @@ DefaultConfigGenerator::DefaultFalconStatsFlags() {
   config.set_enable_resource_manager_ema_occupancy(false);
   config.set_enable_global_resource_credits_timeline(false);
   config.set_enable_inter_host_rx_scheduler_queue_length(false);
-  config.set_enable_ambito_load_factor(false);
   return config;
 }
 
@@ -452,7 +497,6 @@ DefaultConfigGenerator::DefaultPacketBuilderStatsFlags() {
   config.set_enable_vector_tx_rx_bytes(false);
   config.set_enable_pfc(false);
   config.set_enable_xoff_duration(false);
-  config.set_enable_per_connection_traffic_stats(false);
   return config;
 }
 
@@ -474,7 +518,6 @@ DefaultConfigGenerator::DefaultRouterStatsFlags() {
   config.set_port_stats_collection_interval_us(5);
   config.set_enable_scalar_per_port_tx_rx_packets(false);
   config.set_enable_vector_per_port_tx_rx_bytes(false);
-  config.set_enable_port_load_and_util_gamma(false);
   config.set_enable_per_port_ingress_discards(false);
   config.set_enable_packet_discards(true);
   config.set_enable_per_port_per_queue_stats(false);

@@ -89,8 +89,8 @@ class TrafficGenerator : public TrafficGeneratorInterface {
     // created qps in order. This is because in uniform random traffic pattern,
     // we need to let the random qp selection reproducible.
     absl::btree_map<QpId, std::vector<QpId>> create_qps;
-    // The total number of generated packets of this traffic pattern.
-    uint64_t generated_packets = 0;
+    // The total number of generated ops of this traffic pattern.
+    uint64_t num_generated_ops = 0;
     // The id represents the order of this traffic pattern in the composite
     // traffic pattern. For example, if we have two uniform random patterns in
     // the composite traffic pattern, their ids are "uniform_random_0" and

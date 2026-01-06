@@ -1320,7 +1320,7 @@ TEST(RdmaAppTest, FirstOpIssueTime) {
       ->mutable_uniform_random()
       ->mutable_traffic_characteristics()
       ->mutable_conn_config(0)
-      ->set_max_generated_packets(1);
+      ->set_max_generated_ops(1);
   simulation.mutable_traffic_pattern()
       ->mutable_uniform_random()
       ->mutable_traffic_characteristics()

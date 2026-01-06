@@ -46,6 +46,7 @@
 #include "isekai/host/falcon/gen1/falcon_types.h"
 #include "isekai/host/falcon/gen1/resource_manager.h"
 #include "isekai/host/falcon/gen2/falcon_model.h"
+#include "isekai/host/falcon/gen3/falcon_model.h"
 #include "isekai/host/rdma/rdma_component_interfaces.h"
 #include "isekai/host/rnic/connection_manager.h"
 #include "isekai/host/rnic/traffic_shaper_model.h"
@@ -207,6 +208,11 @@ FalconHost::FalconHost(int id, const Ipv6Address& ip, Environment* env,
                                             /* number of hosts = */ 4);
   } else if (falcon_config.version() == 2) {
     falcon_ = std::make_unique<Gen2FalconModel>(falcon_config, env,
+                                                /*stats_collector=*/nullptr,
+                                                connection_manager, host_id_,
+                                                /* number of hosts = */ 4);
+  } else if (falcon_config.version() == 3) {
+    falcon_ = std::make_unique<Gen3FalconModel>(falcon_config, env,
                                                 /*stats_collector=*/nullptr,
                                                 connection_manager, host_id_,
                                                 /* number of hosts = */ 4);

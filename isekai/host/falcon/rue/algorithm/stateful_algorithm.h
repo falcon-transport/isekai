@@ -44,6 +44,12 @@ inline bool IsMultipathConnection(const falcon_rue::Event_Gen2& event) {
   return event.multipath_enable;
 }
 
+template <>
+inline bool IsMultipathConnection(const falcon_rue::EVENT_Gen3& event) {
+  // Return true for Gen_3 events whose multipath_enable is set.
+  return event.multipath_enable;
+}
+
 // Interface for stateful access pattern logic (required for benchmarking).
 class StateAccessorInterface {
  public:

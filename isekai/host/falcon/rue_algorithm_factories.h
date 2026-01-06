@@ -67,8 +67,8 @@ inline std::unique_ptr<RueAdapterInterface> GetSwiftRueAdapter(
     uint32_t initial_fcwnd_fixed) {
   auto falcon_generation = falcon->GetVersion();
   if (falcon_generation == 1) {
-    using EventT = falcon_rue::Event_GEN1;
-    using ResponseT = falcon_rue::Response_GEN1;
+    using EventT = falcon_rue::Event_Gen1;
+    using ResponseT = falcon_rue::Response_Gen1;
     using StateT = ::isekai::rue::ConnectionState<EventT>;
 
     auto default_state_value = StateT{};

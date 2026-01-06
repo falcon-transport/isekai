@@ -378,8 +378,9 @@ absl::Status Swift<EventT, ResponseT>::UninstallAlgorithmProfile(
 
 // Explicit template instantiations because some of the Swift class functions
 // are not defined in the header file.
-template class Swift<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>;
+template class Swift<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>;
 template class Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>;
+template class Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>;
 
 }  // namespace rue
 }  // namespace isekai

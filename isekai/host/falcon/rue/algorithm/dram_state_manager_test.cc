@@ -67,9 +67,9 @@ auto DramStateManagerTest<TypeParam>::CreateManager(
 
 // Used for tests that are common to all Dram State Managers.
 using DramStateManagerTypes = ::testing::Types<
-    SingletonDramStateManager<falcon_rue::Event_GEN1>,
-    ConnectionBitsDramStateManager<falcon_rue::Event_GEN1>,
-    TableWithOffsetInEventDramStateManager<falcon_rue::Event_GEN1>>;
+    SingletonDramStateManager<falcon_rue::Event_Gen1>,
+    ConnectionBitsDramStateManager<falcon_rue::Event_Gen1>,
+    TableWithOffsetInEventDramStateManager<falcon_rue::Event_Gen1>>;
 
 TYPED_TEST_SUITE(DramStateManagerTest, DramStateManagerTypes);
 
@@ -172,7 +172,7 @@ TYPED_TEST(DramStateManagerTest, WorksWithArraysForBenchmarking) {
 
 // Tests for specific Dram State Managers
 TEST(SingletonDramStateManagerTest, AlwaysReturnsSameState) {
-  using EventT = falcon_rue::Event_GEN1;
+  using EventT = falcon_rue::Event_Gen1;
   using ManagerT = SingletonDramStateManager<EventT>;
   struct PerConnectionStateT {
     int x;
@@ -195,7 +195,7 @@ TEST(SingletonDramStateManagerTest, AlwaysReturnsSameState) {
 
 TEST(ConnectionBitsDramStateManagerTest,
      ReturnsDifferentStateForDifferentConnections) {
-  using EventT = falcon_rue::Event_GEN1;
+  using EventT = falcon_rue::Event_Gen1;
   using ManagerT = ConnectionBitsDramStateManager<EventT>;
   struct PerConnectionStateT {
     int x;
@@ -221,7 +221,7 @@ TEST(ConnectionBitsDramStateManagerTest,
 
 TEST(HashMapDramStateManagerTest,
      ReturnsDifferentStateForDifferentConnections) {
-  using EventT = falcon_rue::Event_GEN1;
+  using EventT = falcon_rue::Event_Gen1;
   using ManagerT = HashMapDramStateManager<EventT>;
   struct PerConnectionStateT {
     int x;
@@ -304,7 +304,7 @@ TEST(ConnectionBitsDramStateManagerTest, InitializesDefaultValueCorrectly) {
 
 TEST(TableWithOffsetInEventDramStateManagerTest,
      ReturnsDifferentStateForDifferentConnections) {
-  using EventT = falcon_rue::Event_GEN1;
+  using EventT = falcon_rue::Event_Gen1;
   using ManagerT = TableWithOffsetInEventDramStateManager<EventT>;
   struct PerConnectionStateT {
     int x;
@@ -329,7 +329,7 @@ TEST(TableWithOffsetInEventDramStateManagerTest,
 }
 
 TEST(TableWithOffsetInEventDramStateManagerTest, UpdatesBaseDelayCorrectly) {
-  using EventT = falcon_rue::Event_GEN1;
+  using EventT = falcon_rue::Event_Gen1;
   using ManagerT = TableWithOffsetInEventDramStateManager<EventT>;
 
   EventT event{.base_delay = 0};
@@ -345,7 +345,7 @@ TEST(TableWithOffsetInEventDramStateManagerTest, UpdatesBaseDelayCorrectly) {
 }
 
 TEST(DramStateManagerHasOwnerTest, DetectsOwnerCorrectly) {
-  using EventT = falcon_rue::Event_GEN1;
+  using EventT = falcon_rue::Event_Gen1;
   using ManagerT = TableWithOffsetInEventDramStateManager<EventT>;
   using OwnedManagerT = MarkDramStateManagerAsHavingOwner<ManagerT>;
   EXPECT_FALSE(DramStateManagerHasOwner<ManagerT>::value);

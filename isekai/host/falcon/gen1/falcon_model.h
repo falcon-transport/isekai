@@ -189,6 +189,10 @@ class FalconModel : public FalconModelInterface {
   const std::unique_ptr<BufferReorderEngine> buffer_reorder_engine_;
   const std::unique_ptr<AckCoalescingEngineInterface> ack_coalescing_engine_;
   const std::unique_ptr<PacketMetadataTransformer> packet_metadata_transformer_;
+  // Stores the xoff state for each port in a flat hash map. A
+  // flat hash map is used since otherwise we need to propagate the number of
+  // ports and change many interfaces
+  absl::flat_hash_map<uint8_t, bool> ecq_xoff_;
 
   bool packet_builder_xoff_ = false;
 };

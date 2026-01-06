@@ -62,6 +62,14 @@ class DefaultConfigGenerator {
    public:
     static FalconConfig DefaultConfig();
     static MemoryInterfaceConfig DefaultOnNicDramInterfaceConfig();
+    static FalconConfig::PerConnectionBackpressure
+    DefaultPerConnectionBackpressure();
+  };
+
+  // Gen3 Falcon-specific default configuration.
+  class Gen3Falcon {
+   public:
+    static FalconConfig DefaultConfig();
   };
 
   // Outputs the default Falcon configuration given the Falcon version number.

@@ -35,6 +35,7 @@ void TrafficShaperModel::TransferTxPacket(std::unique_ptr<Packet> pkt) {
 
   // Timestamp is all zeros, bypass traffic shaper.
   if (pkt->metadata.timing_wheel_timestamp == absl::ZeroDuration()) {
+    //
     packet_builder_->EnqueuePacket(std::move(pkt));
     return;
   }
@@ -89,6 +90,7 @@ void TrafficShaperModel::DrainTimingWheelSlot() {
   auto slot_pkts = std::move(it.mapped());
   CHECK(!slot_pkts.empty()) << "Scheduled a slot without any packets in it.";
   while (!slot_pkts.empty()) {
+    //
     packet_builder_->EnqueuePacket(std::move(slot_pkts.front()));
     slot_pkts.pop();
   }

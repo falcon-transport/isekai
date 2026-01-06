@@ -31,12 +31,14 @@
 #include "isekai/host/falcon/gen2/connection_state.h"
 #include "isekai/host/falcon/gen2/falcon_types.h"
 #include "isekai/host/falcon/gen2/reliability_manager.h"
+#include "isekai/host/falcon/gen3/falcon_types.h"
 #include "isekai/host/falcon/rue/algorithm/swift.h"
 #include "isekai/host/falcon/rue/algorithm/swift.pb.h"
 #include "isekai/host/falcon/rue/bits.h"
 #include "isekai/host/falcon/rue/fixed.h"
 #include "isekai/host/falcon/rue/format.h"
 #include "isekai/host/falcon/rue/format_gen2.h"
+#include "isekai/host/falcon/rue/format_gen3.h"
 
 namespace isekai {
 
@@ -44,6 +46,128 @@ namespace isekai {
 // Get from RUE responses.
 constexpr std::string_view kStatVectorRerouteCountFlow =
     "falcon.rue.reroute_count.cid$0.flowId$1";
+
+// Convert Gen_3 Response to Gen_2 Response to avoid code repetition. Some
+// fields are not convertible. Gen2-specific fields (flow_weights,
+// wrr_restart_round) are filled with default values.
+static void ConvertGen3ResponseToGen2Response(
+    falcon_rue::Response_Gen2* response_gen2,
+    const falcon_rue::Response_Gen3* response,
+    const CongestionControlMetadata& gen1_cc_metadata) {
+  const Gen3CongestionControlMetadata& cc_metadata =
+      CongestionControlMetadata::DowncastTo<Gen3CongestionControlMetadata>(
+          gen1_cc_metadata);
+  response_gen2->connection_id = response->connection_id;
+  response_gen2->fabric_congestion_window = response->fabric_congestion_window;
+  response_gen2->inter_packet_gap = response->inter_packet_gap;
+  response_gen2->nic_congestion_window = response->nic_congestion_window;
+  response_gen2->nic_inter_packet_gap = response->nic_inter_packet_gap;
+  response_gen2->cc_metadata = response->cc_metadata;
+  response_gen2->alpha_request = response->alpha_request;
+  response_gen2->alpha_response = response->alpha_response;
+  response_gen2->fabric_window_time_marker =
+      response->fabric_window_time_marker;
+  response_gen2->nic_window_time_marker = response->nic_window_time_marker;
+  response_gen2->base_delay = response->base_delay;
+  response_gen2->delay_state = response->delay_state;
+  response_gen2->plb_state = response->plb_state;
+  response_gen2->cc_opaque = response->cc_opaque;
+  response_gen2->delay_select = response->delay_select;
+  response_gen2->ar_rate = response->ar_rate;
+  response_gen2->rtt_state = response->rtt_state;
+  response_gen2->flow_label_1 = response->flow_label_1;
+  response_gen2->flow_label_2 = response->flow_label_2;
+  response_gen2->flow_label_3 = response->flow_label_3;
+  response_gen2->flow_label_4 = response->flow_label_4;
+  response_gen2->flow_label_1_valid = response->flow_label_1_valid;
+  response_gen2->flow_label_2_valid = response->flow_label_2_valid;
+  response_gen2->flow_label_3_valid = response->flow_label_3_valid;
+  response_gen2->flow_label_4_valid = response->flow_label_4_valid;
+  response_gen2->flow_id = response->flow_id;
+  response_gen2->csig_enable = response->csig_enable;
+  response_gen2->csig_select = response->csig_select;
+  response_gen2->retransmit_timeout = response->retransmit_timeout;
+  response_gen2->event_queue_select = response->event_queue_select;
+
+  uint8_t num_flows = cc_metadata.gen2_flow_labels.size();
+  if (num_flows == 1) {
+    return;
+  }
+  // Recover Gen_2-specific fields (flow weights, wrr_restart_round) from Gen_3.
+  // This is needed to support WeightedRoundRobinFlowScheduling policy in Gen3
+  // (for evaluation purpose as a baseline).
+  //
+  // For Gen_2, Swift keeps wrr_restart_round always false.
+  //
+  response_gen2->wrr_restart_round = false;
+  double fcwnd_per_flow[4] = {
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          cc_metadata.gen3_flow_fcwnds[0], falcon_rue::kFractionalBits),
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          cc_metadata.gen3_flow_fcwnds[1], falcon_rue::kFractionalBits),
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          cc_metadata.gen3_flow_fcwnds[2], falcon_rue::kFractionalBits),
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          cc_metadata.gen3_flow_fcwnds[3], falcon_rue::kFractionalBits)};
+  fcwnd_per_flow[response->flow_id] =
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          response->fabric_congestion_window, falcon_rue::kFractionalBits);
+  double fcwnd_per_conn = fcwnd_per_flow[0] + fcwnd_per_flow[1] +
+                          fcwnd_per_flow[2] + fcwnd_per_flow[3];
+
+  response_gen2->flow_label_1_weight =
+      isekai::rue::Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+          ComputeFlowWeight(fcwnd_per_flow[0], fcwnd_per_conn);
+  response_gen2->flow_label_2_weight =
+      isekai::rue::Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+          ComputeFlowWeight(fcwnd_per_flow[1], fcwnd_per_conn);
+  response_gen2->flow_label_3_weight =
+      isekai::rue::Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+          ComputeFlowWeight(fcwnd_per_flow[2], fcwnd_per_conn);
+  response_gen2->flow_label_4_weight =
+      isekai::rue::Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+          ComputeFlowWeight(fcwnd_per_flow[3], fcwnd_per_conn);
+}
+
+// Convert Gen_2 Event to Gen_3 Event. Newly added field in Gen_3 (pto,
+// rack_rto) are not set by this method.
+static void ConvertGen2EventToGen3Event(
+    falcon_rue::EVENT_Gen3& event, const falcon_rue::Event_Gen2& event_gen2) {
+  event.connection_id = event_gen2.connection_id;
+  event.event_type = event_gen2.event_type;
+  event.timestamp_1 = event_gen2.timestamp_1;
+  event.timestamp_2 = event_gen2.timestamp_2;
+  event.timestamp_3 = event_gen2.timestamp_3;
+  event.timestamp_4 = event_gen2.timestamp_4;
+  event.rx_buffer_level = event_gen2.rx_buffer_level;
+  event.eack = event_gen2.eack;
+  event.nack_code = event_gen2.nack_code;
+  event.forward_hops = event_gen2.forward_hops;
+  event.retransmit_count = event_gen2.retransmit_count;
+  event.retransmit_reason = event_gen2.retransmit_reason;
+  event.eack_drop = event_gen2.eack_drop;
+  event.eack_own = event_gen2.eack_own;
+  event.cc_metadata = event_gen2.cc_metadata;
+  event.fabric_congestion_window = event_gen2.fabric_congestion_window;
+  event.nic_congestion_window = event_gen2.nic_congestion_window;
+  event.is_ipv4 = event_gen2.is_ipv4;
+  event.multipath_enable = event_gen2.multipath_enable;
+  event.flow_label = event_gen2.flow_label;
+  event.cc_opaque = event_gen2.cc_opaque;
+  event.fabric_window_time_marker = event_gen2.fabric_window_time_marker;
+  event.nic_window_time_marker = event_gen2.nic_window_time_marker;
+  event.base_delay = event_gen2.base_delay;
+  event.delay_state = event_gen2.delay_state;
+  event.plb_state = event_gen2.plb_state;
+  event.delay_select = event_gen2.delay_select;
+  event.event_queue_select = event_gen2.event_queue_select;
+  event.rtt_state = event_gen2.rtt_state;
+  event.ecn_accumulated = event_gen2.ecn_accumulated;
+  event.num_packets_acked = event_gen2.num_packets_acked;
+  event.csig_enable = event_gen2.csig_enable;
+  event.csig = event_gen2.csig;
+  event.gen_bit = event_gen2.gen_bit;
+}
 
 // Changes the connection state as a result of a received RUE response.
 template <typename EventT, typename ResponseT>
@@ -219,6 +343,64 @@ void EventResponseFormatAdapter<falcon_rue::Event_Gen2,
   // response->csig_select).
 }
 
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    UpdateConnectionStateFromResponse(
+        ConnectionState* connection_state,
+        const falcon_rue::Response_Gen3* response) const {
+  Gen3CongestionControlMetadata& congestion_control_metadata =
+      CongestionControlMetadata::DowncastTo<Gen3CongestionControlMetadata>(
+          *connection_state->congestion_control_metadata);
+  falcon_rue::Response_Gen2 response_gen2;
+  ConvertGen3ResponseToGen2Response(&response_gen2, response,
+                                    congestion_control_metadata);
+  auto gen2_adapter = std::make_unique<EventResponseFormatAdapter<
+      falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>>(falcon_);
+  gen2_adapter->UpdateConnectionStateFromResponse(connection_state,
+                                                  &response_gen2);
+
+  // Updates Gen3 specific data
+  // Updates the congestion control metadata.
+  uint8_t num_flows = congestion_control_metadata.gen2_flow_labels.size();
+  // In Gen3, flow fcwnd is per-flow, and it should be larger than zero.
+  // If fabric window is zero, exit with an error.
+  CHECK_GT(response->fabric_congestion_window, 0);
+  if (num_flows == 1) {
+    congestion_control_metadata.gen3_flow_fcwnds[0] =
+        response->fabric_congestion_window;
+    // In Gen3, per-connection fabric window is the sum of all flow fcwnds.
+    congestion_control_metadata.fabric_congestion_window =
+        congestion_control_metadata.gen3_flow_fcwnds[0];
+    // Update per-flow RTT state.
+    congestion_control_metadata.gen3_flow_rtt_state[0] = response->rtt_state;
+  } else {
+    congestion_control_metadata.gen3_flow_fcwnds[response->flow_id] =
+        response->fabric_congestion_window;
+    double fcwnd_per_flow_0 = falcon_rue::FixedToFloat<uint32_t, double>(
+        congestion_control_metadata.gen3_flow_fcwnds[0],
+        falcon_rue::kFractionalBits);
+    double fcwnd_per_flow_1 = falcon_rue::FixedToFloat<uint32_t, double>(
+        congestion_control_metadata.gen3_flow_fcwnds[1],
+        falcon_rue::kFractionalBits);
+    double fcwnd_per_flow_2 = falcon_rue::FixedToFloat<uint32_t, double>(
+        congestion_control_metadata.gen3_flow_fcwnds[2],
+        falcon_rue::kFractionalBits);
+    double fcwnd_per_flow_3 = falcon_rue::FixedToFloat<uint32_t, double>(
+        congestion_control_metadata.gen3_flow_fcwnds[3],
+        falcon_rue::kFractionalBits);
+    // In Gen3, per-connection fabric window is the sum of all flow fcwnds.
+    congestion_control_metadata.fabric_congestion_window =
+        falcon_rue::FloatToFixed<double, uint32_t>(
+            fcwnd_per_flow_0 + fcwnd_per_flow_1 + fcwnd_per_flow_2 +
+                fcwnd_per_flow_3,
+            falcon_rue::kFractionalBits);
+    // Update per-flow RTT state.
+    congestion_control_metadata.gen3_flow_rtt_state[response->flow_id] =
+        response->rtt_state;
+  }
+}
+
 template <typename EventT, typename ResponseT>
 bool EventResponseFormatAdapter<EventT, ResponseT>::IsRandomizePath(
     const ResponseT* response) const {
@@ -230,6 +412,18 @@ bool EventResponseFormatAdapter<falcon_rue::Event_Gen2,
                                 falcon_rue::Response_Gen2>::
     IsRandomizePath(const falcon_rue::Response_Gen2* response) const {
   // For Gen2, if any of the valid bits are set then the response would be
+  // signaling a randomize path signal to the datapath. The RUE class which is
+  // keeping stats of path changes would then record this change by incrementing
+  // a counter.
+  return response->flow_label_1_valid || response->flow_label_2_valid ||
+         response->flow_label_3_valid || response->flow_label_4_valid;
+}
+
+template <>
+bool EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    IsRandomizePath(const falcon_rue::Response_Gen3* response) const {
+  // For Gen3, if any of the valid bits are set then the response would be
   // signaling a randomize path signal to the datapath. The RUE class which is
   // keeping stats of path changes would then record this change by incrementing
   // a counter.
@@ -331,6 +525,29 @@ void EventResponseFormatAdapter<falcon_rue::Event_Gen2,
   event.gen_bit = 0;        // not used
   event.plb_state = ccmeta.gen2_plb_state;
   //
+}
+
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    FillTimeoutRetransmittedEvent(falcon_rue::EVENT_Gen3& event,
+                                  const RueKey* rue_key, const Packet* packet,
+                                  const CongestionControlMetadata& gen1_ccmeta,
+                                  uint8_t retransmit_count) const {
+  Gen3CongestionControlMetadata ccmeta =
+      Gen3CongestionControlMetadata::DowncastTo<Gen3CongestionControlMetadata>(
+          gen1_ccmeta);
+  auto gen2_rue_key = dynamic_cast<const Gen2RueKey*>(rue_key);
+  falcon_rue::Event_Gen2 gen2_event;
+  auto gen2_adapter = std::make_unique<EventResponseFormatAdapter<
+      falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>>(falcon_);
+
+  gen2_adapter->FillTimeoutRetransmittedEvent(gen2_event, rue_key, packet,
+                                              ccmeta, retransmit_count);
+  ConvertGen2EventToGen3Event(event, gen2_event);
+  // In Gen3, fcwnd is per-flow.
+  event.fabric_congestion_window =
+      ccmeta.gen3_flow_fcwnds[gen2_rue_key->flow_id];
 }
 
 template <typename EventT, typename ResponseT>
@@ -435,6 +652,29 @@ void EventResponseFormatAdapter<falcon_rue::Event_Gen2,
   //
 }
 
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    FillNackEvent(falcon_rue::EVENT_Gen3& event, const RueKey* rue_key,
+                  const Packet* packet,
+                  const CongestionControlMetadata& gen1_ccmeta,
+                  uint32_t num_packets_acked) const {
+  Gen3CongestionControlMetadata ccmeta =
+      Gen3CongestionControlMetadata::DowncastTo<Gen3CongestionControlMetadata>(
+          gen1_ccmeta);
+  auto gen2_rue_key = dynamic_cast<const Gen2RueKey*>(rue_key);
+  falcon_rue::Event_Gen2 gen2_event;
+  auto gen2_adapter = std::make_unique<EventResponseFormatAdapter<
+      falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>>(falcon_);
+
+  gen2_adapter->FillNackEvent(gen2_event, rue_key, packet, ccmeta,
+                              num_packets_acked);
+  ConvertGen2EventToGen3Event(event, gen2_event);
+  // In Gen3, fcwnd is per-flow.
+  event.fabric_congestion_window =
+      ccmeta.gen3_flow_fcwnds[gen2_rue_key->flow_id];
+}
+
 template <typename EventT, typename ResponseT>
 void EventResponseFormatAdapter<EventT, ResponseT>::FillExplicitAckEvent(
     EventT& event, const RueKey* rue_key, const Packet* packet,
@@ -537,6 +777,30 @@ void EventResponseFormatAdapter<falcon_rue::Event_Gen2,
   event.eack_drop = eack_drop;
   event.plb_state = ccmeta.gen2_plb_state;
   //
+}
+
+template <>
+void EventResponseFormatAdapter<falcon_rue::EVENT_Gen3,
+                                falcon_rue::Response_Gen3>::
+    FillExplicitAckEvent(falcon_rue::EVENT_Gen3& event, const RueKey* rue_key,
+                         const Packet* packet,
+                         const CongestionControlMetadata& gen1_ccmeta,
+                         uint32_t num_packets_acked, bool eack,
+                         bool eack_drop) const {
+  Gen3CongestionControlMetadata ccmeta =
+      Gen3CongestionControlMetadata::DowncastTo<Gen3CongestionControlMetadata>(
+          gen1_ccmeta);
+  auto gen2_rue_key = dynamic_cast<const Gen2RueKey*>(rue_key);
+  falcon_rue::Event_Gen2 gen2_event;
+  auto gen2_adapter = std::make_unique<EventResponseFormatAdapter<
+      falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>>(falcon_);
+
+  gen2_adapter->FillExplicitAckEvent(gen2_event, rue_key, packet, ccmeta,
+                                     num_packets_acked, eack, eack_drop);
+  ConvertGen2EventToGen3Event(event, gen2_event);
+  // In Gen3, fcwnd is per-flow.
+  event.fabric_congestion_window =
+      ccmeta.gen3_flow_fcwnds[gen2_rue_key->flow_id];
 }
 
 // Explicit template instantiations.

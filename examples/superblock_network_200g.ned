@@ -1,6 +1,6 @@
 import inet.node.ethernet.Eth200G;
 
-network SupreblockNetwork
+network SuperblockNetwork200G
 {
   parameters:
     string simulation_config;

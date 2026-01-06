@@ -136,9 +136,9 @@ template <typename EventT>
 class GetResponseTypeForEvent;
 
 template <>
-class GetResponseTypeForEvent<falcon_rue::Event_GEN1> {
+class GetResponseTypeForEvent<falcon_rue::Event_Gen1> {
  public:
-  using Type = falcon_rue::Response_GEN1;
+  using Type = falcon_rue::Response_Gen1;
 };
 
 }  // namespace falcon_rue

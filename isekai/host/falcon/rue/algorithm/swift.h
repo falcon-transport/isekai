@@ -39,6 +39,7 @@
 #include "isekai/host/falcon/rue/format.h"
 #include "isekai/host/falcon/rue/format_gen1.h"
 #include "isekai/host/falcon/rue/format_gen2.h"
+#include "isekai/host/falcon/rue/format_gen3.h"
 #include "isekai/host/falcon/rue/util.h"
 
 namespace isekai {
@@ -396,13 +397,13 @@ class Swift {
 
   // Extracts the PLB state stored in the event.
   template <typename EventU = EventT>
-  static std::enable_if_t<!std::is_same_v<EventU, falcon_rue::Event_GEN1>,
+  static std::enable_if_t<!std::is_same_v<EventU, falcon_rue::Event_Gen1>,
                           uint32_t>
   GetPlbStateFromEvent(const EventT& event);
 
   // Extracts the PLB state stored in the connection state.
   template <typename EventU = EventT>
-  static std::enable_if_t<std::is_same_v<EventU, falcon_rue::Event_GEN1>,
+  static std::enable_if_t<std::is_same_v<EventU, falcon_rue::Event_Gen1>,
                           uint32_t>
   GetPlbStateFromConnectionState(ConnectionState<EventT>* state);
 
@@ -484,6 +485,7 @@ class Swift {
       bool flow_label_2_valid,
       bool flow_label_3_valid,
       bool flow_label_4_valid,
+      // flow weights and wrr_restart_round removed in Gen_3
       uint8_t flow_label_1_weight,
       uint8_t flow_label_2_weight,
       uint8_t flow_label_3_weight,
@@ -492,6 +494,10 @@ class Swift {
       uint8_t flow_id,
       bool csig_enable,
       uint8_t csig_select,
+      // Fields below added in Gen_3.
+      uint32_t tlp_probe_timeout,
+      uint32_t rack_retransmit_timeout,
+      uint8_t cwnd_carryover,
       ResponseT& response) const;
   // clang-format on
 
@@ -639,7 +645,7 @@ void Swift<EventT, ResponseT>::ProcessAckNack(const EventT& event,
   //  - plb_state
   //  - reroute
   PlbState plb_state;
-  if constexpr (std::is_same_v<EventT, falcon_rue::Event_GEN1>) {
+  if constexpr (std::is_same_v<EventT, falcon_rue::Event_Gen1>) {
     plb_state.value = GetPlbStateFromConnectionState(state);
   } else {
     plb_state.value = GetPlbStateFromEvent(event);
@@ -685,8 +691,13 @@ void Swift<EventT, ResponseT>::ProcessAckNack(const EventT& event,
   ComputeArRate(event, new_fabric_congestion_window, new_nic_congestion_window,
                 ar_rate);
 
+  // Module 8: RACK/TLP
+  //
+  uint32_t tlp_probe_timeout = 0;
+  uint32_t rack_retransmit_timeout = 0;
+
   // Update any RUE-state if necessary and Response.
-  if constexpr (std::is_same_v<EventT, falcon_rue::Event_GEN1>) {
+  if constexpr (std::is_same_v<EventT, falcon_rue::Event_Gen1>) {
     state->plb_state.value = plb_state.value;
   }
   SetResponse(
@@ -727,6 +738,9 @@ void Swift<EventT, ResponseT>::ProcessAckNack(const EventT& event,
       /*flow_id=*/flow_id,
       /*csig_enable=*/csig_enable,
       /*csig_select=*/csig_select,
+      /*tlp_probe_timeout=*/tlp_probe_timeout,
+      /*rack_retransmit_timeout=*/rack_retransmit_timeout,
+      /*cwnd_carryover=*/cwnd_carryover,
       /*response=*/response);
 }
 
@@ -801,7 +815,7 @@ void Swift<EventT, ResponseT>::ProcessRetransmit(
   uint8_t flow_id = GetFlowIdFromEvent(event);
 
   PlbState plb_state;
-  if constexpr (std::is_same_v<EventT, falcon_rue::Event_GEN1>) {
+  if constexpr (std::is_same_v<EventT, falcon_rue::Event_Gen1>) {
     plb_state.value = GetPlbStateFromConnectionState(state);
   } else {
     plb_state.value = GetPlbStateFromEvent(event);
@@ -811,8 +825,12 @@ void Swift<EventT, ResponseT>::ProcessRetransmit(
   uint8_t csig_select = 0;
   ComputeCsigVariables(event, csig_enable, csig_select);
 
+  //
+  uint32_t tlp_probe_timeout = 0;
+  uint32_t rack_retransmit_timeout = 0;
+
   // Update any RUE-state if necessary and Response.
-  if constexpr (std::is_same_v<EventT, falcon_rue::Event_GEN1>) {
+  if constexpr (std::is_same_v<EventT, falcon_rue::Event_Gen1>) {
     state->plb_state.value = plb_state.value;
   }
   SetResponse(
@@ -853,6 +871,9 @@ void Swift<EventT, ResponseT>::ProcessRetransmit(
       /*flow_id=*/flow_id,
       /*csig_enable=*/csig_enable,
       /*csig_select=*/csig_select,
+      /*tlp_probe_timeout=*/tlp_probe_timeout,
+      /*rack_retransmit_timeout=*/rack_retransmit_timeout,
+      /*cwnd_carryover=*/cwnd_carryover,
       /*response=*/response);
 }
 
@@ -1020,6 +1041,44 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
                     parameters_->max_nic_congestion_window);
 }
 
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE double
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    ComputeAckNicCongestionWindow(
+        const falcon_rue::EVENT_Gen3& event, double nic_congestion_window,
+        uint32_t nic_change_delta,
+        const falcon_rue::PacketTiming& timing) const {
+  // Determines the new nic congestion window. The NIC congestion
+  // window is adjusted based on additive increment and multiplicative decrease
+  // (AIMD) algorithm. The multiplicative decrease factor is scaled by the delta
+  // between the actual and target buffer levels for the remote NIC. The
+  // additive increment factor is fixed. The algorithm ensures that there is at
+  // most one decrease per round-trip time. Increments may occur on every ACK.
+  uint32_t rx_buffer_level = event.rx_buffer_level;
+  if (rx_buffer_level < parameters_->target_rx_buffer_level) {
+    // Increases the ncwnd if the rx_buffer_level is below the target.
+    nic_congestion_window += parameters_->nic_additive_increment_factor;
+  } else {
+    // Decreases the nic congestion window if last window change was more than
+    // one RTT ago.
+    if (nic_change_delta >= timing.rtt) {
+      uint32_t level_delta =
+          rx_buffer_level - parameters_->target_rx_buffer_level;
+      double decrease_scale =
+          static_cast<double>(level_delta) / rx_buffer_level;
+      double decrease_amount =
+          decrease_scale * parameters_->nic_multiplicative_decrease_factor;
+      decrease_amount = std::min(parameters_->max_nic_multiplicative_decrease,
+                                 decrease_amount);
+      double decrease_factor = 1.0 - decrease_amount;
+      nic_congestion_window *= decrease_factor;
+    }
+  }
+  return std::clamp(nic_congestion_window,
+                    parameters_->min_nic_congestion_window,
+                    parameters_->max_nic_congestion_window);
+}
+
 template <typename EventT, typename ResponseT>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE double
 Swift<EventT, ResponseT>::ComputeNackNicCongestionWindow(
@@ -1044,6 +1103,25 @@ inline ABSL_ATTRIBUTE_ALWAYS_INLINE double
 Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
     ComputeNackNicCongestionWindow(
         const falcon_rue::Event_Gen2& event, double nic_congestion_window,
+        uint32_t nic_change_delta,
+        const falcon_rue::PacketTiming& timing) const {
+  // Determines the new nic congestion window. The nic congestion window
+  // is adjusted using the maximum multiplicative decrease. The algorithm
+  // ensures that there is at most decrease per round-trip time.
+  if (nic_change_delta >= timing.rtt) {
+    double decrease_factor = 1.0 - parameters_->max_nic_multiplicative_decrease;
+    nic_congestion_window *= decrease_factor;
+  }
+  return std::clamp(nic_congestion_window,
+                    parameters_->min_nic_congestion_window,
+                    parameters_->max_nic_congestion_window);
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE double
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    ComputeNackNicCongestionWindow(
+        const falcon_rue::EVENT_Gen3& event, double nic_congestion_window,
         uint32_t nic_change_delta,
         const falcon_rue::PacketTiming& timing) const {
   // Determines the new nic congestion window. The nic congestion window
@@ -1112,6 +1190,15 @@ inline ABSL_ATTRIBUTE_ALWAYS_INLINE bool
 Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::ComputeRandomizePath(
     const falcon_rue::Event_Gen2& event) const {
   // Unlike Gen_1, Gen_2 does not support forcing a randomize_path by setting a
+  // bit in cc_opaque.
+  return false;
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE bool
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::ComputeRandomizePath(
+    const falcon_rue::EVENT_Gen3& event) const {
+  // Unlike Gen_1, Gen_3 does not support forcing a randomize_path by setting a
   // bit in cc_opaque.
   return false;
 }
@@ -1218,8 +1305,8 @@ Swift<EventT, ResponseT>::UseMaxFabricDecrease(const EventT& event) const {
 // Specialization for GEN1 and later generations which add EACK feature.
 template <>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE bool
-Swift<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>::UseMaxFabricDecrease(
-    const falcon_rue::Event_GEN1& event) const {
+Swift<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>::UseMaxFabricDecrease(
+    const falcon_rue::Event_Gen1& event) const {
   return (parameters_->max_decrease_on_eack_nack_drop &&
           ((event.event_type == falcon::RueEventType::kNack &&
             event.nack_code == falcon::NackCode::kReserved) ||
@@ -1246,6 +1333,25 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
   return falcon::WindowDirection::kIncrease;
 }
 
+// Specialization for Gen_3 which adds EACK feature.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE bool
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::UseMaxFabricDecrease(
+    const falcon_rue::EVENT_Gen3& event) const {
+  return (parameters_->max_decrease_on_eack_nack_drop &&
+          ((event.event_type == falcon::RueEventType::kNack &&
+            event.nack_code == falcon::NackCode::kReserved) ||
+           (event.event_type == falcon::RueEventType::kAck && event.eack &&
+            event.eack_drop)));
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE falcon::WindowDirection
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    GetWindowDirectionFromEvent(const falcon_rue::EVENT_Gen3& event) const {
+  return falcon::WindowDirection::kIncrease;
+}
+
 template <typename EventT, typename ResponseT>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE falcon_rue::NicWindowGuardInfo
 Swift<EventT, ResponseT>::GetNicWindowGuardInfo(
@@ -1265,6 +1371,20 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::GetNicWindowGuardInfo(
     double old_nic_congestion_window, double new_nic_congestion_window) const {
   falcon_rue::NicWindowGuardInfo info;
   // In Gen_2, the NIC window direction is not used anymore.
+  info.direction = falcon::WindowDirection::kDecrease;
+  info.time_marker = falcon_rue::GetFabricWindowTimeMarker(
+      now, event.nic_window_time_marker, calc_rtt, old_nic_congestion_window,
+      new_nic_congestion_window, parameters_->min_nic_congestion_window);
+  return info;
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE falcon_rue::NicWindowGuardInfo
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::GetNicWindowGuardInfo(
+    const falcon_rue::EVENT_Gen3& event, uint32_t now, uint32_t calc_rtt,
+    double old_nic_congestion_window, double new_nic_congestion_window) const {
+  falcon_rue::NicWindowGuardInfo info;
+  // In Gen_3, the NIC window direction is not used anymore.
   info.direction = falcon::WindowDirection::kDecrease;
   info.time_marker = falcon_rue::GetFabricWindowTimeMarker(
       now, event.nic_window_time_marker, calc_rtt, old_nic_congestion_window,
@@ -1306,6 +1426,40 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::UpdateFlowLabels(
   }
 }
 
+// Template specialization to invoke multi-pathing code in Gen_3.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::UpdateFlowLabels(
+    const falcon_rue::EVENT_Gen3& event, bool reroute, uint8_t flow_id,
+    // Outputs passed by reference.
+    bool& flow_label_1_valid, bool& flow_label_2_valid,
+    bool& flow_label_3_valid, bool& flow_label_4_valid, uint32_t& flow_label_1,
+    uint32_t& flow_label_2, uint32_t& flow_label_3, uint32_t& flow_label_4) {
+  if (reroute) {
+    uint32_t new_flow_label = RandomFlowLabel(flow_id);
+    switch (flow_id) {
+      case 0:
+        flow_label_1_valid = true;
+        flow_label_1 = new_flow_label;
+        break;
+      case 1:
+        flow_label_2_valid = true;
+        flow_label_2 = new_flow_label;
+        break;
+      case 2:
+        flow_label_3_valid = true;
+        flow_label_3 = new_flow_label;
+        break;
+      case 3:
+        flow_label_4_valid = true;
+        flow_label_4 = new_flow_label;
+        break;
+      default:
+        break;
+    }
+  }
+}
+
 // Template specialization to invoke CSIG code in Gen_2.
 template <>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
@@ -1317,12 +1471,48 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::ComputeCsigVariables(
   csig_select = 0;
 }
 
+// Template specialization to invoke CSIG code in Gen_3.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::ComputeCsigVariables(
+    const falcon_rue::EVENT_Gen3& event, bool& csig_enable,
+    uint8_t& csig_select) const {
+  //
+}
+
 // Template specialization to invoke per-connection backpressure management.
 template <>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
 Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
     ComputePerConnectionBackpressureVariables(
         const falcon_rue::Event_Gen2& event,
+        const falcon_rue::PacketTiming& packet_timing, uint32_t target_delay,
+        uint8_t& alpha_request, uint8_t& alpha_response) const {
+  // Calculate rtt_beta as target_delay / current_fabric_delay.
+  double rtt_beta =
+      static_cast<double>(target_delay) / std::max({packet_timing.delay, 1U});
+  // Calculate buffer_level_beta as target_buffer_level / current_buffer_level.
+  double current_buffer_level =
+      event.rx_buffer_level > 0 ? event.rx_buffer_level : 1;
+  double buffer_level_beta =
+      parameters_->target_rx_buffer_level / current_buffer_level;
+
+  // For requests, the alpha considers both rtt and buffer_level.
+  alpha_request = ConvertPerConnectionAlphaToShift(
+      parameters_->backpressure_alpha *
+      std::min<double>({1, rtt_beta, buffer_level_beta}));
+
+  // For responses, the alpha considers only rtt.
+  alpha_response = ConvertPerConnectionAlphaToShift(
+      parameters_->backpressure_alpha * std::min<double>({1, rtt_beta}));
+}
+
+// Template specialization to invoke per-connection backpressure management.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    ComputePerConnectionBackpressureVariables(
+        const falcon_rue::EVENT_Gen3& event,
         const falcon_rue::PacketTiming& packet_timing, uint32_t target_delay,
         uint8_t& alpha_request, uint8_t& alpha_response) const {
   // Calculate rtt_beta as target_delay / current_fabric_delay.
@@ -1362,6 +1552,24 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::ComputeArRate(
   }
 }
 
+// Template specialization to calculate per-connection ar_rate.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::ComputeArRate(
+    const falcon_rue::EVENT_Gen3& event, double fcwnd, double ncwnd,
+    uint8_t& ar_rate) const {
+  // In Gen_3 the AR threshold was only applied to fcwnd, whereas in Gen_3 it
+  // will be applied to both fcwnd and ncwnd.
+  double effective_cwnd = std::min(fcwnd, ncwnd);
+  if (effective_cwnd <= kMaxArCwndThreshold) {
+    ar_rate = 0;  // 100%
+  } else {
+    //
+    // of keeping it flat at ~10%.
+    ar_rate = 4;  // 11.76% (1 every 8.5 packets)
+  }
+}
+
 template <typename EventT, typename ResponseT>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE absl::Status
 Swift<EventT, ResponseT>::ValidateDelayStateConfig(
@@ -1377,6 +1585,13 @@ Swift<EventT, ResponseT>::ValidateDelayStateConfig(
 template <>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE absl::Status
 Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
+    ValidateDelayStateConfig(const SwiftConfiguration& config) {
+  return absl::OkStatus();
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE absl::Status
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
     ValidateDelayStateConfig(const SwiftConfiguration& config) {
   return absl::OkStatus();
 }
@@ -1415,6 +1630,23 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
   return absl::OkStatus();
 }
 
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE absl::Status
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    ValidateNicCongestionWindowBounds(const SwiftConfiguration& config) {
+  if ((config.max_nic_congestion_window() < kMinGen2NicCongestionWindow) ||
+      (config.max_nic_congestion_window() > kMaxGen2NicCongestionWindow)) {
+    return absl::InvalidArgumentError(
+        "max_nic_congestion_window out of bounds");
+  }
+  if ((config.min_nic_congestion_window() < kMinGen2NicCongestionWindow) ||
+      (config.min_nic_congestion_window() > kMaxGen2NicCongestionWindow)) {
+    return absl::InvalidArgumentError(
+        "min_nic_congestion_window out of bounds");
+  }
+  return absl::OkStatus();
+}
+
 template <typename EventT, typename ResponseT>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE uint8_t
 Swift<EventT, ResponseT>::GetFlowIdFromEvent(const EventT& event) {
@@ -1426,6 +1658,15 @@ template <>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE uint8_t
 Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::GetFlowIdFromEvent(
     const falcon_rue::Event_Gen2& event) {
+  // Flow ID is the last 2 bits of the flow label if multipathing is enabled for
+  // the connection.
+  return event.multipath_enable ? event.flow_label & kFlowIdMask : 0;
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE uint8_t
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::GetFlowIdFromEvent(
+    const falcon_rue::EVENT_Gen3& event) {
   // Flow ID is the last 2 bits of the flow label if multipathing is enabled for
   // the connection.
   return event.multipath_enable ? event.flow_label & kFlowIdMask : 0;
@@ -1461,7 +1702,7 @@ Swift<EventT, ResponseT>::ConvertPerConnectionAlphaToShift(double alpha) const {
 template <typename EventT, typename ResponseT>
 template <typename EventU>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE
-    std::enable_if_t<!std::is_same_v<EventU, falcon_rue::Event_GEN1>, uint32_t>
+    std::enable_if_t<!std::is_same_v<EventU, falcon_rue::Event_Gen1>, uint32_t>
     Swift<EventT, ResponseT>::GetPlbStateFromEvent(const EventT& event) {
   // In Gen_2, PLB state is stored in its separate plb_state field in the event.
   return event.plb_state;
@@ -1470,7 +1711,7 @@ inline ABSL_ATTRIBUTE_ALWAYS_INLINE
 template <typename EventT, typename ResponseT>
 template <typename EventU>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE
-    std::enable_if_t<std::is_same_v<EventU, falcon_rue::Event_GEN1>, uint32_t>
+    std::enable_if_t<std::is_same_v<EventU, falcon_rue::Event_Gen1>, uint32_t>
     Swift<EventT, ResponseT>::GetPlbStateFromConnectionState(
         ConnectionState<EventT>* state) {
   // Return PLB state from RUE's connection state.
@@ -1496,6 +1737,16 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::GetFloatNcwnd(
       event.nic_congestion_window, falcon_rue::kFractionalBits);
 }
 
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE double
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::GetFloatNcwnd(
+    const falcon_rue::EVENT_Gen3& event,
+    const ABSL_ATTRIBUTE_UNUSED ConnectionState<falcon_rue::EVENT_Gen3>* state)
+    const {
+  return falcon_rue::FixedToFloat<uint32_t, double>(
+      event.nic_congestion_window, falcon_rue::kFractionalBits);
+}
+
 template <typename EventT, typename ResponseT>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE uint32_t
 Swift<EventT, ResponseT>::ConvertFloatNcwndToFixed(
@@ -1508,6 +1759,14 @@ Swift<EventT, ResponseT>::ConvertFloatNcwndToFixed(
 template <>
 inline ABSL_ATTRIBUTE_ALWAYS_INLINE uint32_t
 Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
+    ConvertFloatNcwndToFixed(double nic_congestion_window) const {
+  return falcon_rue::FloatToFixed<double, uint32_t>(
+      nic_congestion_window, falcon_rue::kFractionalBits);
+}
+
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE uint32_t
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
     ConvertFloatNcwndToFixed(double nic_congestion_window) const {
   return falcon_rue::FloatToFixed<double, uint32_t>(
       nic_congestion_window, falcon_rue::kFractionalBits);
@@ -1541,7 +1800,7 @@ Swift<EventT, ResponseT>::StoreFloatNcwndFraction(
     ConnectionState<EventT>* state, double nic_congestion_window) {
   // Gen_1 event does not include NCWND fractional bits, so they are stored in
   // the connection state. This is a no-op for other variants.
-  if constexpr (std::is_same_v<EventT, falcon_rue::Event_GEN1>) {
+  if constexpr (std::is_same_v<EventT, falcon_rue::Event_Gen1>) {
     double fractional_part =
         nic_congestion_window - std::floor(nic_congestion_window);
     state->ncwnd_fraction = falcon_rue::FloatToFixed<double, uint16_t>(
@@ -1582,7 +1841,9 @@ inline ABSL_ATTRIBUTE_ALWAYS_INLINE void Swift<EventT, ResponseT>::SetResponse(
     uint8_t flow_label_1_weight, uint8_t flow_label_2_weight,
     uint8_t flow_label_3_weight, uint8_t flow_label_4_weight,
     bool wrr_restart_round, uint8_t flow_id, bool csig_enable,
-    uint8_t csig_select, ResponseT& response) const {
+    uint8_t csig_select, uint32_t tlp_probe_timeout,
+    uint32_t rack_retransmit_timeout, uint8_t cwnd_carryover,
+    ResponseT& response) const {
   // For Gen_1, response IPG is the maximum of fabric and NIC IPG, since there
   // is only one response field.
   uint32_t max_inter_packet_gap =
@@ -1613,7 +1874,9 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::SetResponse(
     uint8_t flow_label_1_weight, uint8_t flow_label_2_weight,
     uint8_t flow_label_3_weight, uint8_t flow_label_4_weight,
     bool wrr_restart_round, uint8_t flow_id, bool csig_enable,
-    uint8_t csig_select, falcon_rue::Response_Gen2& response) const {
+    uint8_t csig_select, uint32_t tlp_probe_timeout,
+    uint32_t rack_retransmit_timeout, uint8_t cwnd_carryover,
+    falcon_rue::Response_Gen2& response) const {
   falcon_rue::SetResponse(
       connection_id, cc_metadata, fabric_congestion_window,
       fabric_inter_packet_gap, nic_congestion_window, retransmit_timeout,
@@ -1625,6 +1888,40 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::SetResponse(
       flow_label_1_weight, flow_label_2_weight, flow_label_3_weight,
       flow_label_4_weight, wrr_restart_round, flow_id, csig_enable, csig_select,
       ar_rate, response);
+}
+
+// Sets the response for Gen_3.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::SetResponse(
+    uint32_t connection_id, bool randomize_path, uint32_t cc_metadata,
+    uint32_t fabric_congestion_window, uint32_t fabric_inter_packet_gap,
+    uint32_t nic_congestion_window, uint32_t retransmit_timeout,
+    uint32_t fabric_window_time_marker, uint32_t nic_window_time_marker,
+    falcon::WindowDirection nic_window_direction, uint8_t event_queue_select,
+    falcon::DelaySelect delay_select, uint32_t base_delay, uint32_t delay_state,
+    uint32_t rtt_state, uint32_t cc_opaque, uint32_t plb_state, uint8_t ar_rate,
+    uint8_t alpha_request, uint8_t alpha_response,
+    uint32_t nic_inter_packet_gap, uint32_t flow_label_1, uint32_t flow_label_2,
+    uint32_t flow_label_3, uint32_t flow_label_4, bool flow_label_1_valid,
+    bool flow_label_2_valid, bool flow_label_3_valid, bool flow_label_4_valid,
+    uint8_t flow_label_1_weight, uint8_t flow_label_2_weight,
+    uint8_t flow_label_3_weight, uint8_t flow_label_4_weight,
+    bool wrr_restart_round, uint8_t flow_id, bool csig_enable,
+    uint8_t csig_select, uint32_t tlp_probe_timeout,
+    uint32_t rack_retransmit_timeout, uint8_t cwnd_carryover,
+    falcon_rue::Response_Gen3& response) const {
+  falcon_rue::SetResponse(
+      connection_id, fabric_congestion_window, fabric_inter_packet_gap,
+      nic_congestion_window, nic_inter_packet_gap, cc_metadata, alpha_request,
+      alpha_response, fabric_window_time_marker, nic_window_time_marker,
+      base_delay, delay_state, plb_state, cc_opaque, delay_select, ar_rate,
+      rtt_state, flow_label_1, flow_label_2, flow_label_3, flow_label_4,
+      flow_label_1_weight, flow_label_2_weight, flow_label_3_weight,
+      flow_label_4_weight, flow_label_1_valid, flow_label_2_valid,
+      flow_label_3_valid, flow_label_4_valid, wrr_restart_round, flow_id,
+      csig_enable, csig_select, retransmit_timeout, event_queue_select,
+      tlp_probe_timeout, rack_retransmit_timeout, cwnd_carryover, response);
 }
 
 // Processes an ACK/NACK event for a multipath-enabled connection and generates
@@ -1894,6 +2191,277 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
       /*flow_id=*/flow_id,
       /*csig_enable=*/csig_enable,
       /*csig_select=*/csig_select,
+      /*tlp_probe_timeout=*/0,        // Gen_3-specific field
+      /*rack_retransmit_timeout=*/0,  // Gen_3-specific field
+      /*cwnd_carryover=*/0,           // Gen_3-specific field
+      /*response=*/response);
+}
+
+// Processes an ACK/NACK event for a multipath-enabled connection and generates
+// the response.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    ProcessAckNackMultipath(const falcon_rue::EVENT_Gen3& event,
+                            falcon_rue::Response_Gen3& response,
+                            ConnectionState<falcon_rue::EVENT_Gen3>& state,
+                            uint32_t now) {
+  uint8_t flow_id = GetFlowIdFromEvent(event);
+
+  // Gather any required state from the event or the RUE state.
+  uint32_t old_rtt_state, old_fabric_window_time_marker_flow;
+  PlbState plb_state;
+  if (flow_id == 0) {
+    old_rtt_state = event.rtt_state;
+    old_fabric_window_time_marker_flow = event.fabric_window_time_marker;
+    plb_state.value = GetPlbStateFromEvent(event);
+  } else {
+    old_rtt_state = state.GetFlowState(flow_id).rtt_state;
+    old_fabric_window_time_marker_flow =
+        state.GetFlowState(flow_id).fcwnd_time_marker;
+    plb_state.value = state.GetFlowState(flow_id).plb_state;
+  }
+
+  //
+  // events.
+  falcon_rue::PacketTiming timing = falcon_rue::GetPacketTiming(event);
+  uint32_t new_rtt_state =
+      GetSmoothed(parameters_->rtt_smoothing_alpha, old_rtt_state, timing.rtt);
+  // Determines which RTT to use for window time_marker calculation. Unlike
+  // stateless Gen_3 connections, calc_rtt_smooth does not affect what RTT is
+  // used for IPG which will always be the maximum smoothed RTT across all
+  // flows.
+  uint32_t calc_rtt = parameters_->calc_rtt_smooth ? new_rtt_state : timing.rtt;
+  // Currently, we assume delay smoothing will not be enabled so we do not keep
+  // the smoothed_delay state for each flow. ConnectionState needs to add that
+  // state for delay (like it does with rtt) to support delay smoothing for
+  // multipath connections.
+  uint32_t flow_delay = timing.delay;
+
+  // We use the maximum smoothed RTT across all flows for calculating fipg,
+  // nipg, and rto because they are applied at the connection level and not at
+  // the flow level.
+  //
+  std::array<uint32_t, 4> rtt_states = {
+      event.rtt_state, state.GetFlowState(1).rtt_state,
+      state.GetFlowState(2).rtt_state, state.GetFlowState(3).rtt_state};
+  // Use the new rtt_state value for the current flow ID.
+  rtt_states[flow_id] = new_rtt_state;
+  uint32_t max_rtt_state =
+      *std::max_element(rtt_states.begin(), rtt_states.end());
+
+  // Update fcwnd: to do that, first get the old flow fcwnd, the old
+  // connection fcwnd, and the target delay.
+  double old_fabric_congestion_window_flow =
+      falcon_rue::FixedToFloat<uint32_t, double>(state.fcwnd[flow_id],
+                                                 falcon_rue::kFractionalBits);
+  uint32_t target_delay = GetTargetDelay(
+      parameters_->topo_scaling_per_hop, parameters_->flow_scaling_alpha,
+      parameters_->flow_scaling_beta, parameters_->max_flow_scaling,
+      parameters_->fabric_base_delay, old_fabric_congestion_window_flow,
+      event.forward_hops);
+  // Get the new flow fcwnd based on whether the event requires a maximum fcwnd
+  // decrease or not.
+  double new_fabric_congestion_window_flow;
+  uint32_t fabric_decrease_delta =
+      falcon_rue::GetWindowDelta(now, old_fabric_window_time_marker_flow);
+  if (UseMaxFabricDecrease(event)) {
+    // With the max_decrease_on_eack_nack_drop flag set, and under some
+    // conditions (e.g., EACK drop or NACK RX window drop), fcwnd is directly
+    // reduced by the maximum MD factor.
+    new_fabric_congestion_window_flow = ComputeNackFabricCongestionWindow(
+        event, old_fabric_congestion_window_flow, timing,
+        fabric_decrease_delta);
+  } else {
+    // All ACKs and NACKs are treated as ACKs for the fabric congestion window
+    // besides the kReserved nack code.
+    new_fabric_congestion_window_flow = ComputeAckFabricCongestionWindow(
+        event, old_fabric_congestion_window_flow, flow_delay, target_delay,
+        timing, fabric_decrease_delta);
+  }
+  // The fcwnd of all the flows are stored in RUE state.
+  state.fcwnd[flow_id] = falcon_rue::FloatToFixed<double, uint32_t>(
+      new_fabric_congestion_window_flow, falcon_rue::kFractionalBits);
+  // Get the new fcwnd time marker value.
+  uint32_t new_fabric_window_time_marker_flow =
+      falcon_rue::GetFabricWindowTimeMarker(
+          now, old_fabric_window_time_marker_flow, calc_rtt,
+          old_fabric_congestion_window_flow, new_fabric_congestion_window_flow,
+          parameters_->min_fabric_congestion_window);
+
+  // The new_fabric_congestion_window_connection is the new sum of all flow
+  // fcwnds.
+  double new_fabric_congestion_window_connection =
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          state.fcwnd[0] + state.fcwnd[1] + state.fcwnd[2] + state.fcwnd[3],
+          falcon_rue::kFractionalBits);
+
+  double response_fabric_congestion_window = new_fabric_congestion_window_flow;
+
+  response_fabric_congestion_window =
+      std::clamp(response_fabric_congestion_window,
+                 parameters_->min_fabric_congestion_window,
+                 parameters_->max_fabric_congestion_window);
+
+  uint32_t response_fabric_congestion_window_fixed =
+      falcon_rue::FloatToFixed<double, uint32_t>(
+          response_fabric_congestion_window, falcon_rue::kFractionalBits);
+
+  // Get fipg for the connection. Use max_rtt_state as the RTT value for
+  // calculation.
+  uint32_t fabric_inter_packet_gap =
+      GetInterPacketGap(parameters_->ipg_time_scalar, parameters_->ipg_bits,
+                        new_fabric_congestion_window_connection, max_rtt_state);
+
+  // Update ncwnd.
+  double old_nic_congestion_window = GetFloatNcwnd(event, &state);
+  uint32_t nic_change_delta =
+      falcon_rue::GetWindowDelta(now, event.nic_window_time_marker);
+  double new_nic_congestion_window;
+  if (event.event_type == falcon::RueEventType::kNack &&
+      event.nack_code == falcon::NackCode::kRxResourceExhaustion) {
+    new_nic_congestion_window = ComputeNackNicCongestionWindow(
+        event, old_nic_congestion_window, nic_change_delta, timing);
+  } else {
+    // All ACKs and NACKs are treated as ACKs for the NIC congestion window
+    // besides the kResourceExhaustion nack code.
+    new_nic_congestion_window = ComputeAckNicCongestionWindow(
+        event, old_nic_congestion_window, nic_change_delta, timing);
+  }
+  // The connection's ncwnd in fixed format will be returned in the response.
+  uint32_t new_nic_congestion_window_fixed =
+      ConvertFloatNcwndToFixed(new_nic_congestion_window);
+  // Store ncwnd fractional part in ConnectionState if not included in response.
+  StoreFloatNcwndFraction(&state, new_nic_congestion_window);
+
+  // Calculates the window time_marker and window direction
+  falcon_rue::NicWindowGuardInfo nic_guard_info =
+      GetNicWindowGuardInfo(event, now, calc_rtt, old_nic_congestion_window,
+                            new_nic_congestion_window);
+
+  // Get nipg for the connection. Use max_rtt_state as the RTT value for
+  // calculation.
+  uint32_t nic_inter_packet_gap =
+      GetNicInterPacketGap(parameters_->ipg_time_scalar, parameters_->ipg_bits,
+                           new_nic_congestion_window, max_rtt_state);
+
+  // Calculate rto. Use max_rtt_state as the RTT value for calculation.
+  uint32_t retransmit_timeout = GetRetransmitTimeout(
+      parameters_->min_retransmit_timeout, max_rtt_state,
+      parameters_->retransmit_timeout_scalar,
+      std::max(fabric_inter_packet_gap, nic_inter_packet_gap),
+      parameters_->ipg_time_scalar);
+
+  // Update PLB state.
+  bool reroute = ComputePlb(
+      event, flow_delay, target_delay, plb_state,
+      fmin(old_fabric_congestion_window_flow, old_nic_congestion_window));
+  bool flow_label_1_valid = false;
+  bool flow_label_2_valid = false;
+  bool flow_label_3_valid = false;
+  bool flow_label_4_valid = false;
+  uint32_t flow_label_1 = kDefaultFlowLabel1;
+  uint32_t flow_label_2 = kDefaultFlowLabel2;
+  uint32_t flow_label_3 = kDefaultFlowLabel3;
+  uint32_t flow_label_4 = kDefaultFlowLabel4;
+  UpdateFlowLabels(event, reroute, flow_id, flow_label_1_valid,
+                   flow_label_2_valid, flow_label_3_valid, flow_label_4_valid,
+                   flow_label_1, flow_label_2, flow_label_3, flow_label_4);
+
+  uint8_t ar_rate = 0;
+  ComputeArRate(event, new_fabric_congestion_window_connection,
+                new_nic_congestion_window, ar_rate);
+
+  // Compute per-connection backpressure variables for Gen_3.
+  uint8_t alpha_request = 0;
+  uint8_t alpha_response = 0;
+  ComputePerConnectionBackpressureVariables(event, timing, target_delay,
+                                            alpha_request, alpha_response);
+
+  //
+  bool csig_enable = false;
+  uint8_t csig_select = 0;
+  ComputeCsigVariables(event, csig_enable, csig_select);
+
+  // Write back any state to the response or to the RUE state.
+  uint32_t rtt_state_in_response, new_fabric_window_time_marker_in_response,
+      plb_state_in_response;
+  if (flow_id == 0) {
+    rtt_state_in_response = new_rtt_state;
+    new_fabric_window_time_marker_in_response =
+        new_fabric_window_time_marker_flow;
+    plb_state_in_response = plb_state.value;
+  } else {
+    rtt_state_in_response = event.rtt_state;
+    state.GetFlowState(flow_id).rtt_state = new_rtt_state;
+    new_fabric_window_time_marker_in_response = event.fabric_window_time_marker;
+    state.GetFlowState(flow_id).fcwnd_time_marker =
+        new_fabric_window_time_marker_flow;
+    plb_state_in_response = event.plb_state;
+    state.GetFlowState(flow_id).plb_state = plb_state.value;
+  }
+
+  //
+  uint32_t rack_retransmit_timeout = 0;
+  uint32_t tlp_probe_timeout = 0;
+
+  uint8_t flow_label_1_weight = 0;
+  uint8_t flow_label_2_weight = 0;
+  uint8_t flow_label_3_weight = 0;
+  uint8_t flow_label_4_weight = 0;
+  bool wrr_restart_round = false;
+  uint8_t cwnd_carryover = 0;
+
+  SetResponse(
+      /*connection_id=*/event.connection_id,
+      /*randomize_path=*/false,           // Gen_1-specific field
+      /*cc_metadata=*/event.cc_metadata,  // cc_metadata reflected as is from
+                                          // event
+      /*fabric_congestion_window=*/
+      response_fabric_congestion_window_fixed,
+      /*fabric_inter_packet_gap=*/fabric_inter_packet_gap,
+      /*nic_congestion_window=*/new_nic_congestion_window_fixed,
+      /*retransmit_timeout=*/retransmit_timeout,
+      /*fabric_window_time_marker=*/new_fabric_window_time_marker_in_response,
+      /*nic_window_time_marker=*/nic_guard_info.time_marker,
+      /*nic_window_direction=*/nic_guard_info.direction,  // Gen_1-specific
+                                                          // field
+      /*event_queue_select=*/event.event_queue_select,    // event_queue_select
+                                                        // reflected as is from
+                                                        // event
+      /*delay_select=*/event.delay_select,  // delay_select reflected as is
+                                            // from event
+      /*base_delay=*/event.base_delay,      // base_delay reflected as is
+                                            // from event
+      /*delay_state=*/0,  // delay_state is currently not supported for
+                          // multipath connections
+      /*rtt_state=*/rtt_state_in_response,
+      /*cc_opaque=*/event.cc_opaque,  // cc_opaque reflected as is
+                                      // from event
+      /*plb_state=*/plb_state_in_response,
+      /*ar_rate=*/ar_rate,
+      /*alpha_request=*/alpha_request,
+      /*alpha_response=*/alpha_response,
+      /*nic_inter_packet_gap=*/nic_inter_packet_gap,
+      /*flow_label_1=*/flow_label_1,
+      /*flow_label_2=*/flow_label_2,
+      /*flow_label_3=*/flow_label_3,
+      /*flow_label_4=*/flow_label_4,
+      /*flow_label_1_valid=*/flow_label_1_valid,
+      /*flow_label_2_valid=*/flow_label_2_valid,
+      /*flow_label_3_valid=*/flow_label_3_valid,
+      /*flow_label_4_valid=*/flow_label_4_valid,
+      /*flow_label_1_weight=*/flow_label_1_weight,
+      /*flow_label_2_weight=*/flow_label_2_weight,
+      /*flow_label_3_weight=*/flow_label_3_weight,
+      /*flow_label_4_weight=*/flow_label_4_weight,
+      /*wrr_restart_round=*/wrr_restart_round,
+      /*flow_id=*/flow_id,
+      /*csig_enable=*/csig_enable,
+      /*csig_select=*/csig_select,
+      /*tlp_probe_timeout=*/tlp_probe_timeout,
+      /*rack_retransmit_timeout=*/rack_retransmit_timeout,
+      /*cwnd_carryover=*/cwnd_carryover,
       /*response=*/response);
 }
 
@@ -2094,6 +2662,205 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::
       /*flow_id=*/flow_id,
       /*csig_enable=*/csig_enable,
       /*csig_select=*/csig_select,
+      /*tlp_probe_timeout=*/0,        // Gen_3-specific field
+      /*rack_retransmit_timeout=*/0,  // Gen_3-specific field
+      /*cwnd_carryover=*/0,           // Gen_3-specific field
+      /*response=*/response);
+}
+
+// Processes a Retransmit event for a multipath-enabled connection and generates
+// the response.
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::
+    ProcessRetransmitMultipath(const falcon_rue::EVENT_Gen3& event,
+                               falcon_rue::Response_Gen3& response,
+                               ConnectionState<falcon_rue::EVENT_Gen3>& state,
+                               uint32_t now) const {
+  uint8_t flow_id = GetFlowIdFromEvent(event);
+
+  //
+  // events.
+  // Update fcwnd for multipath retransmit events.
+  // Gather old fcwnd-related state. For Flow ID 0, the rtt_state and
+  // fabric_window_time_marker_flow are stored in the event itself.
+  uint32_t rtt_state, old_fabric_window_time_marker_flow;
+  if (flow_id == 0) {
+    rtt_state = event.rtt_state;
+    old_fabric_window_time_marker_flow = event.fabric_window_time_marker;
+  } else {
+    rtt_state = state.GetFlowState(flow_id).rtt_state;
+    old_fabric_window_time_marker_flow =
+        state.GetFlowState(flow_id).fcwnd_time_marker;
+  }
+  double old_fabric_congestion_window_flow =
+      falcon_rue::FixedToFloat<uint32_t, double>(state.fcwnd[flow_id],
+                                                 falcon_rue::kFractionalBits);
+  // Calculate updates to fcwnd-related state.
+  uint32_t fabric_decrease_delta =
+      falcon_rue::GetWindowDelta(now, old_fabric_window_time_marker_flow);
+  double new_fabric_congestion_window_flow =
+      ComputeTimeoutFabricCongestionWindow(
+          event, old_fabric_congestion_window_flow, fabric_decrease_delta);
+  // The fcwnd of all the flows are stored in RUE state.
+  state.fcwnd[flow_id] = falcon_rue::FloatToFixed<double, uint32_t>(
+      new_fabric_congestion_window_flow, falcon_rue::kFractionalBits);
+  new_fabric_congestion_window_flow =
+      std::clamp(new_fabric_congestion_window_flow,
+                 parameters_->min_fabric_congestion_window,
+                 parameters_->max_fabric_congestion_window);
+  // The new_fabric_congestion_window_connection is the sum of the new fcwnd
+  // values of all the flows.
+  double new_fabric_congestion_window_connection =
+      falcon_rue::FixedToFloat<uint32_t, double>(
+          state.fcwnd[0] + state.fcwnd[1] + state.fcwnd[2] + state.fcwnd[3],
+          falcon_rue::kFractionalBits);
+
+  double response_fabric_congestion_window = new_fabric_congestion_window_flow;
+  uint32_t response_fabric_congestion_window_fixed =
+      falcon_rue::FloatToFixed<double, uint32_t>(
+          response_fabric_congestion_window, falcon_rue::kFractionalBits);
+
+  // Get the new fcwnd time marker value.
+  uint32_t new_fabric_window_time_marker_flow =
+      falcon_rue::GetFabricWindowTimeMarker(
+          now, old_fabric_window_time_marker_flow, rtt_state,
+          old_fabric_congestion_window_flow, new_fabric_congestion_window_flow,
+          parameters_->min_fabric_congestion_window);
+  uint32_t new_fabric_window_time_marker_in_response =
+      event.fabric_window_time_marker;
+  // Only return flow 0's fcwnd time marker in the response.
+
+  if (flow_id == 0) {
+    new_fabric_window_time_marker_in_response =
+        new_fabric_window_time_marker_flow;
+  } else {
+    // Write any new state back to RUE's state. For flow ID 0, do not store the
+    // new fcwnd guard in RUE state, but in the response instead.
+    state.GetFlowState(flow_id).fcwnd_time_marker =
+        new_fabric_window_time_marker_flow;
+  }
+
+  // We use the maximum smoothed RTT across all flows for calculating fipg,
+  // nipg, and rto because they are applied at the connection level and not at
+  // the flow level.
+  //
+  uint32_t max_rtt_state = std::max<uint32_t>(
+      {event.rtt_state, state.GetFlowState(1).rtt_state,
+       state.GetFlowState(2).rtt_state, state.GetFlowState(3).rtt_state});
+  uint32_t fabric_inter_packet_gap =
+      GetInterPacketGap(parameters_->ipg_time_scalar, parameters_->ipg_bits,
+                        new_fabric_congestion_window_connection, max_rtt_state);
+
+  // To calculate rto for multipath retransmit events, first get the value of
+  // nipg from the event and the flow's smoothed rtt.
+  double ncwnd_float = std::clamp(GetFloatNcwnd(event, &state),
+                                  parameters_->min_nic_congestion_window,
+                                  parameters_->max_nic_congestion_window);
+  uint32_t nic_inter_packet_gap =
+      GetNicInterPacketGap(parameters_->ipg_time_scalar, parameters_->ipg_bits,
+                           ncwnd_float, max_rtt_state);
+  uint32_t retransmit_timeout = GetRetransmitTimeout(
+      parameters_->min_retransmit_timeout, max_rtt_state,
+      parameters_->retransmit_timeout_scalar,
+      std::max(fabric_inter_packet_gap, nic_inter_packet_gap),
+      parameters_->ipg_time_scalar);
+
+  // PLB state is not changed for retransmit events. Therefore, no repath
+  // decision will happen here, and the flow label valid bits are all unset, and
+  // the flow labels are all set to their default values.
+  bool flow_label_1_valid = false;
+  bool flow_label_2_valid = false;
+  bool flow_label_3_valid = false;
+  bool flow_label_4_valid = false;
+  uint32_t flow_label_1 = kDefaultFlowLabel1;
+  uint32_t flow_label_2 = kDefaultFlowLabel2;
+  uint32_t flow_label_3 = kDefaultFlowLabel3;
+  uint32_t flow_label_4 = kDefaultFlowLabel4;
+
+  uint8_t ar_rate = 0;
+  ComputeArRate(event, new_fabric_congestion_window_connection, ncwnd_float,
+                ar_rate);
+
+  // Compute per-connection backpressure variables for Gen_3. Since we don't
+  // have packet timing or rx_buffer_level information, we use a "safe" default
+  // value in case of retransmits.
+  uint8_t alpha_request = ConvertPerConnectionAlphaToShift(
+      parameters_->backpressure_retransmit_alpha);
+  uint8_t alpha_response = alpha_request;
+
+  //
+  bool csig_enable = false;
+  uint8_t csig_select = 0;
+  ComputeCsigVariables(event, csig_enable, csig_select);
+
+  //
+  uint32_t rack_retransmit_timeout = 0;
+  uint32_t tlp_probe_timeout = 0;
+
+  uint8_t flow_label_1_weight = 0;
+  uint8_t flow_label_2_weight = 0;
+  uint8_t flow_label_3_weight = 0;
+  uint8_t flow_label_4_weight = 0;
+  bool wrr_restart_round = false;
+  uint8_t cwnd_carryover = 0;
+
+  SetResponse(
+      /*connection_id=*/event.connection_id,
+      /*randomize_path=*/false,           // Gen_1-specific field
+      /*cc_metadata=*/event.cc_metadata,  // cc_metadata reflected as is from
+                                          // event
+      /*fabric_congestion_window=*/response_fabric_congestion_window_fixed,
+      /*fabric_inter_packet_gap=*/fabric_inter_packet_gap,
+      /*nic_congestion_window=*/event.nic_congestion_window,  // ncwnd reflected
+                                                              // as is from
+                                                              // event
+      /*retransmit_timeout=*/retransmit_timeout,
+      /*fabric_window_time_marker=*/new_fabric_window_time_marker_in_response,
+      /*nic_window_time_marker=*/
+      event.nic_window_time_marker,  // ncwnd time marker reflected as is from
+                                     // event
+                                     /*nic_window_direction=*/
+      falcon::WindowDirection::kDecrease,               // Gen_1-specific
+                                                        // field
+      /*event_queue_select=*/event.event_queue_select,  // event_queue_select
+                                                        // reflected as is from
+                                                        // event
+      /*delay_select=*/event.delay_select,  // delay_select reflected as is
+                                            // from event
+      /*base_delay=*/event.base_delay,      // base_delay reflected as is
+                                            // from event
+      /*delay_state=*/event.delay_state,    // delay_state reflected as is
+                                            // from event
+      /*rtt_state=*/event.rtt_state,        // rtt_state reflected as is
+                                            // from event
+      /*cc_opaque=*/event.cc_opaque,        // cc_opaque reflected as is
+                                            // from event
+      /*plb_state=*/GetPlbStateFromEvent(event),  // plb_state reflected as is
+                                                  // from event
+      /*ar_rate=*/ar_rate,
+      /*alpha_request=*/alpha_request,
+      /*alpha_response=*/alpha_response,
+      /*nic_inter_packet_gap=*/nic_inter_packet_gap,
+      /*flow_label_1=*/flow_label_1,
+      /*flow_label_2=*/flow_label_2,
+      /*flow_label_3=*/flow_label_3,
+      /*flow_label_4=*/flow_label_4,
+      /*flow_label_1_valid=*/flow_label_1_valid,
+      /*flow_label_2_valid=*/flow_label_2_valid,
+      /*flow_label_3_valid=*/flow_label_3_valid,
+      /*flow_label_4_valid=*/flow_label_4_valid,
+      /*flow_label_1_weight=*/flow_label_1_weight,
+      /*flow_label_2_weight=*/flow_label_2_weight,
+      /*flow_label_3_weight=*/flow_label_3_weight,
+      /*flow_label_4_weight=*/flow_label_4_weight,
+      /*wrr_restart_round=*/wrr_restart_round,
+      /*flow_id=*/flow_id,
+      /*csig_enable=*/csig_enable,
+      /*csig_select=*/csig_select,
+      /*tlp_probe_timeout=*/tlp_probe_timeout,
+      /*rack_retransmit_timeout=*/rack_retransmit_timeout,
+      /*cwnd_carryover=*/cwnd_carryover,
       /*response=*/response);
 }
 
@@ -2119,8 +2886,31 @@ Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2>::ProcessMultipath(
   }
 }
 
+// Processes an event for a multipath-enabled connection and generates the
+// response.
+//
+template <>
+inline ABSL_ATTRIBUTE_ALWAYS_INLINE void
+Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3>::ProcessMultipath(
+    const falcon_rue::EVENT_Gen3& event, falcon_rue::Response_Gen3& response,
+    ConnectionState<falcon_rue::EVENT_Gen3>& state, uint32_t now) {
+  PickProfile(event);
+  DCHECK(parameters_ != nullptr);
+
+  switch (event.event_type) {
+    case (falcon::RueEventType::kAck):
+    case (falcon::RueEventType::kNack):
+      ProcessAckNackMultipath(event, response, state, now);
+      break;
+    case (falcon::RueEventType::kRetransmit):
+      ProcessRetransmitMultipath(event, response, state, now);
+      break;
+  }
+}
+
 typedef Swift<falcon_rue::Event, falcon_rue::Response> SwiftGen1;
 typedef Swift<falcon_rue::Event_Gen2, falcon_rue::Response_Gen2> SwiftGen2;
+typedef Swift<falcon_rue::EVENT_Gen3, falcon_rue::Response_Gen3> SwiftGen3;
 
 }  // namespace rue
 }  // namespace isekai

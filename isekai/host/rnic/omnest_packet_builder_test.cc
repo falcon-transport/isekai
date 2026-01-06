@@ -128,8 +128,8 @@ TEST(OmnestPacketBuilderTest, TestHashedPort) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   std::string qp_ids = "1:1";
   std::string qp_ids_1 = "1:1";
@@ -164,8 +164,8 @@ TEST(OmnestPacketBuilderTest, TestUdpHeader) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   // Creates falcon_packet.
   auto falcon_packet = std::make_unique<Packet>();
@@ -207,8 +207,8 @@ TEST(OmnestPacketBuilderTest, TestIpHeader) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   // Creates packet with UDP and IP headers.
   auto packet = packet_builder.CreatePacketWithUdpAndIpv6Headers(
@@ -235,8 +235,8 @@ TEST(OmnestPacketBuilderTest, TestFrameHeader) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   // Creates falcon_packet.
   auto falcon_packet = std::make_unique<Packet>();
@@ -282,8 +282,8 @@ TEST(OmnestPacketBuilderTest, TestPacketExtraction) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   // Creates falcon_packet.
   auto packet = packet_builder.CreateFalconPacket("::ffff:a00:1",
@@ -333,8 +333,8 @@ TEST(OmnestPacketBuilderTest, TestPfcHandling) {
       /* falcon = */ nullptr,
       /* env = */ &env,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "", /* transmission_channel = */ &channel,
-      /* host_id = */ "");
+      /* ip_address = */ "",
+      /* transmission_channel = */ &channel, /* host_id = */ "");
   packet_builder.support_pfc_ = true;
   EXPECT_EQ(packet_builder.packet_builder_queue_states_[0],
             PacketBuilderQueueState::kIdle);
@@ -383,8 +383,8 @@ TEST(OmnestPacketBuilderTest, TestEcnTag) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   auto packet = packet_builder.CreateFalconPacket("::ffff:a00:1",
                                                   "::ffff:a00:2", 1000, 1000);
@@ -413,8 +413,8 @@ TEST(OmnestPacketBuilderTest, TestWrongPacketSize) {
       /* falcon = */ nullptr,
       /* env = */ &env,
       /* stats_collector = */ &stats_collection,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
   packet_builder.stats_collection_flags_.set_enable_discard_and_drops(true);
 
   // Creates a FALCON packet with 5KB payload.
@@ -446,7 +446,8 @@ TEST(OmnestPacketBuilderTest, TestTriggerXonAndXoff) {
       /* falcon = */ &falcon,
       /* env = */ &env,
       /* stats_collector = */ &stats_collection,
-      /* ip_address = */ "::ffff:a00:2", /* transmission_channel = */ &channel,
+      /* ip_address = */ "::ffff:a00:2",
+      /* transmission_channel = */ &channel,
       /* host_id = */ "");
   packet_builder.tx_queue_length_threshold_ = 10;
   packet_builder.stats_collection_flags_.set_enable_xoff_duration(true);
@@ -517,8 +518,8 @@ TEST(OmnestPacketBuilderTest, TestFlowLabel) {
       /* falcon = */ nullptr,
       /* env = */ nullptr,
       /* stats_collector = */ nullptr,
-      /* ip_address = */ ip_src_address, /* transmission_channel = */ nullptr,
-      /* host_id = */ "");
+      /* ip_address = */ ip_src_address,
+      /* transmission_channel = */ nullptr, /* host_id = */ "");
 
   // Creates falcon_packet.
   auto falcon_packet = std::make_unique<Packet>();
@@ -557,14 +558,14 @@ TEST(OmnestPacketBuilderTest, TestRandomDrop) {
        drop_probability += 0.1) {
     for (double drop_burst_size = 1; drop_burst_size < 10;
          drop_burst_size += 1) {
+      // Re-instantiate packet_builder for each drop_probability.
       OmnestPacketBuilder packet_builder(
           /* host_module = */ nullptr,
           /* falcon = */ nullptr,
           /* env = */ &env,
           /* stats_collector = */ &stats_collection,
           /* ip_address = */ "::ffff:a00:2",
-          /* transmission_channel = */ nullptr,
-          /* host_id = */ "");
+          /* transmission_channel = */ nullptr, /* host_id = */ "");
 
       packet_builder.stats_collection_flags_.set_enable_discard_and_drops(true);
       packet_builder.SetRandomDropProbability(drop_probability);

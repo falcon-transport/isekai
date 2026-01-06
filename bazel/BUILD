@@ -76,6 +76,8 @@ configure_make(
         "--with-zlib='no'",
         "--with-lzma='no'",
         "--without-python",
+        "--disable-shared",
+        "--enable-static",
     ],
     lib_source = "@libxml//:all",
     linkopts = [

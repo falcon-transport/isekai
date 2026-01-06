@@ -21,6 +21,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 #include "absl/functional/any_invocable.h"
 #include "absl/status/status.h"
@@ -240,6 +241,72 @@ class PacketReliabilityManager {
   // Verifies if retransmission meets Tx gating criteria.
   virtual bool MeetsRetransmissionCCTxGatingCriteria(
       uint32_t scid, uint32_t psn, falcon::PacketType type) = 0;
+};
+
+// Generic interface for early retransmission policies invoked by the Packet
+// Reliability Manager. Retransmission policies define self-contained logic
+// to handle an ACK/NACK/EACK, RTO timeout, etc., and return a list of
+// retransmissions or a duration to schedule a future event, which will return
+// any retransmissions.
+class RetransmissionPolicy {
+ public:
+  // Actions returned by a retransmission policy in response to an ACK/NACK/etc
+  // or scheduled event handler. Supported actions are retransmitting the
+  // provided list of packets, and scheduling an event at the provided duration.
+  struct RetransmissionPolicyAction {
+    // List of packets to be retransmitted immediately, if any.
+    const std::vector<RetransmissionWorkId> retx_work_ids;
+    // Duration for a future scheduled event, if nonzero. The caller must
+    // schedule a call to HandleScheduledEvent at this duration and process
+    // any resulting actions.
+    const absl::Duration scheduled_event_duration;
+  };
+
+  virtual ~RetransmissionPolicy() = default;
+
+  // Initializes retransmission policy for a connection and returns any
+  // initial actions which the caller must perform (e.g., scheduling an event).
+  virtual RetransmissionPolicyAction InitConnection(
+      ConnectionState* connection_state) = 0;
+  // Handles retransmission setup for a packet and returns resulting actions.
+  virtual RetransmissionPolicyAction SetupRetransmission(
+      PacketMetadata* packet_metadata, ConnectionState* connection_state) = 0;
+  // Handles an ACK and returns resulting actions.
+  virtual RetransmissionPolicyAction HandleAck(
+      const Packet* packet, ConnectionState* connection_state) = 0;
+  // Handles a NACK and returns resulting actions.
+  virtual RetransmissionPolicyAction HandleNack(
+      const Packet* packet, ConnectionState* connection_state) = 0;
+  // Handles a piggybacked ACK and returns resulting actions.
+  virtual RetransmissionPolicyAction HandlePiggybackedAck(
+      const Packet* packet, ConnectionState* connection_state) = 0;
+  // Handles an implicit ACK and returns resulting actions.
+  virtual RetransmissionPolicyAction HandleImplicitAck(
+      const Packet* packet, ConnectionState* connection_state) = 0;
+  // Handles an ACK being enqueued to ULP and returns resulting actions.
+  virtual RetransmissionPolicyAction HandleAckToUlp(
+      PacketMetadata* packet, ConnectionState* connection_state) = 0;
+  // Handles an RTO event and returns resulting actions.
+  virtual RetransmissionPolicyAction HandleRetransmitTimeoutEvent(
+      ConnectionState* connection_state) = 0;
+  // Handles a scheduled event for this policy and returns resulting actions.
+  // Caller should schedule a call to this function given a nonzero duration
+  // returned in RetransmissionPolicyAction. The caller must also handle
+  // returned actions from this method.
+  virtual RetransmissionPolicyAction HandleScheduledEvent(
+      ConnectionState* connection_state) = 0;
+  // Returns a timeout value for the given packet to be used in scheduling
+  // RetransmitTimeout events. If the duration is less than the base timeout
+  // (RTO, RNR, etc), this value should be used when scheduling the next
+  // retransmit timeout event.
+  virtual absl::Duration GetTimeoutOfPacket(
+      ConnectionState* connection_state, PacketMetadata* packet_metadata) = 0;
+
+ protected:
+  // Empty action to be returned when no action is needed.
+  RetransmissionPolicyAction NoOpAction() {
+    return RetransmissionPolicyAction();
+  }
 };
 
 // The rate update engine (RUE) uses a congestion control algorithm to determine

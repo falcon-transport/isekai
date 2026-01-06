@@ -242,7 +242,6 @@ cc_test(
         "//isekai/common:packet",
         "//isekai/common:simple_environment",
         "//isekai/common:testing",
-        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/time",
         "@com_google_googletest//:gtest_main",
         "@omnetpp",

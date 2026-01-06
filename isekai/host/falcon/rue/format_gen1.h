@@ -26,7 +26,7 @@
 
 namespace falcon_rue {
 
-struct __attribute__((packed)) Event_GEN1 {
+struct __attribute__((packed)) Event_Gen1 {
   // cid
   uint32_t connection_id : kConnectionIdBits;
   // event_type
@@ -141,7 +141,7 @@ struct __attribute__((packed)) Event_GEN1 {
   }
 };
 
-struct __attribute__((packed)) Response_GEN1 {
+struct __attribute__((packed)) Response_Gen1 {
   // cid
   uint32_t connection_id : kConnectionIdBits;
   // randomize_path
@@ -216,9 +216,9 @@ struct __attribute__((packed)) Response_GEN1 {
   }
 };
 
-static_assert(sizeof(Event_GEN1) == ABSL_CACHELINE_SIZE,
+static_assert(sizeof(Event_Gen1) == ABSL_CACHELINE_SIZE,
               "Event is not one cache line :(");
-static_assert(sizeof(Response_GEN1) == ABSL_CACHELINE_SIZE,
+static_assert(sizeof(Response_Gen1) == ABSL_CACHELINE_SIZE,
               "Response is not one cache line :(");
 
 }  // namespace falcon_rue

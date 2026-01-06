@@ -803,7 +803,7 @@ traffic_pattern {
           mean: 65536
         }
         arrival_time_distribution: UNIFORM_TIME_DIST
-        max_generated_packets: 100
+        max_generated_ops: 100
         offered_load_ratio: 1
       }
     }

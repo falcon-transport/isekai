@@ -58,7 +58,6 @@ struct Packet {
     kRemoteOperationalErrNak = 99,
     kInvRDReqNak = 100
   };
-
   struct Metadata {
     // Common, 6.4.1
     uint8_t traffic_class : 3;  // Determines traffic CoS.
@@ -68,7 +67,7 @@ struct Packet {
     // Length of SGL in TX PMD.
     uint32_t sgl_length = 0;
     // On ingress, timestamp consists of a single valid bit, 32 bits of
-    // nano-second granularity, and 7 bits of sub nano-second granularity.
+    // nano-second granularity, and 7 bits of sub nano-second granularity
     uint64_t timestamp : 40;  // IEEE 1588 ingress timestamp.
     // Represents the earliest departure time of the packet, and the Traffic
     // Shaper ensures that the packet is not transmitted until the absolute time

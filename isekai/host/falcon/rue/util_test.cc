@@ -230,7 +230,7 @@ class GetResponseTypeForEventTest : public ::testing::Test {
 };
 
 using EventResponseTypes = ::testing::Types<
-    std::tuple<falcon_rue::Event_GEN1, falcon_rue::Response_GEN1>>;
+    std::tuple<falcon_rue::Event_Gen1, falcon_rue::Response_Gen1>>;
 
 TYPED_TEST_SUITE(GetResponseTypeForEventTest, EventResponseTypes);
 

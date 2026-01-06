@@ -8,10 +8,16 @@ network TestFalconNetworkInterRack
     host0: FalconHost {
       host_id = "host_116_16";
       host_ip = "fc00:0100:500:311::1";
+      gates:
+        in;
+        out;
     }
     host1: FalconHost {
       host_id = "host_66_38";
       host_ip = "fc00:0100:500:67::1";
+      gates:
+        in;
+        out;
     }
 
   connections:

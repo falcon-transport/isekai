@@ -144,12 +144,13 @@ class OmnestPacketBuilder : public PacketBuilderInterface {
   // (i.e. 1. it has ethernet header; 2. it is not a ethernet flow control
   // packet), otherwise false.
   bool RemoveFrameHeader(inet::Packet* packet);
-  // Processes IPv6 header.
   bool RemoveIpv6Header(inet::Packet* packet);
   // Processes UDP header. Returns true if it has UDP header, otherwise false.
   bool RemoveUdpHeader(inet::Packet* packet);
-  // Processes FALCON packet.
   void HandleFalconPacket(inet::Packet* packet, uint8_t forward_hops);
+
+  // Schedules the next packet building event.
+  void ScheduleNextPacketBuilding(uint16_t priority);
 
   // Updates the packet queueing delay stats.
   void UpdatePacketQueueingDelayStats(const omnetpp::cMessage* msg);
@@ -279,7 +280,7 @@ class OmnestPacketBuilder : public PacketBuilderInterface {
   bool drop_ack_ = false;
   // If recording T1 after packet builder.
   bool record_t1_after_packet_builder_ = false;
-  absl::Duration falcon_xoff_triggered_time_;
+  absl::Duration falcon_xoff_triggered_time_ = absl::ZeroDuration();
   double falcon_xoff_duration_us_ = 0;
   // Enforces any added delays set in the packet metadata and responsible for
   // actually pushing all the packets on the wire.

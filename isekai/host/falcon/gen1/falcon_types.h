@@ -250,6 +250,8 @@ typedef FalconBitmap<kRxBitmapWidth> FalconRxBitmap;
 typedef FalconBitmap<kTxBitmapWidth> FalconTxBitmap;
 typedef FalconBitmap<kGen2RxBitmapWidth> Gen2FalconRxBitmap;
 typedef FalconBitmap<kGen2TxBitmapWidth> Gen2FalconTxBitmap;
+typedef FalconBitmap<kGen3RxBitmapWidth> Gen3FalconRxBitmap;
+typedef FalconBitmap<kGen3TxBitmapWidth> Gen3FalconTxBitmap;
 typedef AckCoalescingKey RueKey;
 
 // Stores metadata for a Falcon packet withing a pending transaction.

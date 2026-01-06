@@ -31,6 +31,9 @@ inline std::unique_ptr<TransactionMetadata> CreateTransactionMetadata(
     return std::make_unique<TransactionMetadata>(rsn, type, location);
   } else if (falcon_version == 2) {
     return std::make_unique<Gen2TransactionMetadata>(rsn, type, location);
+  } else if (falcon_version > 2) {
+    // No changes to transaction metadata for other versions > 2.
+    return std::make_unique<Gen2TransactionMetadata>(rsn, type, location);
   } else {
     LOG(FATAL) << "Invalid Falcon protocol generation.";
   }
